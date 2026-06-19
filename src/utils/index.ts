@@ -47,3 +47,26 @@ export function getFileSize(content: string): string {
     const bytes = Buffer.byteLength(content, 'utf8');
     return (bytes / 1024).toFixed(2) + ' KB';
 }
+
+export function truncateObjectStrings(obj: any, defaultMax: number = 128, customLimits: Record<string, number> = {}): any {
+    if (Array.isArray(obj)) {
+        return obj.map(item => truncateObjectStrings(item, defaultMax, customLimits));
+    }
+    if (obj !== null && typeof obj === 'object') {
+        const result: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+            if (typeof value === 'string') {
+                const limit = customLimits[key] !== undefined ? customLimits[key] : defaultMax;
+                if (value.length > limit) {
+                    result[key] = value.substring(0, limit) + '...';
+                } else {
+                    result[key] = value;
+                }
+            } else {
+                result[key] = truncateObjectStrings(value, defaultMax, customLimits);
+            }
+        }
+        return result;
+    }
+    return obj;
+}

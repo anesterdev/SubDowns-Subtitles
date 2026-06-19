@@ -1,12 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import { getSubtitles } from 'youtube-caption-extractor';
-import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData } from './src/utils/index.ts';
+import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData, truncateObjectStrings } from './src/utils/index.ts';
 import type { IVideoObject } from './src/interfaces/index.ts';
 
-import youtubeLinks from './links.json' with { type: 'json' };
+async function downloadSubtitles(linksFilePath: string, targetLanguage = 'English') {
+    if (!fs.existsSync(linksFilePath)) {
+        console.log(`✗ Error: Could not find ${linksFilePath}`);
+        return;
+    }
 
-async function downloadSubtitles(links: string[], targetLanguage = 'English') {
+    const linksContent = fs.readFileSync(linksFilePath, 'utf8');
+    const links: string[] = JSON.parse(linksContent);
+    const sourceFilename = path.basename(linksFilePath);
+
     for (const url of links) {
         const videoId = extractVideoId(url);
         if (!videoId) {
@@ -50,7 +57,7 @@ async function downloadSubtitles(links: string[], targetLanguage = 'English') {
 
             const baseFilename = `[${videoId}] - ${title} - [${exactLangName}]`;
             const txtFilename = path.join('subtitles', `${baseFilename}.txt`);
-            const metaFilename = path.join('subtitles', `${baseFilename}.meta.json`);
+            const metaFilename = path.join('subtitles', `${baseFilename}.meta`);
 
             fs.mkdirSync('subtitles', { recursive: true });
             fs.writeFileSync(txtFilename, text);
@@ -64,13 +71,14 @@ async function downloadSubtitles(links: string[], targetLanguage = 'English') {
                 author,
                 meta: {
                     requested_at: new Date().toISOString(),
-                    file_hash: computeFileHash(text),
-                    file_size: getFileSize(text),
-                    filename: txtFilename,
+                    file_hash: computeFileHash(linksContent),
+                    file_size: getFileSize(linksContent),
+                    filename: sourceFilename,
                 }
             };
 
-            fs.writeFileSync(metaFilename, JSON.stringify(videoObject, null, 2));
+            const truncatedMeta = truncateObjectStrings(videoObject, 128, { raw_subtitles: 32 });
+            fs.writeFileSync(metaFilename, JSON.stringify(truncatedMeta, null, 2));
 
             console.log(`✓ Saved: ${txtFilename}`);
             console.log(`✓ Saved: ${metaFilename}`);
@@ -81,4 +89,5 @@ async function downloadSubtitles(links: string[], targetLanguage = 'English') {
     console.log('\nDone!');
 }
 
-downloadSubtitles(youtubeLinks, 'Russian');
+const inputFile = process.argv[2] || 'links.json';
+downloadSubtitles(inputFile, 'Russian');
