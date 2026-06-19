@@ -4,7 +4,7 @@ import { getSubtitles } from 'youtube-caption-extractor';
 import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData, truncateObjectStrings } from './src/utils/index.ts';
 import type { IVideoObject } from './src/interfaces/index.ts';
 
-async function downloadSubtitles(linksFilePath: string, targetLanguage = 'English') {
+async function downloadSubtitles(linksFilePath: string, metaDir = 'subtitles', targetLanguage = 'English') {
     if (!fs.existsSync(linksFilePath)) {
         console.log(`✗ Error: Could not find ${linksFilePath}`);
         return;
@@ -57,9 +57,12 @@ async function downloadSubtitles(linksFilePath: string, targetLanguage = 'Englis
 
             const baseFilename = `[${videoId}] - ${title} - [${exactLangName}]`;
             const txtFilename = path.join('subtitles', `${baseFilename}.txt`);
-            const metaFilename = path.join('subtitles', `${baseFilename}.meta`);
+            const metaFilename = path.join(metaDir, `${baseFilename}.meta`);
 
             fs.mkdirSync('subtitles', { recursive: true });
+            if (metaDir !== 'subtitles') {
+                fs.mkdirSync(metaDir, { recursive: true });
+            }
             fs.writeFileSync(txtFilename, text);
 
             const videoObject: IVideoObject = {
@@ -89,5 +92,16 @@ async function downloadSubtitles(linksFilePath: string, targetLanguage = 'Englis
     console.log('\nDone!');
 }
 
-const inputFile = process.argv[2] || 'links.json';
-downloadSubtitles(inputFile, 'Russian');
+const args = process.argv.slice(2);
+let inputFile = 'links.json';
+let metaDir = 'subtitles';
+
+for (const arg of args) {
+    if (arg.startsWith('--meta-dir=')) {
+        metaDir = arg.split('=')[1];
+    } else if (!arg.startsWith('--')) {
+        inputFile = arg;
+    }
+}
+
+downloadSubtitles(inputFile, metaDir, 'Russian');

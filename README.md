@@ -33,11 +33,12 @@ Ensure you have [Node.js v24+](https://nodejs.org/) installed on your machine.
    npm start
    ```
 
-### Custom Input Files
+### Custom Input Files and Meta Directory
 
-If you want to use a different file for your links, you can pass it directly as an argument:
+If you want to use a different file for your links, you can pass it directly as an argument. You can also specify a custom directory for your `.meta` files using the `--meta-dir=` flag (perfect for storing metadata on another disk or separate folder):
+
 ```bash
-npm start custom-links.json
+npm start custom-links.json --meta-dir=C:/MyMetaFiles
 ```
 
 ## Outputs
