@@ -11,7 +11,7 @@ export interface IVideoObject {
   author: {
     channel_name: string;
     channel_id: string;
-    created_at: string;
+    created_at?: string;
   };
   meta: {
     requested_at: string;

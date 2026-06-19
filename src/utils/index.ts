@@ -34,7 +34,6 @@ export function extractVideoData(playerResponse: any, videoId: string) {
         author: {
             channel_name: channelName,
             channel_id: channelId,
-            created_at: '',
         }
     };
 }
