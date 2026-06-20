@@ -1,14 +1,48 @@
 <script setup lang="ts">
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
+import { ref } from 'vue';
+
 const props = defineProps<{
   video: IVideoObject['video'];
 }>();
 
-function downloadSubs(lang: string, format: string) {
+const isDownloading = ref<Record<string, boolean>>({});
+
+async function downloadSubs(lang: string, format: string) {
   if (!props.video?.video_id) return;
-  const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}`;
-  window.open(url, '_blank');
+  
+  const key = `${lang}-${format}`;
+  isDownloading.value[key] = true;
+
+  try {
+    const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Download failed');
+    
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = `subtitles.${format}`;
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?/i);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = decodeURIComponent(filenameMatch[1]);
+      }
+    }
+    
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    isDownloading.value[key] = false;
+  }
 }
 </script>
 
@@ -39,14 +73,20 @@ function downloadSubs(lang: string, format: string) {
           <span class="badge">Auto-generated</span>
         </div>
         <div class="actions">
-          <button variant="action" size="sm" @click="downloadSubs('English', 'srt')">
-            <span class="material-symbols-outlined">description</span> SRT
+          <button variant="action" size="sm" :disabled="isDownloading['English-srt']" @click="downloadSubs('English', 'srt')">
+            <span class="material-symbols-outlined" v-if="!isDownloading['English-srt']">description</span>
+            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+            SRT
           </button>
-          <button variant="action" size="sm" @click="downloadSubs('English', 'txt')">
-            <span class="material-symbols-outlined">article</span> TXT
+          <button variant="action" size="sm" :disabled="isDownloading['English-txt']" @click="downloadSubs('English', 'txt')">
+            <span class="material-symbols-outlined" v-if="!isDownloading['English-txt']">article</span>
+            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+            TXT
           </button>
-          <button variant="action" size="sm" @click="downloadSubs('English', 'raw')">
-            <span class="material-symbols-outlined">data_object</span> RAW
+          <button variant="action" size="sm" :disabled="isDownloading['English-raw']" @click="downloadSubs('English', 'raw')">
+            <span class="material-symbols-outlined" v-if="!isDownloading['English-raw']">data_object</span>
+            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+            RAW
           </button>
         </div>
       </div>
