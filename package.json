@@ -8,7 +8,7 @@
     "dev": "vite",
     "dev:host": "vite --host 0.0.0.0",
     "build:client": "vite build",
-    "build:server": "esbuild src/backend/server.ts --bundle --platform=node --target=node24 --format=esm --outfile=dist/server.mjs --minify --external:esbuild",
+    "build:server": "esbuild src/backend/server.ts --bundle --platform=node --packages=external --target=node24 --format=esm --outfile=dist/server.mjs --minify",
     "build": "npm run build:client && npm run build:server",
     "start:prod": "node dist/server.mjs",
     "api": "node src/backend/server.ts",

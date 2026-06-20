@@ -68,7 +68,8 @@ if (process.env.NODE_ENV === 'production') {
   console.log(`Starting SubDowns Production Server on port ${port}...`);
   serve({
     fetch: app.fetch,
-    port
+    port,
+    hostname: '0.0.0.0'
   });
 }
 

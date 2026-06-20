@@ -17,7 +17,7 @@ RUN npm prune --production
 # Configure environment
 ENV NODE_ENV=production
 ENV PORT=3069
-EXPOSE 3069
+EXPOSE 3069 9000
 
 # Start the minified backend server natively
 CMD ["node", "dist/server.mjs"]
