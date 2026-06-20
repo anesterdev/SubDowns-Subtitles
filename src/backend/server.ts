@@ -28,12 +28,17 @@ const healthRoute = createRoute({
   },
 });
 
+import videoPreviewRouter from './api/v0/video-preview/index.ts';
+
 api.openapi(healthRoute, (c) => {
   return c.json({ status: 'ok' }, 200);
 });
 
 // Mount the API on the main app
 app.route('/api', api);
+
+// Mount the v0 APIs
+app.route('/api/v0/video-preview', videoPreviewRouter);
 
 // Configure OpenAPI spec endpoint
 app.doc('/api/openapi.json', {

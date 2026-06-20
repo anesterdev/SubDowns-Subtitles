@@ -10,18 +10,23 @@ const status = ref('Fetching video metadata...');
 const subtitlesCount = ref(0);
 const subtitlesAvailable = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   if (!vidId.value) {
     router.push('/');
     return;
   }
 
-  // Mocking the backend fetch process for UI purposes
-  setTimeout(() => {
-    subtitlesCount.value = 3;
-    subtitlesAvailable.value = true;
+  try {
+    const res = await fetch(`/api/v0/video-preview?vid_id=${vidId.value}`);
+    if (!res.ok) throw new Error('Video metadata not found');
+    
+    const data = await res.json();
+    subtitlesCount.value = data.subtitles.count;
+    subtitlesAvailable.value = data.subtitles.count > 0;
     status.value = 'Ready';
-  }, 1000);
+  } catch (error) {
+    status.value = 'Error fetching video data';
+  }
 });
 
 function downloadSubtitles() {

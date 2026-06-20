@@ -8,6 +8,7 @@ export interface IVideoObject {
     video_id: string;
     created_at: string;
     thumbnail_url?: string;
+    duration?: string;
   };
   author: {
     channel_name: string;

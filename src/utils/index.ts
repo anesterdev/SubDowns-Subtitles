@@ -24,6 +24,7 @@ export function extractVideoData(playerResponse: any, videoId: string) {
     const channelName = playerResponse.videoDetails?.author || 'Unknown Channel';
     const channelId = playerResponse.videoDetails?.channelId || '';
     const publishDate = playerResponse.microformat?.playerMicroformatRenderer?.publishDate || '';
+    const lengthSeconds = playerResponse.videoDetails?.lengthSeconds || '0';
     
     const thumbnails = playerResponse.videoDetails?.thumbnail?.thumbnails || [];
     const bestThumbnail = thumbnails.length > 0 ? thumbnails[thumbnails.length - 1].url : undefined;
@@ -34,6 +35,7 @@ export function extractVideoData(playerResponse: any, videoId: string) {
             video_id: videoId,
             created_at: publishDate,
             thumbnail_url: bestThumbnail,
+            duration: lengthSeconds,
         },
         author: {
             channel_name: channelName,
