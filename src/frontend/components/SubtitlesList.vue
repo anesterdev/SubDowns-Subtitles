@@ -6,18 +6,19 @@ defineProps<{
   icon: string;
   languages: string[];
   videoId: string;
+  type: 'manual' | 'auto';
 }>();
 
 const isDownloading = ref<Record<string, boolean>>({});
 
-async function downloadSubs(vidId: string, lang: string, format: string) {
+async function downloadSubs(vidId: string, lang: string, format: string, type: 'manual' | 'auto') {
   if (!vidId) return;
 
   const key = `${lang}-${format}`;
   isDownloading.value[key] = true;
 
   try {
-    const url = `/api/v0/download?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}&format=${format}`;
+    const url = `/api/v0/download?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}&format=${format}&type=${type}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Download failed');
     
@@ -62,36 +63,38 @@ async function downloadSubs(vidId: string, lang: string, format: string) {
         <div class="col-actions">Actions</div>
       </div>
       
-      <div 
-        class="list-row group" 
-        v-for="lang in languages" 
-        :key="lang"
-      >
-        <div class="col-language">
-          <span class="dot"></span>
-          <span class="lang-name">{{ lang }}</span>
+      <div class="list-body">
+        <div 
+          class="list-row group" 
+          v-for="lang in languages" 
+          :key="lang"
+        >
+          <div class="col-language">
+            <span class="dot"></span>
+            <span class="lang-name">{{ lang }}</span>
+          </div>
+          <div class="col-actions">
+            <button variant="action" size="sm" :disabled="isDownloading[`${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
+              <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-srt`]">description</span>
+              <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+              SRT
+            </button>
+            <button variant="action" size="sm" :disabled="isDownloading[`${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
+              <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-txt`]">article</span>
+              <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+              TXT
+            </button>
+            <button variant="action" size="sm" :disabled="isDownloading[`${lang}-raw`]" @click="downloadSubs(videoId, lang, 'raw', type)">
+              <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-raw`]">data_object</span>
+              <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+              RAW
+            </button>
+          </div>
         </div>
-        <div class="col-actions">
-          <button variant="action" size="sm" :disabled="isDownloading[`${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt')">
-            <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-srt`]">description</span>
-            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
-            SRT
-          </button>
-          <button variant="action" size="sm" :disabled="isDownloading[`${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt')">
-            <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-txt`]">article</span>
-            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
-            TXT
-          </button>
-          <button variant="action" size="sm" :disabled="isDownloading[`${lang}-raw`]" @click="downloadSubs(videoId, lang, 'raw')">
-            <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-raw`]">data_object</span>
-            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
-            RAW
-          </button>
+        
+        <div v-if="languages.length === 0" class="empty-state">
+          No languages found.
         </div>
-      </div>
-      
-      <div v-if="languages.length === 0" class="empty-state">
-        No languages found.
       </div>
     </div>
   </div>
@@ -146,6 +149,25 @@ async function downloadSubs(vidId: string, lang: string, format: string) {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
+}
+
+.list-body {
+  max-height: 24rem;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(var(--rgb-white), 0.1);
+    border-radius: var(--radius-sm);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--rgb-white), 0.2);
+  }
 }
 
 .list-row {

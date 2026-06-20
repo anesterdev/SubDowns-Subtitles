@@ -93,3 +93,26 @@ export function convertToSrt(subtitles: {start: string, dur: string, text: strin
         return `${index + 1}\n${startTime} --> ${endTime}\n${sub.text}`;
     }).join('\n\n');
 }
+
+export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<{start: string, dur: string, text: string}[]> {
+    const url = baseUrl.replace(/&fmt=[^&]+/, '') + '&fmt=json3&tlang=' + targetLangCode;
+    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!response.ok) throw new Error(`Caption fetch failed: ${response.status}`);
+    const data: any = await response.json();
+    const events = data.events ?? [];
+    const subtitles = [];
+    for (const event of events) {
+        if (!event.segs || event.aAppend === 1) continue;
+        const raw = event.segs.map((s: any) => s.utf8 ?? '').join('');
+        const text = raw.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+        if (!text) continue;
+        const startMs = event.tStartMs ?? 0;
+        const durMs = event.dDurationMs ?? 0;
+        subtitles.push({
+            start: (startMs / 1000).toString(),
+            dur: (durMs / 1000).toString(),
+            text,
+        });
+    }
+    return subtitles;
+}

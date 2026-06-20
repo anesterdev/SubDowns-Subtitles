@@ -35,6 +35,7 @@ onMounted(async () => {
           title="Original Subtitles" 
           icon="subtitles" 
           :videoId="videoStore.currentVideo.video.video_id"
+          type="manual"
           :languages="videoStore.currentVideo.subtitles?.available_languages || []" 
         />
         
@@ -42,7 +43,8 @@ onMounted(async () => {
           title="Auto-translate" 
           icon="auto_fix" 
           :videoId="videoStore.currentVideo.video.video_id"
-          :languages="[]" 
+          type="auto"
+          :languages="videoStore.currentVideo.subtitles?.auto_translate_languages || []" 
         />
       </div>
     </div>

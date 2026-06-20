@@ -16,7 +16,7 @@ async function downloadSubs(lang: string, format: string) {
   isDownloading.value[key] = true;
 
   try {
-    const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}`;
+    const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}&type=manual`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Download failed');
     

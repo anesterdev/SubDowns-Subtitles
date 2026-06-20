@@ -10,6 +10,7 @@ export const route = createRoute({
       vid_id: z.string().openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
       lang: z.string().openapi({ description: 'Target Language', example: 'English' }),
       format: z.enum(['srt', 'txt', 'raw']).openapi({ description: 'Download format' }),
+      type: z.enum(['manual', 'auto']).default('manual').openapi({ description: 'Subtitle type' }),
     }),
   },
   responses: {
@@ -29,7 +30,7 @@ export const route = createRoute({
 });
 
 export const handler = async (c: any) => {
-  const { vid_id, lang, format } = c.req.valid('query');
+  const { vid_id, lang, format, type } = c.req.valid('query');
 
   try {
     const playerResponse = await fetchMetadata(vid_id);
@@ -40,16 +41,33 @@ export const handler = async (c: any) => {
     const title = playerResponse.videoDetails?.title?.replace(/[<>:"/\\|?*]+/g, '') || 'Video';
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
     
-    const matchingTracks = tracks.filter((t: any) => t.name.simpleText.includes(lang));
-    if (matchingTracks.length === 0) {
-        return c.json({ error: `No subtitles found for language target '${lang}'` }, 400);
+    let subtitles: any[] = [];
+    let exactLangName = lang;
+
+    if (type === 'auto') {
+        const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
+        const targetLang = translationLanguages.find((t: any) => t.languageName.simpleText === lang);
+        if (!targetLang) return c.json({ error: `Auto-translate language not found: '${lang}'` }, 400);
+
+        // Auto-translate works by passing &tlang= to any valid track. The default track is the safest bet.
+        const defaultTrack = tracks.find((t: any) => t.isDefault) || tracks[0];
+        if (!defaultTrack) return c.json({ error: 'No base track found for auto-translation' }, 400);
+
+        const { fetchAutoSubtitles } = await import('../../../../utils/index.ts');
+        subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode);
+        exactLangName = targetLang.languageName.simpleText;
+    } else {
+        const matchingTracks = tracks.filter((t: any) => t.name.simpleText.includes(lang));
+        if (matchingTracks.length === 0) {
+            return c.json({ error: `No manual subtitles found for language target '${lang}'` }, 400);
+        }
+
+        const manualTrack = matchingTracks.find((t: any) => t.name.simpleText.toLowerCase() === lang.toLowerCase());
+        const selectedTrack = manualTrack || matchingTracks[0];
+        exactLangName = selectedTrack.name.simpleText;
+
+        subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });
     }
-
-    // Prefer manual subs (exact match) over auto-generated
-    const manualTrack = matchingTracks.find((t: any) => t.name.simpleText.toLowerCase() === lang.toLowerCase());
-    const selectedTrack = manualTrack || matchingTracks[0];
-
-    const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });
     
     let content: string | object = '';
     let contentType = 'text/plain; charset=utf-8';
@@ -63,7 +81,7 @@ export const handler = async (c: any) => {
         content = convertToSrt(subtitles);
     }
 
-    const baseFilename = `[${vid_id}] - ${title} - [${selectedTrack.name.simpleText}].${format}`;
+    const baseFilename = `[${vid_id}] - ${title} - [${exactLangName}].${format}`;
     const safeFilename = encodeURIComponent(baseFilename).replace(/['()]/g, escape).replace(/\*/g, '%2A');
 
     return new Response(format === 'raw' ? JSON.stringify(content, null, 2) : content as string, {

@@ -1,7 +1,8 @@
 export interface IVideoObject {
   subtitles: {
     available_languages: string[];
-    raw_subtitles: string;
+    auto_translate_languages?: string[];
+    raw_subtitles?: string;
   };
   video: { 
     title: string;

@@ -27,6 +27,7 @@ export const route = createRoute({
             }),
             subtitles: z.object({
               available_languages: z.array(z.string()),
+              auto_translate_languages: z.array(z.string()),
               count: z.number(),
             }),
           }),
@@ -57,10 +58,14 @@ export const handler = async (c: any) => {
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
     const availableLanguages = tracks.map((t: any) => t.name.simpleText);
 
+    const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
+    const autoLanguages = translationLanguages.map((t: any) => t.languageName.simpleText);
+
     return c.json({
       ...videoData,
       subtitles: {
         available_languages: availableLanguages,
+        auto_translate_languages: autoLanguages,
         count: availableLanguages.length,
       }
     }, 200);
