@@ -69,6 +69,8 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
   background-color: var(--bg-light);
   border-bottom: 1px solid rgba(var(--rgb-foreground), 0.09);
   padding: 0 var(--space-xl);
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+  will-change: background-color, border-color;
   
   display: grid;
   grid-template-columns: auto auto 1fr;
@@ -94,7 +96,8 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 600;
-    
+    transition: color var(--transition-fast) ease;
+
     &.active {
       color: var(--text-accent);
     }
@@ -115,7 +118,8 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 600;
-    
+    transition: color var(--transition-fast) ease;
+
     &:hover {
       color: var(--text-bright);
     }
@@ -129,6 +133,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     cursor: pointer;
     font-family: inherit;
     font-size: inherit;
+    transition: color var(--transition-fast) ease;
 
     &:hover {
       color: var(--text-bright);
@@ -148,6 +153,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     font-size: inherit;
     cursor: pointer;
     outline: none;
+    transition: color var(--transition-fast) ease;
 
     &:hover {
       color: var(--text-bright);

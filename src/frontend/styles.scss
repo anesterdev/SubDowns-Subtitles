@@ -24,6 +24,8 @@ body {
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
+
+  transition: background-color var(--transition-fast) ease;
 }
 
 #app {

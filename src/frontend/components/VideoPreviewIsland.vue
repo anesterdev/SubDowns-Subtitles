@@ -116,7 +116,8 @@ function formatDuration(duration?: string | number) {
   background-color: var(--bg-light);
   border: 1px solid rgba(var(--rgb-foreground), 0.08);
   border-radius: var(--radius-lg);
-  transition: border-color var(--transition-fast) ease;
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+  will-change: background-color, border-color;
 
   @media (min-width: 768px) {
     flex-direction: row;
@@ -186,6 +187,7 @@ function formatDuration(duration?: string | number) {
       background-color: rgba(var(--rgb-bg-lowest), 0.5);
       border: 1px solid rgba(var(--rgb-foreground), 0.05);
       border-radius: var(--radius-md);
+      transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
 
       .lang-info {
         display: flex;

@@ -126,6 +126,8 @@ const videoStore = useVideoStore();
   border: 1px solid rgba(var(--rgb-foreground), 0.05);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+  will-change: background-color, border-color;
 }
 
 .list-header {
@@ -133,6 +135,7 @@ const videoStore = useVideoStore();
   align-items: center;
   background-color: rgba(var(--rgb-foreground), 0.02);
   padding: var(--space-sm) var(--space-lg);
+  transition: background-color var(--transition-fast) ease;
   font-size: var(--font-size-sm);
   font-weight: 600;
   text-transform: uppercase;
@@ -152,6 +155,8 @@ const videoStore = useVideoStore();
   padding: var(--space-md) var(--space-lg);
   background-color: var(--bg-light);
   border-top: 1px solid rgba(var(--rgb-foreground), 0.02);
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+  will-change: background-color, border-color;
 
   &:hover {
     background-color: rgba(var(--rgb-foreground), 0.04);
