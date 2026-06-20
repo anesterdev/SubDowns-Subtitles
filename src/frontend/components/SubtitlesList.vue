@@ -31,9 +31,15 @@ defineProps<{
           <span class="lang-name">{{ lang }}</span>
         </div>
         <div class="col-actions">
-          <button class="action-btn">SRT</button>
-          <button class="action-btn">TXT</button>
-          <button class="action-btn">RAW</button>
+          <button class="action-btn">
+            <span class="material-symbols-outlined">description</span> SRT
+          </button>
+          <button class="action-btn">
+            <span class="material-symbols-outlined">article</span> TXT
+          </button>
+          <button class="action-btn">
+            <span class="material-symbols-outlined">data_object</span> RAW
+          </button>
         </div>
       </div>
       
