@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import AppHeader from './components/Header.vue';
 
 const url = ref('');
 const status = ref('Ready');
@@ -10,6 +11,8 @@ function startDownload() {
 </script>
 
 <template>
+  <app-header />
+
   <div class="container">
     <h1>YouTube Subtitle Downloader</h1>
     
@@ -30,7 +33,7 @@ function startDownload() {
 <style scoped lang="scss">
 .container {
   max-width: 600px;
-  margin: calc(var(--space-xl) * 2) auto;
+  margin: calc(4rem + calc(var(--space-xl) * 2)) auto calc(var(--space-xl) * 2);
   text-align: center;
 }
 
