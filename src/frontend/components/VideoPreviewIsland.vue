@@ -33,13 +33,13 @@ defineProps<{
           <span class="badge">Auto-generated</span>
         </div>
         <div class="actions">
-          <button class="action-btn">
+          <button variant="action" size="sm">
             <span class="material-symbols-outlined">description</span> SRT
           </button>
-          <button class="action-btn">
+          <button variant="action" size="sm">
             <span class="material-symbols-outlined">article</span> TXT
           </button>
-          <button class="action-btn">
+          <button variant="action" size="sm">
             <span class="material-symbols-outlined">data_object</span> RAW
           </button>
         </div>
@@ -164,27 +164,6 @@ defineProps<{
       .actions {
         display: flex;
         gap: var(--space-xs);
-
-        .action-btn {
-          background: rgba(var(--rgb-accent), 0.08);
-          border: 1px solid rgba(var(--rgb-accent), 0.2);
-          color: var(--text-accent);
-          border-radius: var(--radius-sm);
-          padding: var(--space-sm) var(--space-md);
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: var(--space-xs);
-          transition: all var(--transition-fast) ease;
-
-          &:hover {
-            background: var(--text-accent);
-            color: var(--bg);
-            border-color: transparent;
-          }
-        }
       }
     }
   }

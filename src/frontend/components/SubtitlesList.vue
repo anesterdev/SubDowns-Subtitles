@@ -31,13 +31,13 @@ defineProps<{
           <span class="lang-name">{{ lang }}</span>
         </div>
         <div class="col-actions">
-          <button class="action-btn">
+          <button variant="action" size="sm">
             <span class="material-symbols-outlined">description</span> SRT
           </button>
-          <button class="action-btn">
+          <button variant="action" size="sm">
             <span class="material-symbols-outlined">article</span> TXT
           </button>
-          <button class="action-btn">
+          <button variant="action" size="sm">
             <span class="material-symbols-outlined">data_object</span> RAW
           </button>
         </div>
@@ -141,24 +141,6 @@ defineProps<{
   display: flex;
   gap: var(--space-xs);
   justify-content: flex-end;
-}
-
-.action-btn {
-  background: rgba(var(--rgb-accent), 0.08);
-  border: 1px solid rgba(var(--rgb-accent), 0.2);
-  color: var(--text-accent);
-  border-radius: var(--radius-sm);
-  padding: var(--space-xs) var(--space-sm);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast) ease;
-
-  &:hover {
-    background: var(--text-accent);
-    color: var(--bg);
-    border-color: transparent;
-  }
 }
 
 .empty-state {
