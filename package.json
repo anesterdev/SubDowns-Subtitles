@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node download.ts",
     "dev": "vite",
+    "dev:host": "vite --host 0.0.0.0",
     "build:client": "vite build",
     "build:server": "esbuild src/backend/server.ts --bundle --platform=node --target=node24 --format=esm --outfile=dist/server.mjs --minify --external:esbuild",
     "build": "npm run build:client && npm run build:server",
@@ -20,6 +21,7 @@
   "dependencies": {
     "@hono/node-server": "^2.0.5",
     "@hono/zod-openapi": "^1.4.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@scalar/hono-api-reference": "^0.11.4",
     "hono": "^4.12.26",
     "pinia": "^3.0.4",

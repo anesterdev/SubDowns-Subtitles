@@ -5,6 +5,9 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
 
 import apiRouter from './api/index.ts';
+import { initMCPServer } from './mcp.ts';
+
+initMCPServer(); // Boot the remote MCP Server for AI agents alongside the backend
 
 const app = new OpenAPIHono();
 
