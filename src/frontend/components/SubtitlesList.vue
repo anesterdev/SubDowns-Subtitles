@@ -152,7 +152,6 @@ const videoStore = useVideoStore();
   padding: var(--space-md) var(--space-lg);
   background-color: var(--bg-light);
   border-top: 1px solid rgba(var(--rgb-foreground), 0.02);
-  transition: background-color var(--transition-fast) ease;
 
   &:hover {
     background-color: rgba(var(--rgb-foreground), 0.04);
@@ -171,7 +170,6 @@ const videoStore = useVideoStore();
   height: 6px;
   border-radius: 50%;
   background-color: rgba(var(--rgb-accent), 0.4);
-  transition: background-color var(--transition-fast) ease;
 
   .group:hover & {
     background-color: var(--text-accent);

@@ -109,7 +109,6 @@ function onDownload() {
     justify-content: center;
     padding: var(--space-xs);
     border-radius: 50%;
-    transition: color var(--transition-fast) ease;
 
     &:hover {
       color: var(--text-bright);
@@ -130,7 +129,6 @@ function onDownload() {
   justify-content: center;
   gap: var(--space-sm);
   cursor: pointer;
-  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {
     background-color: var(--text-accent);
