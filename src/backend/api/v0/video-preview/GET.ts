@@ -1,6 +1,5 @@
-import { createRoute, z } from '@hono/zod-openapi';
+import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
 import { fetchMetadata, extractVideoData } from '../../../../utils/index.ts';
-import type { Context } from 'hono';
 import { YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
@@ -45,7 +44,7 @@ export const route = createRoute({
   description: 'Fetches basic video information, author details, and available subtitle languages from a given YouTube video ID.',
 });
 
-export const handler = async (c: Context) => {
+export const handler: RouteHandler<typeof route> = async (c) => {
   const { vid_id } = c.req.valid('query');
 
   try {

@@ -1,7 +1,6 @@
-import { createRoute, z } from '@hono/zod-openapi';
+import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
 import { fetchMetadata, convertToSrt, fetchAutoSubtitles } from '../../../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
-import type { Context } from 'hono';
 import { SubtitleItem, YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
@@ -31,7 +30,7 @@ export const route = createRoute({
   description: 'Downloads and formats subtitles for a given video ID and language.',
 });
 
-export const handler = async (c: Context) => {
+export const handler: RouteHandler<typeof route> = async (c) => {
   const { vid_id, lang, format, type } = c.req.valid('query');
 
   try {
@@ -93,7 +92,8 @@ export const handler = async (c: Context) => {
         }
     });
 
-  } catch (error: any) {
-    return c.json({ error: error.message || 'Failed to download subtitles' }, 400);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to download subtitles';
+    return c.json({ error: message }, 400);
   }
 };

@@ -7,6 +7,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { fetchMetadata } from "../utils/index.ts";
 import { getSubtitles } from "youtube-caption-extractor";
+import { YouTubeCaptionTrack, SubtitleItem } from "../interfaces/YouTube.ts";
 
 function createMCPServer() {
   const server = new Server(
@@ -55,23 +56,24 @@ function createMCPServer() {
           return { isError: true, content: [{ type: "text", text: "Error: No subtitles available for this video." }] };
         }
 
-        const matchingTracks = tracks.filter((t: any) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
+        const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
 
         let selectedTrack;
         if (matchingTracks.length > 0) {
           selectedTrack = matchingTracks[0];
         } else {
-          selectedTrack = tracks.find((t: any) => t.name.simpleText.toLowerCase().includes('english')) || tracks[0];
+          selectedTrack = tracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase().includes('english')) || tracks[0];
         }
 
         const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });
-        const content = subtitles.map((s: any) => s.text).join('\n');
+        const content = subtitles.map((s: SubtitleItem) => s.text).join('\n');
 
         return {
           content: [{ type: "text", text: content }],
         };
-      } catch (e: any) {
-        return { isError: true, content: [{ type: "text", text: `Error fetching subtitles: ${e.message}` }] };
+      } catch (e) {
+        const message = e instanceof Error ? e.message : 'Unknown error';
+        return { isError: true, content: [{ type: "text", text: `Error fetching subtitles: ${message}` }] };
       }
     }
 
@@ -113,20 +115,21 @@ export async function initMCPServer() {
       activeServer = createMCPServer();
 
       const host = req.headers.host || "127.0.0.1:9000";
-      const protocol = (req.socket as any).encrypted ? "https" : "http";
+      const protocol = (req.socket as import('node:tls').TLSSocket).encrypted ? "https" : "http";
       const messageUrl = `${protocol}://${host}/message`;
 
-      transport = new SSEServerTransport(messageUrl, res as any);
+      transport = new SSEServerTransport(messageUrl, res);
       console.log(`[MCP Server] SSE connection established. Message URL: ${messageUrl}`);
       await activeServer.connect(transport);
     } else if (req.url?.startsWith("/message") && req.method === "POST") {
       console.log(`[MCP Server] Received POST message on ${req.url}`);
       if (transport) {
         try {
-          await transport.handlePostMessage(req as any, res as any);
+          await transport.handlePostMessage(req, res);
           console.log(`[MCP Server] Handled POST message successfully.`);
-        } catch (err: any) {
-          console.error(`[MCP Server] Error handling POST message:`, err.message);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          console.error(`[MCP Server] Error handling POST message:`, message);
         }
       } else {
         console.log(`[MCP Server] Rejected POST message: SSE transport not established.`);
@@ -140,7 +143,7 @@ export async function initMCPServer() {
     }
   });
 
-  httpServer.on('error', (e: any) => {
+  httpServer.on('error', (e: NodeJS.ErrnoException) => {
     if (e.code === 'EADDRINUSE') {
       console.log(`MCP Server port ${port} already in use (HMR reload).`);
     } else {

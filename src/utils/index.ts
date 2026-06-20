@@ -54,12 +54,12 @@ export function getFileSize(content: string): string {
     return (bytes / 1024).toFixed(2) + ' KB';
 }
 
-export function truncateObjectStrings(obj: any, defaultMax: number = 128, customLimits: Record<string, number> = {}): any {
+export function truncateObjectStrings(obj: unknown, defaultMax: number = 128, customLimits: Record<string, number> = {}): unknown {
     if (Array.isArray(obj)) {
-        return obj.map((item: any) => truncateObjectStrings(item, defaultMax, customLimits));
+        return obj.map((item: unknown) => truncateObjectStrings(item, defaultMax, customLimits));
     }
     if (obj !== null && typeof obj === 'object') {
-        const result: any = {};
+        const result: Record<string, unknown> = {};
         for (const [key, value] of Object.entries(obj)) {
             if (typeof value === 'string') {
                 const limit = customLimits[key] !== undefined ? customLimits[key] : defaultMax;
@@ -95,6 +95,17 @@ export function convertToSrt(subtitles: SubtitleItem[]): string {
     }).join('\n\n');
 }
 
+interface AutoSubtitleEvent {
+    tStartMs?: number;
+    dDurationMs?: number;
+    aAppend?: number;
+    segs?: { utf8?: string }[];
+}
+
+interface AutoSubtitleResponse {
+    events?: AutoSubtitleEvent[];
+}
+
 export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<SubtitleItem[]> {
     const url = baseUrl.replace(/&fmt=[^&]+/, '') + '&fmt=json3&tlang=' + targetLangCode;
     const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -102,12 +113,12 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
         throw new Error('YouTube blocked the auto-translate request (Error 429 Too Many Requests) due to bot detection. Node.js fetches lack browser cookies/tokens and get rate-limited for translated tracks.');
     }
     if (!response.ok) throw new Error(`Caption fetch failed: ${response.status}`);
-    const data = await response.json() as any;
+    const data = await response.json() as AutoSubtitleResponse;
     const events = data.events ?? [];
     const subtitles: SubtitleItem[] = [];
     for (const event of events) {
         if (!event.segs || event.aAppend === 1) continue;
-        const raw = event.segs.map((s: any) => s.utf8 ?? '').join('');
+        const raw = event.segs.map((s) => s.utf8 ?? '').join('');
         const text = raw.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
         if (!text) continue;
         const startMs = event.tStartMs ?? 0;

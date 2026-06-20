@@ -1,6 +1,7 @@
-import { createRoute, z } from '@hono/zod-openapi';
+import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
 import { fetchMetadata } from '../../../../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
+import { YouTubeCaptionTrack, SubtitleItem } from '../../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -26,7 +27,7 @@ export const route = createRoute({
   description: 'Returns subtitles as plain text for AI agents to easily consume without downloading files.',
 });
 
-export const handler = async (c: any) => {
+export const handler: RouteHandler<typeof route> = async (c) => {
   const { vid_id, lang } = c.req.valid('query');
 
   try {
@@ -40,21 +41,22 @@ export const handler = async (c: any) => {
       return c.text('No subtitles available for this video', 400);
     }
 
-    const matchingTracks = tracks.filter((t: any) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
+    const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
     
     let selectedTrack;
     if (matchingTracks.length > 0) {
-      selectedTrack = matchingTracks.find((t: any) => t.name.simpleText.toLowerCase() === lang.toLowerCase()) || matchingTracks[0];
+      selectedTrack = matchingTracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase() === lang.toLowerCase()) || matchingTracks[0];
     } else {
       selectedTrack = tracks[0];
     }
 
     const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });
-    const content = subtitles.map((s: any) => s.text).join('\n');
+    const content = subtitles.map((s: SubtitleItem) => s.text).join('\n');
 
     return c.text(content, 200);
 
-  } catch (error: any) {
-    return c.text(error.message || 'Failed to fetch subtitles', 400);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch subtitles';
+    return c.text(message, 400);
   }
 };

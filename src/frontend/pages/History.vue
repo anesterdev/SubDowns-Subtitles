@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
+import type { IVideoObject } from '../../interfaces/VideoObject.ts';
+
 const { t } = useI18n();
 
 interface DownloadItem {
@@ -14,8 +16,8 @@ interface DownloadItem {
 
 interface HistoryVideoCard {
   videoId: string;
-  video: any;
-  author: any;
+  video: IVideoObject['video'];
+  author: IVideoObject['author'];
   language: string;
   format: string;
   type: string;

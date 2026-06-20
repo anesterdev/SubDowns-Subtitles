@@ -41,9 +41,10 @@ export function useDownload() {
 
       // Save metadata to Cache Storage via the global store
       await videoStore.saveToHistory(lang, format, type, filename);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || 'An error occurred during download');
+      const message = err instanceof Error ? err.message : 'An error occurred during download';
+      toast.error(message);
     } finally {
       isDownloading.value[key] = false;
     }
