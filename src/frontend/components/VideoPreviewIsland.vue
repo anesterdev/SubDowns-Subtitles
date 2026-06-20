@@ -12,10 +12,12 @@ const props = defineProps<{
 
 const mainLanguageInfo = computed(() => {
   if (props.subtitles?.available_languages && props.subtitles.available_languages.length > 0) {
+    const lang = props.subtitles.available_languages[0];
+    const isAuto = lang.toLowerCase().includes('auto');
     return {
-      language: props.subtitles.available_languages[0],
+      language: lang,
       type: 'manual' as const,
-      badgeText: 'Original'
+      badgeText: isAuto ? 'Auto-generated' : 'Original'
     };
   }
   if (props.subtitles?.auto_translate_languages && props.subtitles.auto_translate_languages.length > 0) {

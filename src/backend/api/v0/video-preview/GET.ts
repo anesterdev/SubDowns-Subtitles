@@ -55,9 +55,16 @@ export const handler = async (c: any) => {
 
     const videoData = extractVideoData(playerResponse, vid_id);
     
-    // Extract subtitle information
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
-    const availableLanguages = tracks.map((t: any) => t.name.simpleText);
+    const availableLanguages = tracks
+      .map((t: any) => t.name.simpleText)
+      .sort((a: string, b: string) => {
+        const isAAuto = a.toLowerCase().includes('auto');
+        const isBAuto = b.toLowerCase().includes('auto');
+        if (isAAuto && !isBAuto) return 1;
+        if (!isAAuto && isBAuto) return -1;
+        return 0;
+      });
 
     const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
     const autoLanguages = translationLanguages.map((t: any) => t.languageName.simpleText);
