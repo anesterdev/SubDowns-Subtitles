@@ -1,0 +1,21 @@
+@use '../variants' as *;
+
+button {
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--space-md) var(--space-xl);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
+  
+  @include btn-default;
+
+  &[data-variant="warn"], &.warn {
+    @include btn-warn;
+  }
+
+  &[data-variant="error"], &.error {
+    @include btn-error;
+  }
+}

@@ -1,0 +1,23 @@
+@use 'ui-kit/variables' as *;
+@use 'ui-kit/color_schema' as *;
+@use 'ui-kit/mixins' as *;
+@use 'ui-kit/variants' as *;
+@use 'ui-kit/elements/elements' as *;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+
+  font-family: "Nunito", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}

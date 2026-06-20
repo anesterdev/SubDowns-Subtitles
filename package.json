@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node download.ts",
+    "dev": "vite",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],

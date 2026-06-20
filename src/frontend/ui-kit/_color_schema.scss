@@ -1,0 +1,26 @@
+:root {
+  --rgb-bg: 16, 16, 20;
+  --bg: rgb(var(--rgb-bg));
+
+  --rgb-bg-light: 24, 24, 28;
+  --bg-light: rgb(var(--rgb-bg-light));
+
+  --rgb-white: 255, 255, 255;
+  --bg-dimm: rgba(var(--rgb-white), 0.1);
+
+  --rgb-accent: 99, 226, 183;
+  --bg-accent: rgba(var(--rgb-accent), 0.16);
+  --text-accent: rgb(var(--rgb-accent));
+
+  --text: rgba(var(--rgb-white), 0.82);
+  --text-bright: rgba(var(--rgb-white), 0.9);
+  --text-muted: rgba(var(--rgb-white), 0.52);
+
+  --rgb-error: 232, 128, 128;
+  --error: rgb(var(--rgb-error));
+  --error-bg: rgba(var(--rgb-error), 0.16);
+
+  --rgb-warn: 242, 201, 125;
+  --warn: rgb(var(--rgb-warn));
+  --warn-bg: rgba(var(--rgb-warn), 0.16);
+}
