@@ -5,7 +5,8 @@
     "subtitle": "Enter a URL to extract video subtitles instantly."
   },
   "header": {
-    "downloader": "Downloader"
+    "home": "Home",
+    "history": "History"
   },
   "preview": {
     "fetching": "Fetching video metadata...",

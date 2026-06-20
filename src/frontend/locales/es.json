@@ -5,7 +5,8 @@
     "subtitle": "Ingresa una URL para extraer subtítulos de video al instante."
   },
   "header": {
-    "downloader": "Descargador"
+    "home": "Inicio",
+    "history": "Historial"
   },
   "preview": {
     "fetching": "Obteniendo metadatos del video...",

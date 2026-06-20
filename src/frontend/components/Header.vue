@@ -14,7 +14,8 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
       <strong>Subtitle Downloader</strong>
     </div>
     <nav class="header-pages">
-      <a href="#" class="active">{{ $t('header.downloader') }}</a>
+      <router-link to="/" active-class="active">{{ $t('header.home') }}</router-link>
+      <router-link to="/history" active-class="active">{{ $t('header.history') }}</router-link>
     </nav>
     <div class="header-links">
       <select class="lang-select" :value="locale" @change="loadLocale(($event.target as HTMLSelectElement).value)">

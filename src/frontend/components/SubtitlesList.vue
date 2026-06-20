@@ -44,6 +44,26 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
+
+    // Save metadata to Cache Storage
+    try {
+      const cache = await caches.open('metadata');
+      const ts = Date.now();
+      const metadataKey = `/metadata/downloads/${ts}-${vidId}`;
+      const metadata = {
+        videoId: vidId,
+        language: lang,
+        format,
+        type,
+        filename,
+        timestamp: ts
+      };
+      await cache.put(metadataKey, new Response(JSON.stringify(metadata), {
+        headers: { 'Content-Type': 'application/json' }
+      }));
+    } catch (cacheErr) {
+      console.error('Failed to save download metadata to cache', cacheErr);
+    }
   } catch (err: any) {
     console.error(err);
     toast.error(err.message || 'An error occurred during download');
