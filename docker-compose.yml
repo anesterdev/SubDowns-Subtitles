@@ -2,7 +2,9 @@ services:
   app:
     build: .
     container_name: subdowns
+    env_file:
+      - .env
     ports:
-      - "3069:3069"
-      - "9000:9000"
+      - "${PORT:-3069}:${PORT:-3069}"
+      - "${MCP_PORT:-9000}:${MCP_PORT:-9000}"
     restart: unless-stopped

@@ -8,7 +8,7 @@ export const route = createRoute({
   path: '/',
   request: {
     query: z.object({
-      vid_id: z.string().openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
+      vid_id: z.string().regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
       lang: z.string().openapi({ description: 'Target Language', example: 'English' }),
       format: z.enum(['srt', 'txt', 'raw']).openapi({ description: 'Download format' }),
       type: z.enum(['manual', 'auto']).default('manual').openapi({ description: 'Subtitle type' }),

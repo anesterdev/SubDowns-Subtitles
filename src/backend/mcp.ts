@@ -8,6 +8,7 @@ import {
 import { fetchMetadata } from "../utils/index.ts";
 import { getSubtitles } from "youtube-caption-extractor";
 import { YouTubeCaptionTrack, SubtitleItem } from "../interfaces/YouTube.ts";
+import { config } from "./config.ts";
 
 function createMCPServer() {
   const server = new Server(
@@ -44,6 +45,10 @@ function createMCPServer() {
 
       const vid_id = args.vid_id as string;
       const lang = (args.lang as string) || "English";
+
+      if (!/^[0-9A-Za-z_-]{11}$/.test(vid_id)) {
+        return { isError: true, content: [{ type: "text", text: "Error: Invalid video ID format." }] };
+      }
 
       try {
         const playerResponse = await fetchMetadata(vid_id);
@@ -95,7 +100,7 @@ export async function initMCPServer() {
   }
   (globalThis as any)[globalKey] = true;
 
-  const port = 9000;
+  const port = config.MCP_PORT;
 
   const httpServer = http.createServer(async (req, res) => {
     console.log(`[MCP Server] Incoming request: ${req.method} ${req.url}`);
