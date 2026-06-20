@@ -58,6 +58,11 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
     isDownloading.value[key] = false;
   }
 }
+
+function openRawTab(vidId: string, lang: string) {
+  const url = `/api/v0/download/raw?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}`;
+  window.open(url, '_blank');
+}
 </script>
 
 <template>
@@ -97,9 +102,8 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
                 <span class="material-symbols-outlined" v-else>hourglass_empty</span>
                 TXT
               </button>
-              <button variant="action" size="sm" :disabled="isDownloading[`${lang}-raw`]" @click="downloadSubs(videoId, lang, 'raw', type)">
-                <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-raw`]">data_object</span>
-                <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+              <button variant="action" size="sm" @click="openRawTab(videoId, lang)">
+                <span class="material-symbols-outlined">data_object</span>
                 RAW
               </button>
             </div>
