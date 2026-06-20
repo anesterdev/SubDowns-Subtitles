@@ -19,7 +19,6 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     </nav>
     <div class="header-links">
       <select class="lang-select" :value="locale" @change="loadLocale(($event.target as HTMLSelectElement).value)">
-        <button type="button" class="select-trigger">{{ displayLanguage }}</button>
         <option value="en">EN</option>
         <option value="es">ES</option>
         <option value="zh">ZH</option>
@@ -32,10 +31,6 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 
 <style scoped lang="scss">
 .app-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   height: 4rem;
 
   background-color: var(--bg-light);
@@ -121,17 +116,6 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 
       &::picker-icon {
         display: none;
-      }
-
-      .select-trigger {
-        appearance: none;
-        background: transparent;
-        border: none;
-        color: inherit;
-        font: inherit;
-        padding: 0;
-        margin: 0;
-        cursor: pointer;
       }
     }
   }

@@ -126,6 +126,8 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
 </template>
 
 <style scoped lang="scss">
+@use '../ui-kit/mixins' as *;
+
 .subtitles-list-container {
   display: flex;
   flex-direction: column;
@@ -179,20 +181,7 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
 .list-body {
   max-height: 24rem;
   overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(var(--rgb-white), 0.1);
-    border-radius: var(--radius-sm);
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--rgb-white), 0.2);
-  }
+  @include custom-scrollbar;
 }
 
 .list-row {
