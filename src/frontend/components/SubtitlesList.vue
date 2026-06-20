@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
-import { useVideoStore } from '../stores/videoStore';
+import { useVideoStore } from '../stores/videoStore.ts';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 defineProps<{
   title: string;
@@ -76,8 +79,8 @@ function openRawTab(vidId: string, lang: string) {
 
     <div class="list-wrapper">
       <div class="list-header">
-        <div class="col-language">{{ $t('subtitles.language') }}</div>
-        <div class="col-actions">{{ $t('subtitles.actions') }}</div>
+        <div class="col-language">{{ t('subtitles.language') }}</div>
+        <div class="col-actions">{{ t('subtitles.actions') }}</div>
       </div>
       
       <div class="list-body">
@@ -110,7 +113,7 @@ function openRawTab(vidId: string, lang: string) {
           </div>
           
           <div v-if="languages?.length === 0" class="empty-state">
-            {{ $t('subtitles.no_languages') }}
+            {{ t('subtitles.no_languages') }}
           </div>
         </template>
 

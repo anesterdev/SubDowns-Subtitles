@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useVideoStore } from '../stores/videoStore.ts';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 import VideoPreviewIsland from '../components/VideoPreviewIsland.vue';
 import SubtitlesList from '../components/SubtitlesList.vue';
 
@@ -44,7 +47,7 @@ watch(() => videoStore.currentVideo, (newVal) => {
       
       <div class="subtitles-grid">
         <SubtitlesList 
-          :title="$t('preview.original_subtitles')" 
+          :title="t('preview.original_subtitles')" 
           icon="subtitles" 
           :videoId="videoStore.currentVideo?.video.video_id || vidId"
           type="manual"
@@ -54,7 +57,7 @@ watch(() => videoStore.currentVideo, (newVal) => {
         />
         
         <SubtitlesList 
-          :title="$t('preview.auto_translate')" 
+          :title="t('preview.auto_translate')" 
           icon="auto_fix" 
           :videoId="videoStore.currentVideo?.video.video_id || vidId"
           type="auto"
@@ -66,8 +69,8 @@ watch(() => videoStore.currentVideo, (newVal) => {
     </div>
     
     <div v-else-if="videoStore.status === 'Error'" class="error">
-      <p>{{ $t('preview.error_fetching') }}</p>
-      <button class="warn" @click="router.push('/')">{{ $t('preview.go_back') }}</button>
+      <p>{{ t('preview.error_fetching') }}</p>
+      <button class="warn" @click="router.push('/')">{{ t('preview.go_back') }}</button>
     </div>
   </div>
 </template>

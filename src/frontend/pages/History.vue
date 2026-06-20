@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 interface DownloadItem {
   language: string;
@@ -13,8 +16,10 @@ interface HistoryVideoCard {
   videoId: string;
   video: any;
   author: any;
-  downloads: DownloadItem[];
-  lastDownload: number;
+  language: string;
+  format: string;
+  type: string;
+  timestamp: number;
 }
 
 const historyItems = ref<HistoryVideoCard[]>([]);
@@ -78,7 +83,7 @@ function viewVideo(vidId: string) {
 <template>
   <div class="page-container">
     <div class="header">
-      <h1 class="title">{{ $t('history.title') }}</h1>
+      <h1 class="title">{{ t('history.title') }}</h1>
     </div>
 
     <div v-if="isLoading" class="loading-state">
@@ -86,7 +91,7 @@ function viewVideo(vidId: string) {
     </div>
 
     <div v-else-if="historyItems.length === 0" class="empty-state">
-      {{ $t('history.empty') }}
+      {{ t('history.empty') }}
     </div>
 
     <div v-else class="cards-grid">

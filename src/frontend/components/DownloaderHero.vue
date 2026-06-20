@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { loadLocale } from '../i18n.ts';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
   (e: 'download', url: string): void;
@@ -23,7 +25,7 @@ function onDownload() {
         <input 
           v-model="url" 
           type="text" 
-          :placeholder="$t('home.placeholder')" 
+          :placeholder="t('home.placeholder')" 
           @keyup.enter="onDownload"
         />
         <button v-if="url" class="clear-btn" @click="url = ''">
@@ -33,11 +35,11 @@ function onDownload() {
       
       <button class="download-btn" @click="onDownload">
         <span class="material-symbols-outlined">download</span>
-        {{ $t('home.download') }}
+        {{ t('home.download') }}
       </button>
     </div>
     
-    <p class="subtitle">{{ $t('home.subtitle') }}</p>
+    <p class="subtitle">{{ t('home.subtitle') }}</p>
   </div>
 </template>
 
