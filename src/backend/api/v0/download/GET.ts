@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { fetchMetadata, convertToSrt } from '../../../../utils/index.ts';
+import { fetchMetadata, convertToSrt, fetchAutoSubtitles } from '../../../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
 
 export const route = createRoute({
@@ -53,7 +53,6 @@ export const handler = async (c: any) => {
         const defaultTrack = tracks.find((t: any) => t.isDefault) || tracks[0];
         if (!defaultTrack) return c.json({ error: 'No base track found for auto-translation' }, 400);
 
-        const { fetchAutoSubtitles } = await import('../../../../utils/index.ts');
         subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode);
         exactLangName = targetLang.languageName.simpleText;
     } else {

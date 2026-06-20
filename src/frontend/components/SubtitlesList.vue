@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { toast } from 'vue3-toastify';
 
 defineProps<{
   title: string;
@@ -20,7 +21,10 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
   try {
     const url = `/api/v0/download?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}&format=${format}&type=${type}`;
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Download failed');
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || 'Download failed');
+    }
     
     const contentDisposition = response.headers.get('Content-Disposition');
     let filename = `subtitles.${format}`;
@@ -40,8 +44,9 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    toast.error(err.message || 'An error occurred during download');
   } finally {
     isDownloading.value[key] = false;
   }

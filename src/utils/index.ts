@@ -97,6 +97,9 @@ export function convertToSrt(subtitles: {start: string, dur: string, text: strin
 export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<{start: string, dur: string, text: string}[]> {
     const url = baseUrl.replace(/&fmt=[^&]+/, '') + '&fmt=json3&tlang=' + targetLangCode;
     const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (response.status === 429) {
+        throw new Error('YouTube blocked the auto-translate request (Error 429 Too Many Requests) due to bot detection. Node.js fetches lack browser cookies/tokens and get rate-limited for translated tracks.');
+    }
     if (!response.ok) throw new Error(`Caption fetch failed: ${response.status}`);
     const data: any = await response.json();
     const events = data.events ?? [];
