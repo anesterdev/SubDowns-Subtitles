@@ -23,28 +23,31 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
-    <div v-if="videoStore.status === 'Fetching'" class="loading">
-      {{ $t('preview.fetching') }}
-    </div>
-    
-    <div v-else-if="videoStore.status === 'Ready' && videoStore.currentVideo" class="preview-layout">
-      <VideoPreviewIsland :video="videoStore.currentVideo.video" />
+    <div v-if="videoStore.status === 'Fetching' || (videoStore.status === 'Ready' && videoStore.currentVideo)" class="preview-layout">
+      <VideoPreviewIsland 
+        :video="videoStore.currentVideo?.video" 
+        :loading="videoStore.status === 'Fetching'"
+      />
       
       <div class="subtitles-grid">
         <SubtitlesList 
           :title="$t('preview.original_subtitles')" 
           icon="subtitles" 
-          :videoId="videoStore.currentVideo.video.video_id"
+          :videoId="videoStore.currentVideo?.video.video_id || vidId"
           type="manual"
-          :languages="videoStore.currentVideo.subtitles?.available_languages || []" 
+          :languages="videoStore.currentVideo?.subtitles?.available_languages" 
+          :loading="videoStore.status === 'Fetching'"
+          :skeletonCount="3"
         />
         
         <SubtitlesList 
           :title="$t('preview.auto_translate')" 
           icon="auto_fix" 
-          :videoId="videoStore.currentVideo.video.video_id"
+          :videoId="videoStore.currentVideo?.video.video_id || vidId"
           type="auto"
-          :languages="videoStore.currentVideo.subtitles?.auto_translate_languages || []" 
+          :languages="videoStore.currentVideo?.subtitles?.auto_translate_languages" 
+          :loading="videoStore.status === 'Fetching'"
+          :skeletonCount="5"
         />
       </div>
     </div>

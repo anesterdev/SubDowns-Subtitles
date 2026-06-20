@@ -4,7 +4,8 @@ import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 import { ref } from 'vue';
 
 const props = defineProps<{
-  video: IVideoObject['video'];
+  video?: IVideoObject['video'];
+  loading?: boolean;
 }>();
 
 const isDownloading = ref<Record<string, boolean>>({});
@@ -48,17 +49,19 @@ async function downloadSubs(lang: string, format: string) {
 
 <template>
   <div class="video-preview-island glass-card">
-    <div class="thumbnail-wrapper">
-      <img :src="video.thumbnail_url" alt="Video Thumbnail" />
+    <div class="thumbnail-wrapper" :class="{ skeleton: loading || !video }">
+      <img v-if="video" :src="video.thumbnail_url" alt="Video Thumbnail" />
     </div>
     
     <div class="metadata">
-      <h2 class="title">{{ video.title }}</h2>
+      <h2 class="title" :class="{ skeleton: loading || !video }">
+        {{ video?.title || 'Skeleton title placeholder text' }}
+      </h2>
       
-      <div class="details">
+      <div class="details" :class="{ skeleton: loading || !video }">
         <span class="detail-item">
           <span class="material-symbols-outlined icon">schedule</span>
-          {{ video.duration || '0' }}s
+          {{ video?.duration || '00:00' }}
         </span>
         <span class="detail-item">
           <span class="material-symbols-outlined icon">hd</span>
@@ -66,10 +69,10 @@ async function downloadSubs(lang: string, format: string) {
         </span>
       </div>
 
-      <div class="main-language-block" v-if="video.main_language || true">
+      <div class="main-language-block" :class="{ skeleton: loading || !video }" v-if="video?.main_language || loading || !video">
         <div class="lang-info">
           <span class="material-symbols-outlined text-accent icon">translate</span>
-          <span class="lang-name">English</span>
+          <span class="lang-name">{{ video?.main_language || 'English' }}</span>
           <span class="badge">Auto-generated</span>
         </div>
         <div class="actions">

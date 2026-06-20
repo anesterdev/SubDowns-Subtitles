@@ -6,9 +6,11 @@ import { useVideoStore } from '../stores/videoStore';
 defineProps<{
   title: string;
   icon: string;
-  languages: string[];
+  languages?: string[];
   videoId: string;
   type: 'manual' | 'auto';
+  loading?: boolean;
+  skeletonCount?: number;
 }>();
 
 const isDownloading = ref<Record<string, boolean>>({});
@@ -74,37 +76,53 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
       </div>
       
       <div class="list-body">
-        <div 
-          class="list-row group" 
-          v-for="lang in languages" 
-          :key="lang"
-        >
-          <div class="col-language">
-            <span class="dot"></span>
-            <span class="lang-name">{{ lang }}</span>
+        <template v-if="!loading">
+          <div 
+            class="list-row group" 
+            v-for="lang in languages" 
+            :key="lang"
+          >
+            <div class="col-language">
+              <span class="dot"></span>
+              <span class="lang-name">{{ lang }}</span>
+            </div>
+            <div class="col-actions">
+              <button variant="action" size="sm" :disabled="isDownloading[`${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
+                <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-srt`]">description</span>
+                <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+                SRT
+              </button>
+              <button variant="action" size="sm" :disabled="isDownloading[`${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
+                <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-txt`]">article</span>
+                <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+                TXT
+              </button>
+              <button variant="action" size="sm" :disabled="isDownloading[`${lang}-raw`]" @click="downloadSubs(videoId, lang, 'raw', type)">
+                <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-raw`]">data_object</span>
+                <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+                RAW
+              </button>
+            </div>
           </div>
-          <div class="col-actions">
-            <button variant="action" size="sm" :disabled="isDownloading[`${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
-              <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-srt`]">description</span>
-              <span class="material-symbols-outlined" v-else>hourglass_empty</span>
-              SRT
-            </button>
-            <button variant="action" size="sm" :disabled="isDownloading[`${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
-              <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-txt`]">article</span>
-              <span class="material-symbols-outlined" v-else>hourglass_empty</span>
-              TXT
-            </button>
-            <button variant="action" size="sm" :disabled="isDownloading[`${lang}-raw`]" @click="downloadSubs(videoId, lang, 'raw', type)">
-              <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-raw`]">data_object</span>
-              <span class="material-symbols-outlined" v-else>hourglass_empty</span>
-              RAW
-            </button>
+          
+          <div v-if="languages?.length === 0" class="empty-state">
+            {{ $t('subtitles.no_languages') }}
           </div>
-        </div>
-        
-        <div v-if="languages.length === 0" class="empty-state">
-          {{ $t('subtitles.no_languages') }}
-        </div>
+        </template>
+
+        <template v-else>
+          <div class="list-row group" v-for="i in (skeletonCount || 4)" :key="i">
+            <div class="col-language">
+              <span class="dot skeleton"></span>
+              <span class="lang-name skeleton" :style="{ width: `${40 + Math.random() * 40}%` }">Skeleton</span>
+            </div>
+            <div class="col-actions">
+              <button variant="action" size="sm" class="skeleton">SRT</button>
+              <button variant="action" size="sm" class="skeleton">TXT</button>
+              <button variant="action" size="sm" class="skeleton">RAW</button>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
