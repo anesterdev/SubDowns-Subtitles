@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import { loadLocale } from '../i18n.ts';
+import { useI18n } from 'vue-i18n';
+import { computed } from 'vue';
+
+const { locale } = useI18n();
+
+const displayLanguage = computed(() => locale.value.toString().toUpperCase());
+</script>
+
 <template>
   <header class="app-header">
     <div class="header-brand">
@@ -7,8 +17,13 @@
       <a href="#" class="active">Downloader</a>
     </nav>
     <div class="header-links">
-      <a href="#">EN</a>
-      <a href="#">GitHub</a>
+      <select class="lang-select" :value="locale" @change="loadLocale(($event.target as HTMLSelectElement).value)">
+        <option value="en">EN</option>
+        <option value="es">ES</option>
+        <option value="zh">ZH</option>
+        <option value="ru">RU</option>
+      </select>
+      <a href="https://github.com" target="_blank">GitHub</a>
     </div>
   </header>
 </template>
@@ -60,6 +75,7 @@
 .header-links {
   justify-self: end;
   display: flex;
+  align-items: center;
   gap: var(--space-lg);
   
   a {
@@ -70,6 +86,29 @@
     
     &:hover {
       color: var(--text-bright);
+    }
+  }
+
+  .lang-select {
+    background-color: transparent;
+    color: var(--text-muted);
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-weight: 600;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    outline: none;
+    transition: color var(--transition-fast) ease;
+
+    &:hover {
+      color: var(--text-bright);
+    }
+
+    option {
+      background-color: var(--bg-light);
+      color: var(--text);
     }
   }
 }

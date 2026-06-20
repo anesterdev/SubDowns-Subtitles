@@ -1,0 +1,59 @@
+@use '../variables' as *;
+
+select {
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid rgba(var(--rgb-white), 0.1);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast) ease;
+
+  &:hover {
+    color: var(--text-bright);
+    border-color: rgba(var(--rgb-white), 0.3);
+  }
+}
+
+@supports (appearance: base-select) {
+  select {
+    appearance: base-select;
+  }
+
+  select::picker(select) {
+    appearance: base-select;
+    border: 1px solid rgba(var(--rgb-white), 0.1);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: var(--bg-light);
+    overflow: hidden;
+  }
+
+  option {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: calc(var(--radius-sm) - var(--space-xs));
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast) ease;
+  }
+
+  option:hover {
+    background: rgba(var(--rgb-white), 0.05);
+    color: var(--text-bright);
+  }
+
+  option:checked {
+    background: rgba(var(--rgb-accent), 0.2);
+    color: var(--text-accent);
+  }
+
+  select:open {
+    border-color: rgba(var(--rgb-white), 0.3);
+  }
+}

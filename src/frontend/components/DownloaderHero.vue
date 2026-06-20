@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { loadLocale } from '../i18n.ts';
 
 const emit = defineEmits<{
   (e: 'download', url: string): void;
@@ -22,7 +23,7 @@ function onDownload() {
         <input 
           v-model="url" 
           type="text" 
-          placeholder="Paste YouTube URL here..." 
+          :placeholder="$t('home.placeholder')" 
           @keyup.enter="onDownload"
         />
         <button v-if="url" class="clear-btn" @click="url = ''">
@@ -32,11 +33,11 @@ function onDownload() {
       
       <button class="download-btn" @click="onDownload">
         <span class="material-symbols-outlined">download</span>
-        DOWNLOAD
+        {{ $t('home.download') }}
       </button>
     </div>
     
-    <p class="subtitle">Enter a URL to extract high-quality subtitles instantly.</p>
+    <p class="subtitle">{{ $t('home.subtitle') }}</p>
   </div>
 </template>
 
@@ -44,13 +45,16 @@ function onDownload() {
 .downloader-hero {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-md);
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
 }
 
 .input-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
