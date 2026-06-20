@@ -1,5 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import { fetchMetadata, extractVideoData } from '../../../../utils/index.ts';
+import type { Context } from 'hono';
+import { YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -43,7 +45,7 @@ export const route = createRoute({
   description: 'Fetches basic video information, author details, and available subtitle languages from a given YouTube video ID.',
 });
 
-export const handler = async (c: any) => {
+export const handler = async (c: Context) => {
   const { vid_id } = c.req.valid('query');
 
   try {
@@ -57,7 +59,7 @@ export const handler = async (c: any) => {
     
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
     const availableLanguages = tracks
-      .map((t: any) => t.name.simpleText)
+      .map((t: YouTubeCaptionTrack) => t.name.simpleText)
       .sort((a: string, b: string) => {
         const isAAuto = a.toLowerCase().includes('auto');
         const isBAuto = b.toLowerCase().includes('auto');
@@ -67,7 +69,7 @@ export const handler = async (c: any) => {
       });
 
     const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
-    const autoLanguages = translationLanguages.map((t: any) => t.languageName.simpleText);
+    const autoLanguages = translationLanguages.map((t: YouTubeTranslationLanguage) => t.languageName.simpleText);
 
     return c.json({
       ...videoData,

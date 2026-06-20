@@ -2,6 +2,9 @@
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
 import { ref, computed } from 'vue';
+import { useDownload } from '../composables/useDownload.ts';
+
+const { isDownloading, downloadSubs, openRawTab } = useDownload();
 
 const props = defineProps<{
   video?: IVideoObject['video'];
@@ -49,48 +52,6 @@ function formatDuration(duration?: string | number) {
   return `${mStr}:${sStr}`;
 }
 
-const isDownloading = ref<Record<string, boolean>>({});
-
-async function downloadSubs(lang: string, format: string, type: 'manual' | 'auto') {
-  if (!props.video?.video_id) return;
-  
-  const key = `${lang}-${format}`;
-  isDownloading.value[key] = true;
-
-  try {
-    const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}&type=${type}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Download failed');
-    
-    const contentDisposition = response.headers.get('Content-Disposition');
-    let filename = `subtitles.${format}`;
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?/i);
-      if (filenameMatch && filenameMatch[1]) {
-        filename = decodeURIComponent(filenameMatch[1]);
-      }
-    }
-    
-    const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    isDownloading.value[key] = false;
-  }
-}
-
-function openRawTab(vidId: string, lang: string) {
-  const url = `/api/v0/download/raw?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}`;
-  window.open(url, '_blank');
-}
 </script>
 
 <template>
@@ -126,12 +87,12 @@ function openRawTab(vidId: string, lang: string) {
           <span class="badge" :class="{'auto-badge': mainLanguageInfo?.type === 'auto'}">{{ mainLanguageInfo?.badgeText || 'Original' }}</span>
         </div>
         <div class="actions">
-          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-srt`]" @click="mainLanguageInfo && downloadSubs(mainLanguageInfo.language, 'srt', mainLanguageInfo.type)">
+          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-srt`]" @click="mainLanguageInfo && video && downloadSubs(video.video_id, mainLanguageInfo.language, 'srt', mainLanguageInfo.type)">
             <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-srt`]">description</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             SRT
           </button>
-          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-txt`]" @click="mainLanguageInfo && downloadSubs(mainLanguageInfo.language, 'txt', mainLanguageInfo.type)">
+          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-txt`]" @click="mainLanguageInfo && video && downloadSubs(video.video_id, mainLanguageInfo.language, 'txt', mainLanguageInfo.type)">
             <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-txt`]">article</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             TXT

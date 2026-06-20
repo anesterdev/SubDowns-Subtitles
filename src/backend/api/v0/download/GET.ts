@@ -1,6 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import { fetchMetadata, convertToSrt, fetchAutoSubtitles } from '../../../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
+import type { Context } from 'hono';
+import { SubtitleItem, YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -29,7 +31,7 @@ export const route = createRoute({
   description: 'Downloads and formats subtitles for a given video ID and language.',
 });
 
-export const handler = async (c: any) => {
+export const handler = async (c: Context) => {
   const { vid_id, lang, format, type } = c.req.valid('query');
 
   try {
@@ -41,27 +43,27 @@ export const handler = async (c: any) => {
     const title = playerResponse.videoDetails?.title?.replace(/[<>:"/\\|?*]+/g, '') || 'Video';
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
     
-    let subtitles: any[] = [];
+    let subtitles: SubtitleItem[] | any[] = [];
     let exactLangName = lang;
 
     if (type === 'auto') {
         const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
-        const targetLang = translationLanguages.find((t: any) => t.languageName.simpleText === lang);
+        const targetLang = translationLanguages.find((t: YouTubeTranslationLanguage) => t.languageName.simpleText === lang);
         if (!targetLang) return c.json({ error: `Auto-translate language not found: '${lang}'` }, 400);
 
         // Auto-translate works by passing &tlang= to any valid track. The default track is the safest bet.
-        const defaultTrack = tracks.find((t: any) => t.isDefault) || tracks[0];
+        const defaultTrack = tracks.find((t: YouTubeCaptionTrack) => t.isDefault) || tracks[0];
         if (!defaultTrack) return c.json({ error: 'No base track found for auto-translation' }, 400);
 
         subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode);
         exactLangName = targetLang.languageName.simpleText;
     } else {
-        const matchingTracks = tracks.filter((t: any) => t.name.simpleText.includes(lang));
+        const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.includes(lang));
         if (matchingTracks.length === 0) {
             return c.json({ error: `No manual subtitles found for language target '${lang}'` }, 400);
         }
 
-        const manualTrack = matchingTracks.find((t: any) => t.name.simpleText.toLowerCase() === lang.toLowerCase());
+        const manualTrack = matchingTracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase() === lang.toLowerCase());
         const selectedTrack = manualTrack || matchingTracks[0];
         exactLangName = selectedTrack.name.simpleText;
 
@@ -75,7 +77,7 @@ export const handler = async (c: any) => {
         content = subtitles;
         contentType = 'application/json; charset=utf-8';
     } else if (format === 'txt') {
-        content = subtitles.map((s: any) => s.text).join('\n');
+        content = subtitles.map((s: SubtitleItem) => s.text).join('\n');
     } else if (format === 'srt') {
         content = convertToSrt(subtitles);
     }

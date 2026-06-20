@@ -1,11 +1,12 @@
 import crypto from 'crypto';
+import { YouTubePlayerResponse, SubtitleItem } from '../interfaces/YouTube.ts';
 
 export function extractVideoId(url: string): string | null {
     const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
     return match ? match[1] : null;
 }
 
-export async function fetchMetadata(videoId: string): Promise<any> {
+export async function fetchMetadata(videoId: string): Promise<YouTubePlayerResponse | null> {
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
         headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' }
     });
@@ -19,7 +20,7 @@ export async function fetchMetadata(videoId: string): Promise<any> {
     }
 }
 
-export function extractVideoData(playerResponse: any, videoId: string) {
+export function extractVideoData(playerResponse: YouTubePlayerResponse, videoId: string) {
     const title = playerResponse.videoDetails?.title?.replace(/[<>:"/\\|?*]+/g, '') || 'Unknown Title';
     const channelName = playerResponse.videoDetails?.author || 'Unknown Channel';
     const channelId = playerResponse.videoDetails?.channelId || '';
@@ -55,7 +56,7 @@ export function getFileSize(content: string): string {
 
 export function truncateObjectStrings(obj: any, defaultMax: number = 128, customLimits: Record<string, number> = {}): any {
     if (Array.isArray(obj)) {
-        return obj.map(item => truncateObjectStrings(item, defaultMax, customLimits));
+        return obj.map((item: any) => truncateObjectStrings(item, defaultMax, customLimits));
     }
     if (obj !== null && typeof obj === 'object') {
         const result: any = {};
@@ -86,7 +87,7 @@ export function formatTime(secondsStr: string) {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
 }
 
-export function convertToSrt(subtitles: {start: string, dur: string, text: string}[]): string {
+export function convertToSrt(subtitles: SubtitleItem[]): string {
     return subtitles.map((sub, index) => {
         const startTime = formatTime(sub.start);
         const endTime = formatTime((parseFloat(sub.start) + parseFloat(sub.dur)).toString());
@@ -94,16 +95,16 @@ export function convertToSrt(subtitles: {start: string, dur: string, text: strin
     }).join('\n\n');
 }
 
-export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<{start: string, dur: string, text: string}[]> {
+export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<SubtitleItem[]> {
     const url = baseUrl.replace(/&fmt=[^&]+/, '') + '&fmt=json3&tlang=' + targetLangCode;
     const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
     if (response.status === 429) {
         throw new Error('YouTube blocked the auto-translate request (Error 429 Too Many Requests) due to bot detection. Node.js fetches lack browser cookies/tokens and get rate-limited for translated tracks.');
     }
     if (!response.ok) throw new Error(`Caption fetch failed: ${response.status}`);
-    const data: any = await response.json();
+    const data = await response.json() as any;
     const events = data.events ?? [];
-    const subtitles = [];
+    const subtitles: SubtitleItem[] = [];
     for (const event of events) {
         if (!event.segs || event.aAppend === 1) continue;
         const raw = event.segs.map((s: any) => s.utf8 ?? '').join('');
