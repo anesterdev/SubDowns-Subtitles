@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
+import { useVideoStore } from '../stores/videoStore';
 
 defineProps<{
   title: string;
@@ -11,6 +12,7 @@ defineProps<{
 }>();
 
 const isDownloading = ref<Record<string, boolean>>({});
+const videoStore = useVideoStore();
 
 async function downloadSubs(vidId: string, lang: string, format: string, type: 'manual' | 'auto') {
   if (!vidId) return;
@@ -45,25 +47,8 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
 
-    // Save metadata to Cache Storage
-    try {
-      const cache = await caches.open('metadata');
-      const ts = Date.now();
-      const metadataKey = `/metadata/downloads/${ts}-${vidId}`;
-      const metadata = {
-        videoId: vidId,
-        language: lang,
-        format,
-        type,
-        filename,
-        timestamp: ts
-      };
-      await cache.put(metadataKey, new Response(JSON.stringify(metadata), {
-        headers: { 'Content-Type': 'application/json' }
-      }));
-    } catch (cacheErr) {
-      console.error('Failed to save download metadata to cache', cacheErr);
-    }
+    // Save metadata to Cache Storage via the global store
+    await videoStore.saveToHistory(lang, format, type, filename);
   } catch (err: any) {
     console.error(err);
     toast.error(err.message || 'An error occurred during download');

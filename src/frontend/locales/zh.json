@@ -19,5 +19,14 @@
     "language": "语言",
     "actions": "操作",
     "no_languages": "未找到语言。"
+  },
+  "history": {
+    "title": "下载历史",
+    "video": "视频",
+    "language": "语言",
+    "format": "格式",
+    "date": "日期",
+    "empty": "您的历史记录中未找到下载。",
+    "view": "观看视频"
   }
 }

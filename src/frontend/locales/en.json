@@ -19,5 +19,14 @@
     "language": "Language",
     "actions": "Actions",
     "no_languages": "No languages found."
+  },
+  "history": {
+    "title": "Download History",
+    "video": "Video",
+    "language": "Language",
+    "format": "Format",
+    "date": "Date",
+    "empty": "No downloads found in your history.",
+    "view": "View Video"
   }
 }

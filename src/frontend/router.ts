@@ -13,6 +13,11 @@ const routes = [
     name: 'Preview',
     component: Preview,
   },
+  {
+    path: '/history',
+    name: 'History',
+    component: () => import('./pages/History.vue'),
+  },
 ];
 
 const router = createRouter({
