@@ -158,7 +158,6 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
   font-size: var(--font-size-lg);
   color: var(--text-bright);
   font-weight: 600;
-  margin: 0;
 }
 
 .list-wrapper {

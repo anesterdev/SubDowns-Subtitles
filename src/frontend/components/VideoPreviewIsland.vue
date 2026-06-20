@@ -147,9 +147,7 @@ async function downloadSubs(lang: string, format: string) {
       font-size: var(--font-size-lg);
       font-weight: 600;
       line-height: 1.4;
-      margin: 0;
     }
-
     .details {
       display: flex;
       align-items: center;
@@ -170,7 +168,6 @@ async function downloadSubs(lang: string, format: string) {
 
     .main-language-block {
       align-self: end;
-      margin-top: var(--space-md);
       display: flex;
       flex-wrap: wrap;
       align-items: center;

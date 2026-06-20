@@ -72,9 +72,8 @@ watch(() => videoStore.currentVideo, (newVal) => {
 
 <style scoped lang="scss">
 .page-container {
+  width: 100%;
   max-width: 1200px;
-  margin: calc(4rem + var(--space-xl)) auto var(--space-xl);
-  padding: 0 var(--space-lg);
 }
 
 .preview-layout {
@@ -93,7 +92,7 @@ watch(() => videoStore.currentVideo, (newVal) => {
   text-align: center;
   color: var(--text-muted);
   font-style: italic;
-  margin-top: calc(var(--space-xl) * 2);
+  padding-top: calc(var(--space-xl) * 2);
 }
 
 .error {

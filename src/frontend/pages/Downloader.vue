@@ -45,7 +45,7 @@ function handleDownload(url: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 8rem);
-  padding: var(--space-xl) var(--space-lg);
+  flex: 1;
+  width: 100%;
 }
 </style>

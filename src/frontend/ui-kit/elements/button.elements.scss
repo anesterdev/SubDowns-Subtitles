@@ -9,7 +9,7 @@ button {
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: all var(--transition-fast) ease;
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease, color var(--transition-fast) ease, opacity var(--transition-fast) ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;

@@ -130,9 +130,8 @@ function viewVideo(vidId: string) {
 @use '../ui-kit/mixins' as *;
 
 .page-container {
+  width: 100%;
   max-width: 1200px;
-  margin: calc(4rem + var(--space-xl)) auto var(--space-xl);
-  padding: 0 var(--space-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
@@ -147,7 +146,6 @@ function viewVideo(vidId: string) {
   font-size: var(--font-size-xl);
   color: var(--text-bright);
   font-weight: 700;
-  margin: 0;
 }
 
 .loading-state, .empty-state {
@@ -162,7 +160,7 @@ function viewVideo(vidId: string) {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: var(--space-lg);
 }
 
@@ -174,7 +172,7 @@ function viewVideo(vidId: string) {
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all var(--transition-fast) ease;
+  transition: border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
 
   &:hover {
     border-color: rgba(var(--rgb-accent), 0.3);
@@ -217,7 +215,6 @@ function viewVideo(vidId: string) {
 }
 
 .video-title {
-  margin: 0;
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-bright);
@@ -233,7 +230,7 @@ function viewVideo(vidId: string) {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs);
-  margin-top: var(--space-xs);
+  padding-top: var(--space-xs);
 }
 
 .badge {

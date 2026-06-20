@@ -49,7 +49,6 @@ function onDownload() {
   gap: var(--space-md);
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
   position: relative;
 }
 
@@ -87,7 +86,7 @@ function onDownload() {
     border-radius: var(--radius-md);
     color: var(--text-bright);
     font-size: var(--font-size-base);
-    transition: all var(--transition-fast) ease;
+    transition: border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
 
     &:focus {
       outline: none;
@@ -129,7 +128,7 @@ function onDownload() {
   justify-content: center;
   gap: var(--space-sm);
   cursor: pointer;
-  transition: all var(--transition-fast) ease;
+  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {
     background-color: var(--text-accent);
@@ -146,6 +145,5 @@ function onDownload() {
   text-align: center;
   color: var(--text-muted);
   font-size: var(--font-size-sm);
-  margin: 0;
 }
 </style>
