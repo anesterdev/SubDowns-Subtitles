@@ -1,0 +1,18 @@
+button {
+  &[size="xs"] {
+    font-size: var(--font-size-xxs);
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+  }
+
+  &[size="sm"] {
+    font-size: var(--font-size-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  &[size="lg"] {
+    font-size: var(--font-size-lg);
+    padding: var(--space-md) var(--space-xl);
+  }
+}

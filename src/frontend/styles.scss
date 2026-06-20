@@ -1,8 +1,4 @@
-@use 'ui-kit/variables' as *;
-@use 'ui-kit/color_schema' as *;
-@use 'ui-kit/mixins' as *;
-@use 'ui-kit/variants' as *;
-@use 'ui-kit/elements/elements' as *;
+@use 'ui-kit' as *;
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 * {
@@ -25,4 +21,6 @@ body {
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
+  font-size: inherit;
+  line-height: 1;
 }
