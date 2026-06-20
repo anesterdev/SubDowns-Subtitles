@@ -1,4 +1,8 @@
 {
+  "page_titles": {
+    "home": "Download YouTube Subtitles",
+    "history": "History"
+  },
   "home": {
     "placeholder": "Paste YouTube URL here...",
     "download": "DOWNLOAD",

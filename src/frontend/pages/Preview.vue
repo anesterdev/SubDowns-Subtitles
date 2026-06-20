@@ -11,6 +11,9 @@ const videoStore = useVideoStore();
 
 const vidId = ref(route.query.vid_id as string || '');
 
+import { watch } from 'vue';
+import { APP_TITLE } from '../constants/index.ts';
+
 onMounted(async () => {
   if (!vidId.value) {
     router.push('/');
@@ -19,6 +22,14 @@ onMounted(async () => {
 
   await videoStore.fetchVideo(vidId.value);
 });
+
+watch(() => videoStore.currentVideo, (newVal) => {
+  if (newVal?.video?.title) {
+    document.title = `${APP_TITLE} - ${newVal.video.title}`;
+  } else {
+    document.title = APP_TITLE;
+  }
+}, { immediate: true });
 </script>
 
 <template>

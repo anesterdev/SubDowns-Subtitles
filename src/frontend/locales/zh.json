@@ -1,4 +1,8 @@
 {
+  "page_titles": {
+    "home": "下载 YouTube 字幕",
+    "history": "历史"
+  },
   "home": {
     "placeholder": "在此粘贴 YouTube 链接...",
     "download": "下载",

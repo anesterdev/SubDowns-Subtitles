@@ -2,8 +2,21 @@
 import { loadLocale } from '../i18n.ts';
 import { useI18n } from 'vue-i18n';
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import i18n from '../i18n.ts';
+import { APP_TITLE } from '../constants/index.ts';
 
 const { locale } = useI18n();
+const route = useRoute();
+
+async function handleLanguageChange(event: Event) {
+  const target = (event.target as HTMLSelectElement).value;
+  await loadLocale(target);
+  
+  if (route.meta.titleKey) {
+    document.title = `${APP_TITLE} - ${i18n.global.t(route.meta.titleKey as string)}`;
+  }
+}
 
 const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 </script>
@@ -11,20 +24,20 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 <template>
   <header class="app-header">
     <div class="header-brand">
-      <strong>Subtitle Downloader</strong>
+      <strong>SubDowns</strong>
     </div>
     <nav class="header-pages">
       <router-link to="/" active-class="active">{{ $t('header.home') }}</router-link>
       <router-link to="/history" active-class="active">{{ $t('header.history') }}</router-link>
     </nav>
     <div class="header-links">
-      <select class="lang-select" :value="locale" @change="loadLocale(($event.target as HTMLSelectElement).value)">
+      <select class="lang-select" :value="locale" @change="handleLanguageChange">
         <option value="en">EN</option>
         <option value="es">ES</option>
         <option value="zh">ZH</option>
         <option value="ru">RU</option>
       </select>
-      <a href="https://github.com" target="_blank">GitHub</a>
+      <a href="https://github.com/anesterdev" target="_blank">GitHub</a>
     </div>
   </header>
 </template>
@@ -39,7 +52,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
   
   display: grid;
   grid-template-columns: auto auto 1fr;
-  gap: var(--space-lg);
+  gap: var(--space-xl);
   align-items: center;
 }
 

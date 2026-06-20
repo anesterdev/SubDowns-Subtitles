@@ -1,4 +1,8 @@
 {
+  "page_titles": {
+    "home": "Descargar Subtítulos de YouTube",
+    "history": "Historial"
+  },
   "home": {
     "placeholder": "Pega la URL de YouTube aquí...",
     "download": "DESCARGAR",

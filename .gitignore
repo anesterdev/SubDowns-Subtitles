@@ -2,4 +2,7 @@ node_modules/
 subtitles/
 sketches/
 dist/
+
+.vscode/
+
 links.json
