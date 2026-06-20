@@ -48,8 +48,9 @@ export const handler = async (c: any) => {
 
   try {
     const playerResponse = await fetchMetadata(vid_id);
-    if (!playerResponse) {
-      return c.json({ error: 'Video metadata not found' }, 400);
+    if (!playerResponse || playerResponse.playabilityStatus?.status === 'ERROR' || !playerResponse.videoDetails) {
+      const reason = playerResponse?.playabilityStatus?.reason || 'Video not found or unavailable';
+      return c.json({ error: reason }, 404);
     }
 
     const videoData = extractVideoData(playerResponse, vid_id);
