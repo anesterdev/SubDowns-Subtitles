@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node download.ts",
     "dev": "vite",
+    "api": "node src/backend/server.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
@@ -13,12 +14,18 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@hono/node-server": "^2.0.5",
+    "@hono/zod-openapi": "^1.4.0",
+    "@scalar/hono-api-reference": "^0.11.4",
+    "hono": "^4.12.26",
     "typescript": "^6.0.3",
     "vue": "^3.5.38",
     "vue-router": "^4.6.4",
-    "youtube-caption-extractor": "^1.10.2"
+    "youtube-caption-extractor": "^1.10.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@hono/vite-dev-server": "^0.26.0",
     "@types/node": "^26.0.0",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/compiler-sfc": "^3.5.38",
