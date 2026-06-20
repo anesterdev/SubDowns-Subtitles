@@ -6,6 +6,10 @@
   "scripts": {
     "start": "node download.ts",
     "dev": "vite",
+    "build:client": "vite build",
+    "build:server": "esbuild src/backend/server.ts --bundle --platform=node --target=node24 --format=esm --outfile=dist/server.mjs --minify --external:esbuild",
+    "build": "npm run build:client && npm run build:server",
+    "start:prod": "node dist/server.mjs",
     "api": "node src/backend/server.ts",
     "typecheck": "tsc --noEmit"
   },
@@ -32,6 +36,7 @@
     "@types/node": "^26.0.0",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/compiler-sfc": "^3.5.38",
+    "esbuild": "^0.28.1",
     "sass": "^1.101.0",
     "vite": "^8.0.16",
     "vue-tsc": "^3.3.5"

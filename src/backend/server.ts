@@ -1,5 +1,6 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
+import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
 
@@ -56,9 +57,16 @@ app.get(
 );
 
 // Serve the compiled Vue frontend statically in production
-if (process.env.NODE_ENV !== 'development') {
-  app.use('/assets/*', serveStatic({ root: './dist' }));
-  app.get('/*', serveStatic({ path: './dist/index.html' }));
+if (process.env.NODE_ENV === 'production') {
+  app.use('/*', serveStatic({ root: './dist/frontend' }));
+  app.get('/*', serveStatic({ path: './dist/frontend/index.html' }));
+
+  const port = parseInt(process.env.PORT || '3069', 10);
+  console.log(`Starting SubDowns Production Server on port ${port}...`);
+  serve({
+    fetch: app.fetch,
+    port
+  });
 }
 
 export default app;
