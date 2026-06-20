@@ -64,8 +64,8 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
 
     <div class="list-wrapper">
       <div class="list-header">
-        <div class="col-language">Language</div>
-        <div class="col-actions">Actions</div>
+        <div class="col-language">{{ $t('subtitles.language') }}</div>
+        <div class="col-actions">{{ $t('subtitles.actions') }}</div>
       </div>
       
       <div class="list-body">
@@ -98,7 +98,7 @@ async function downloadSubs(vidId: string, lang: string, format: string, type: '
         </div>
         
         <div v-if="languages.length === 0" class="empty-state">
-          No languages found.
+          {{ $t('subtitles.no_languages') }}
         </div>
       </div>
     </div>

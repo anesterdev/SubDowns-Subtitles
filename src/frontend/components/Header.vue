@@ -14,10 +14,11 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
       <strong>Subtitle Downloader</strong>
     </div>
     <nav class="header-pages">
-      <a href="#" class="active">Downloader</a>
+      <a href="#" class="active">{{ $t('header.downloader') }}</a>
     </nav>
     <div class="header-links">
       <select class="lang-select" :value="locale" @change="loadLocale(($event.target as HTMLSelectElement).value)">
+        <button type="button" class="select-trigger">{{ displayLanguage }}</button>
         <option value="en">EN</option>
         <option value="es">ES</option>
         <option value="zh">ZH</option>
@@ -90,6 +91,9 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
   }
 
   .lang-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-color: transparent;
     color: var(--text-muted);
     border: none;
@@ -109,6 +113,25 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     option {
       background-color: var(--bg-light);
       color: var(--text);
+    }
+
+    @supports (appearance: base-select) {
+      appearance: base-select;
+
+      &::picker-icon {
+        display: none;
+      }
+
+      .select-trigger {
+        appearance: none;
+        background: transparent;
+        border: none;
+        color: inherit;
+        font: inherit;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
     }
   }
 }

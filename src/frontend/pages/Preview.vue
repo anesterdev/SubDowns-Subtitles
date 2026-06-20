@@ -24,7 +24,7 @@ onMounted(async () => {
 <template>
   <div class="page-container">
     <div v-if="videoStore.status === 'Fetching'" class="loading">
-      Fetching video metadata...
+      {{ $t('preview.fetching') }}
     </div>
     
     <div v-else-if="videoStore.status === 'Ready' && videoStore.currentVideo" class="preview-layout">
@@ -32,7 +32,7 @@ onMounted(async () => {
       
       <div class="subtitles-grid">
         <SubtitlesList 
-          title="Original Subtitles" 
+          :title="$t('preview.original_subtitles')" 
           icon="subtitles" 
           :videoId="videoStore.currentVideo.video.video_id"
           type="manual"
@@ -40,7 +40,7 @@ onMounted(async () => {
         />
         
         <SubtitlesList 
-          title="Auto-translate" 
+          :title="$t('preview.auto_translate')" 
           icon="auto_fix" 
           :videoId="videoStore.currentVideo.video.video_id"
           type="auto"
@@ -50,8 +50,8 @@ onMounted(async () => {
     </div>
     
     <div v-else-if="videoStore.status === 'Error'" class="error">
-      <p>Error fetching video data</p>
-      <button class="warn" @click="router.push('/')">Go Back</button>
+      <p>{{ $t('preview.error_fetching') }}</p>
+      <button class="warn" @click="router.push('/')">{{ $t('preview.go_back') }}</button>
     </div>
   </div>
 </template>

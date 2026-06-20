@@ -3,5 +3,20 @@
     "placeholder": "Paste YouTube URL here...",
     "download": "DOWNLOAD",
     "subtitle": "Enter a URL to extract video subtitles instantly."
+  },
+  "header": {
+    "downloader": "Downloader"
+  },
+  "preview": {
+    "fetching": "Fetching video metadata...",
+    "original_subtitles": "Original Subtitles",
+    "auto_translate": "Auto-translate",
+    "error_fetching": "Error fetching video data",
+    "go_back": "Go Back"
+  },
+  "subtitles": {
+    "language": "Language",
+    "actions": "Actions",
+    "no_languages": "No languages found."
   }
 }

@@ -3,5 +3,20 @@
     "placeholder": "Вставьте ссылку на YouTube здесь...",
     "download": "СКАЧАТЬ",
     "subtitle": "Введите ссылку для мгновенного извлечения субтитров к видео."
+  },
+  "header": {
+    "downloader": "Загрузчик"
+  },
+  "preview": {
+    "fetching": "Получение метаданных видео...",
+    "original_subtitles": "Оригинальные субтитры",
+    "auto_translate": "Автоперевод",
+    "error_fetching": "Ошибка при получении данных видео",
+    "go_back": "Вернуться"
+  },
+  "subtitles": {
+    "language": "Язык",
+    "actions": "Действия",
+    "no_languages": "Языки не найдены."
   }
 }

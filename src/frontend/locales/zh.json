@@ -3,5 +3,20 @@
     "placeholder": "在此粘贴 YouTube 链接...",
     "download": "下载",
     "subtitle": "输入链接，即刻提取视频字幕。"
+  },
+  "header": {
+    "downloader": "下载器"
+  },
+  "preview": {
+    "fetching": "正在获取视频元数据...",
+    "original_subtitles": "原文字幕",
+    "auto_translate": "自动翻译",
+    "error_fetching": "获取视频数据时出错",
+    "go_back": "返回"
+  },
+  "subtitles": {
+    "language": "语言",
+    "actions": "操作",
+    "no_languages": "未找到语言。"
   }
 }
