@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import type { IVideoObject } from '../../interfaces/VideoObject.ts';
+import VideoPreviewIsland from '../components/VideoPreviewIsland.vue';
+import SubtitlesList from '../components/SubtitlesList.vue';
 
 const route = useRoute();
 const router = useRouter();
 
 const vidId = ref(route.query.vid_id as string || '');
 const status = ref('Fetching video metadata...');
-const subtitlesCount = ref(0);
-const subtitlesAvailable = ref(false);
+const videoData = ref<IVideoObject | null>(null);
 
 onMounted(async () => {
   if (!vidId.value) {
@@ -20,86 +22,76 @@ onMounted(async () => {
     const res = await fetch(`/api/v0/video-preview?vid_id=${vidId.value}`);
     if (!res.ok) throw new Error('Video metadata not found');
     
-    const data = await res.json();
-    subtitlesCount.value = data.subtitles.count;
-    subtitlesAvailable.value = data.subtitles.count > 0;
+    videoData.value = await res.json();
     status.value = 'Ready';
   } catch (error) {
     status.value = 'Error fetching video data';
   }
 });
-
-function downloadSubtitles() {
-  status.value = 'Downloading subtitles...';
-}
 </script>
 
 <template>
   <div class="page-container">
-    <h1>Video Preview</h1>
-    <p class="vid-id">Target Video ID: <span>{{ vidId }}</span></p>
-
-    <div class="stats-card">
-      <div v-if="status === 'Fetching video metadata...'" class="loading">
-        {{ status }}
-      </div>
-      <div v-else class="results">
-        <h2>Subtitles Found: <span class="highlight">{{ subtitlesCount }}</span></h2>
+    <div v-if="status === 'Fetching video metadata...'" class="loading">
+      {{ status }}
+    </div>
+    
+    <div v-else-if="videoData" class="preview-layout">
+      <VideoPreviewIsland :video="videoData.video" />
+      
+      <div class="subtitles-grid">
+        <SubtitlesList 
+          title="Original Subtitles" 
+          icon="subtitles" 
+          :languages="videoData.subtitles?.available_languages || []" 
+        />
         
-        <div class="actions" v-if="subtitlesAvailable">
-          <button @click="downloadSubtitles">Download All Available</button>
-        </div>
-        <p class="status">{{ status }}</p>
+        <SubtitlesList 
+          title="Auto-translate" 
+          icon="auto_fix" 
+          :languages="[]" 
+        />
       </div>
     </div>
     
-    <button class="warn" @click="router.push('/')">Go Back</button>
+    <div v-else class="error">
+      <p>{{ status }}</p>
+      <button class="warn" @click="router.push('/')">Go Back</button>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .page-container {
-  max-width: 600px;
-  margin: calc(4rem + calc(var(--space-xl) * 2)) auto calc(var(--space-xl) * 2);
-  text-align: center;
+  max-width: 1200px;
+  margin: calc(4rem + var(--space-xl)) auto var(--space-xl);
+  padding: 0 var(--space-lg);
 }
 
-.vid-id {
-  margin-top: var(--space-md);
-  color: var(--text-muted);
-  
-  span {
-    color: var(--text-bright);
-    font-family: monospace;
-  }
-}
-
-.stats-card {
-  background-color: var(--bg-light);
-  border: 1px solid rgba(var(--rgb-white), 0.09);
-  border-radius: var(--radius-md);
-  padding: var(--space-xl);
-  margin: calc(var(--space-xl) * 1.5) 0;
-}
-
-.highlight {
-  color: var(--text-accent);
-}
-
-.actions {
+.preview-layout {
   display: flex;
-  justify-content: center;
-  margin-top: var(--space-lg);
+  flex-direction: column;
+  gap: var(--space-xl);
 }
 
-.status {
-  margin-top: var(--space-lg);
-  font-weight: bold;
-  color: var(--text-muted);
+.subtitles-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
 }
 
-.loading {
+.loading, .error {
+  text-align: center;
   color: var(--text-muted);
   font-style: italic;
+  margin-top: calc(var(--space-xl) * 2);
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  color: var(--error);
 }
 </style>
