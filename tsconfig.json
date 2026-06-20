@@ -12,7 +12,9 @@
     "rootDir": "./",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
