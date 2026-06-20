@@ -1,13 +1,28 @@
 <script setup lang="ts">
 import { loadLocale } from '../i18n.ts';
 import { useI18n } from 'vue-i18n';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import i18n from '../i18n.ts';
 import { APP_TITLE } from '../constants/index.ts';
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 const route = useRoute();
+
+const isLightTheme = ref(false);
+
+onMounted(() => {
+  isLightTheme.value = document.body.classList.contains('theme-white');
+});
+
+function toggleTheme() {
+  isLightTheme.value = !isLightTheme.value;
+  if (isLightTheme.value) {
+    document.body.classList.add('theme-white');
+  } else {
+    document.body.classList.remove('theme-white');
+  }
+}
 
 async function handleLanguageChange(event: Event) {
   const target = (event.target as HTMLSelectElement).value;
@@ -27,8 +42,8 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
       <strong><span>Sub</span>Downs</strong>
     </div>
     <nav class="header-pages">
-      <router-link to="/" active-class="active">{{ $t('header.home') }}</router-link>
-      <router-link to="/history" active-class="active">{{ $t('header.history') }}</router-link>
+      <router-link to="/" active-class="active">{{ t('header.home') }}</router-link>
+      <router-link to="/history" active-class="active">{{ t('header.history') }}</router-link>
     </nav>
     <div class="header-links">
       <select class="lang-select" :value="locale" @change="handleLanguageChange">
@@ -37,6 +52,9 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
         <option value="zh">ZH</option>
         <option value="ru">RU</option>
       </select>
+      <button class="theme-toggle" @click="toggleTheme">
+        {{ isLightTheme ? t('header.theme_dark') : t('header.theme_light') }}
+      </button>
       <a href="https://github.com/anesterdev" target="_blank">GitHub</a>
     </div>
   </header>
@@ -98,6 +116,21 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
     font-weight: 600;
     transition: color var(--transition-fast) ease;
     
+    &:hover {
+      color: var(--text-bright);
+    }
+  }
+
+  .theme-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    transition: color var(--transition-fast) ease;
+
     &:hover {
       color: var(--text-bright);
     }

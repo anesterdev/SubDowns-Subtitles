@@ -10,7 +10,9 @@
   },
   "header": {
     "home": "Home",
-    "history": "History"
+    "history": "History",
+    "theme_light": "Light",
+    "theme_dark": "Dark"
   },
   "preview": {
     "fetching": "Fetching video metadata...",

@@ -10,7 +10,9 @@
   },
   "header": {
     "home": "Inicio",
-    "history": "Historial"
+    "history": "Historial",
+    "theme_light": "Claro",
+    "theme_dark": "Oscuro"
   },
   "preview": {
     "fetching": "Obteniendo metadatos del video...",

@@ -10,7 +10,9 @@
   },
   "header": {
     "home": "Главная",
-    "history": "История"
+    "history": "История",
+    "theme_light": "Светлая",
+    "theme_dark": "Темная"
   },
   "preview": {
     "fetching": "Получение метаданных видео...",

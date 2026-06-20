@@ -24,3 +24,22 @@
   --warn: rgb(var(--rgb-warn));
   --warn-bg: rgba(var(--rgb-warn), 0.16);
 }
+
+body.theme-white {
+  --rgb-bg: 255, 255, 255 !important;
+  --bg: rgb(var(--rgb-bg)) !important;
+
+  --rgb-bg-light: 255, 255, 255 !important;
+  --bg-light: rgb(var(--rgb-bg-light)) !important;
+
+  --rgb-white: 31, 34, 37 !important;
+  --bg-dimm: rgba(var(--rgb-white), 0.1) !important;
+
+  --rgb-accent: 24, 160, 88 !important;
+  --bg-accent: rgba(var(--rgb-accent), 0.16) !important;
+  --text-accent: rgb(var(--rgb-accent)) !important;
+
+  --text: rgba(var(--rgb-white), 0.82) !important;
+  --text-bright: rgba(var(--rgb-white), 0.9) !important;
+  --text-muted: rgba(var(--rgb-white), 0.52) !important;
+}

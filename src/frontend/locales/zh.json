@@ -10,7 +10,9 @@
   },
   "header": {
     "home": "首页",
-    "history": "历史记录"
+    "history": "历史记录",
+    "theme_light": "浅色",
+    "theme_dark": "深色"
   },
   "preview": {
     "fetching": "正在获取视频元数据...",
