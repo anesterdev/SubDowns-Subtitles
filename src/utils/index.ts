@@ -24,12 +24,16 @@ export function extractVideoData(playerResponse: any, videoId: string) {
     const channelName = playerResponse.videoDetails?.author || 'Unknown Channel';
     const channelId = playerResponse.videoDetails?.channelId || '';
     const publishDate = playerResponse.microformat?.playerMicroformatRenderer?.publishDate || '';
+    
+    const thumbnails = playerResponse.videoDetails?.thumbnail?.thumbnails || [];
+    const bestThumbnail = thumbnails.length > 0 ? thumbnails[thumbnails.length - 1].url : undefined;
 
     return {
         video: {
             title,
             video_id: videoId,
             created_at: publishDate,
+            thumbnail_url: bestThumbnail,
         },
         author: {
             channel_name: channelName,
