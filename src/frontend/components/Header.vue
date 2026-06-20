@@ -19,8 +19,10 @@ function toggleTheme() {
   isLightTheme.value = !isLightTheme.value;
   if (isLightTheme.value) {
     document.body.classList.add('theme-white');
+    localStorage.setItem('theme', 'light');
   } else {
     document.body.classList.remove('theme-white');
+    localStorage.setItem('theme', 'dark');
   }
 }
 
@@ -65,7 +67,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
   height: 4rem;
 
   background-color: var(--bg-light);
-  border-bottom: 1px solid rgba(var(--rgb-white), 0.09);
+  border-bottom: 1px solid rgba(var(--rgb-foreground), 0.09);
   padding: 0 var(--space-xl);
   
   display: grid;

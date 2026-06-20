@@ -2,7 +2,7 @@
 
 select {
   padding: var(--space-xs) var(--space-sm);
-  border: 1px solid rgba(var(--rgb-white), 0.1);
+  border: 1px solid rgba(var(--rgb-foreground), 0.1);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-base);
   background: transparent;
@@ -12,7 +12,7 @@ select {
 
   &:hover {
     color: var(--text-bright);
-    border-color: rgba(var(--rgb-white), 0.3);
+    border-color: rgba(var(--rgb-foreground), 0.3);
   }
 }
 
@@ -23,7 +23,7 @@ select {
 
   select::picker(select) {
     appearance: base-select;
-    border: 1px solid rgba(var(--rgb-white), 0.1);
+    border: 1px solid rgba(var(--rgb-foreground), 0.1);
     border-radius: var(--radius-sm);
     padding: var(--space-xs);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -44,7 +44,7 @@ select {
   }
 
   option:hover {
-    background: rgba(var(--rgb-white), 0.05);
+    background: rgba(var(--rgb-foreground), 0.05);
     color: var(--text-bright);
   }
 
@@ -54,6 +54,6 @@ select {
   }
 
   select:open {
-    border-color: rgba(var(--rgb-white), 0.3);
+    border-color: rgba(var(--rgb-foreground), 0.3);
   }
 }

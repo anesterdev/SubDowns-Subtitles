@@ -83,15 +83,19 @@ function createMCPServer() {
   return server;
 }
 
-let isMCPRunning = false;
+const activeConnections = new Map<string, {
+  server: Server;
+  transport: SSEServerTransport;
+}>();
 
 export async function initMCPServer() {
-  if (isMCPRunning) return;
-  isMCPRunning = true;
+  const globalKey = "__mcp_server_running__";
+  if ((globalThis as any)[globalKey]) {
+    return;
+  }
+  (globalThis as any)[globalKey] = true;
 
   const port = 9000;
-  let activeServer: Server | null = null;
-  let transport: SSEServerTransport | null = null;
 
   const httpServer = http.createServer(async (req, res) => {
     console.log(`[MCP Server] Incoming request: ${req.method} ${req.url}`);
@@ -108,34 +112,47 @@ export async function initMCPServer() {
     }
 
     if (req.method === "GET" && req.url === "/sse") {
-      if (activeServer) {
-        try { await activeServer.close(); } catch (e) { }
-      }
-
-      activeServer = createMCPServer();
+      const server = createMCPServer();
 
       const host = req.headers.host || "127.0.0.1:9000";
       const protocol = (req.socket as import('node:tls').TLSSocket).encrypted ? "https" : "http";
       const messageUrl = `${protocol}://${host}/message`;
 
-      transport = new SSEServerTransport(messageUrl, res);
-      console.log(`[MCP Server] SSE connection established. Message URL: ${messageUrl}`);
-      await activeServer.connect(transport);
-    } else if (req.url?.startsWith("/message") && req.method === "POST") {
-      console.log(`[MCP Server] Received POST message on ${req.url}`);
-      if (transport) {
+      const transport = new SSEServerTransport(messageUrl, res);
+      const sessionId = transport.sessionId;
+
+      activeConnections.set(sessionId, { server, transport });
+      console.log(`[MCP Server] SSE connection established. Session: ${sessionId}, Message URL: ${messageUrl}`);
+
+      req.on("close", async () => {
+        console.log(`[MCP Server] SSE connection closed for session: ${sessionId}`);
+        activeConnections.delete(sessionId);
         try {
-          await transport.handlePostMessage(req, res);
-          console.log(`[MCP Server] Handled POST message successfully.`);
-        } catch (err) {
-          const message = err instanceof Error ? err.message : 'Unknown error';
-          console.error(`[MCP Server] Error handling POST message:`, message);
+          await server.close();
+        } catch (e) {}
+      });
+
+      await server.connect(transport);
+    } else if (req.url?.startsWith("/message") && req.method === "POST") {
+      const urlObj = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`);
+      const sessionId = urlObj.searchParams.get("sessionId");
+
+      if (sessionId) {
+        const connection = activeConnections.get(sessionId);
+        if (connection) {
+          try {
+            await connection.transport.handlePostMessage(req, res);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            console.error(`[MCP Server] Error handling POST message for session ${sessionId}:`, message);
+          }
+          return;
         }
-      } else {
-        console.log(`[MCP Server] Rejected POST message: SSE transport not established.`);
-        res.writeHead(400);
-        res.end("SSE connection not established");
       }
+
+      console.log(`[MCP Server] Rejected POST message: Session not found or SSE transport not established.`);
+      res.writeHead(400);
+      res.end("SSE connection not established");
     } else {
       console.log(`[MCP Server] 404 Not Found for ${req.method} ${req.url}`);
       res.writeHead(404);

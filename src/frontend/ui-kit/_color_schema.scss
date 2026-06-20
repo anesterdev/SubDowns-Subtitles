@@ -5,16 +5,16 @@
   --rgb-bg-light: 24, 24, 28;
   --bg-light: rgb(var(--rgb-bg-light));
 
-  --rgb-white: 255, 255, 255;
-  --bg-dimm: rgba(var(--rgb-white), 0.1);
+  --rgb-foreground: 255, 255, 255;
+  --bg-dimm: rgba(var(--rgb-foreground), 0.1);
 
   --rgb-accent: 99, 226, 183;
   --bg-accent: rgba(var(--rgb-accent), 0.16);
   --text-accent: rgb(var(--rgb-accent));
 
-  --text: rgba(var(--rgb-white), 0.82);
-  --text-bright: rgba(var(--rgb-white), 0.9);
-  --text-muted: rgba(var(--rgb-white), 0.52);
+  --text: rgba(var(--rgb-foreground), 0.82);
+  --text-bright: rgba(var(--rgb-foreground), 0.9);
+  --text-muted: rgba(var(--rgb-foreground), 0.52);
 
   --rgb-error: 232, 128, 128;
   --error: rgb(var(--rgb-error));
@@ -23,23 +23,27 @@
   --rgb-warn: 242, 201, 125;
   --warn: rgb(var(--rgb-warn));
   --warn-bg: rgba(var(--rgb-warn), 0.16);
+
+  /* Helper tokens */
+  --rgb-white: 255, 255, 255;
+  --rgb-black: 0, 0, 0;
 }
 
 body.theme-white {
-  --rgb-bg: 255, 255, 255 !important;
-  --bg: rgb(var(--rgb-bg)) !important;
+  --rgb-bg: 255, 255, 255;
+  --bg: rgb(var(--rgb-bg));
 
-  --rgb-bg-light: 255, 255, 255 !important;
-  --bg-light: rgb(var(--rgb-bg-light)) !important;
+  --rgb-bg-light: 245, 245, 247;
+  --bg-light: rgb(var(--rgb-bg-light));
 
-  --rgb-white: 31, 34, 37 !important;
-  --bg-dimm: rgba(var(--rgb-white), 0.1) !important;
+  --rgb-foreground: 31, 34, 37;
+  --bg-dimm: rgba(var(--rgb-foreground), 0.1);
 
-  --rgb-accent: 24, 160, 88 !important;
-  --bg-accent: rgba(var(--rgb-accent), 0.16) !important;
-  --text-accent: rgb(var(--rgb-accent)) !important;
+  --rgb-accent: 24, 160, 88;
+  --bg-accent: rgba(var(--rgb-accent), 0.16);
+  --text-accent: rgb(var(--rgb-accent));
 
-  --text: rgba(var(--rgb-white), 0.82) !important;
-  --text-bright: rgba(var(--rgb-white), 0.9) !important;
-  --text-muted: rgba(var(--rgb-white), 0.52) !important;
+  --text: rgba(var(--rgb-foreground), 0.82);
+  --text-bright: rgba(var(--rgb-foreground), 0.9);
+  --text-muted: rgba(var(--rgb-foreground), 0.52);
 }

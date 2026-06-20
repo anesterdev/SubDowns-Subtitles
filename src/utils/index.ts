@@ -6,18 +6,88 @@ export function extractVideoId(url: string): string | null {
     return match ? match[1] : null;
 }
 
+export function extractJsonByName(html: string, varName: string): string | null {
+    const searchStrings = [
+        `var ${varName} = `,
+        `window['${varName}'] = `,
+        `window.${varName} = `,
+        `${varName} = `
+    ];
+    
+    let startIdx = -1;
+    for (const search of searchStrings) {
+        startIdx = html.indexOf(search);
+        if (startIdx !== -1) {
+            startIdx += search.length;
+            break;
+        }
+    }
+    if (startIdx === -1) return null;
+
+    const openBraceIdx = html.indexOf('{', startIdx);
+    if (openBraceIdx === -1) return null;
+
+    let braceCount = 1;
+    let inString = false;
+    let escape = false;
+    let i = openBraceIdx + 1;
+
+    for (; i < html.length && braceCount > 0; i++) {
+        const char = html[i];
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (char === '\\') {
+            escape = true;
+            continue;
+        }
+        if (char === '"') {
+            inString = !inString;
+            continue;
+        }
+        if (!inString) {
+            if (char === '{') {
+                braceCount++;
+            } else if (char === '}') {
+                braceCount--;
+            }
+        }
+    }
+
+    if (braceCount === 0) {
+        return html.substring(openBraceIdx, i);
+    }
+    return null;
+}
+
 export async function fetchMetadata(videoId: string): Promise<YouTubePlayerResponse | null> {
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
         headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' }
     });
     const html = await res.text();
-    const match = html.match(/var ytInitialPlayerResponse = ({.*?});/);
-    if (!match) return null;
-    try {
-        return JSON.parse(match[1]);
-    } catch (e) {
-        return null;
+    
+    // Primary: robust balanced braces parser
+    const jsonStr = extractJsonByName(html, 'ytInitialPlayerResponse');
+    if (jsonStr) {
+        try {
+            return JSON.parse(jsonStr);
+        } catch (e) {
+            // Ignore and try fallback
+        }
     }
+    
+    // Secondary fallback: regex
+    const match = html.match(/ytInitialPlayerResponse\s*=\s*({.*?});/);
+    if (match) {
+        try {
+            return JSON.parse(match[1]);
+        } catch (e) {
+            // Ignore
+        }
+    }
+    
+    return null;
 }
 
 export function extractVideoData(playerResponse: YouTubePlayerResponse, videoId: string) {

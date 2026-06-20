@@ -114,7 +114,7 @@ function formatDuration(duration?: string | number) {
   gap: var(--space-lg);
   padding: var(--space-lg);
   background-color: var(--bg-light);
-  border: 1px solid rgba(var(--rgb-white), 0.08);
+  border: 1px solid rgba(var(--rgb-foreground), 0.08);
   border-radius: var(--radius-lg);
   transition: border-color var(--transition-fast) ease;
 
@@ -184,7 +184,7 @@ function formatDuration(duration?: string | number) {
       gap: var(--space-md);
       padding: var(--space-md);
       background-color: rgba(var(--rgb-bg-lowest), 0.5);
-      border: 1px solid rgba(var(--rgb-white), 0.05);
+      border: 1px solid rgba(var(--rgb-foreground), 0.05);
       border-radius: var(--radius-md);
 
       .lang-info {
@@ -208,7 +208,7 @@ function formatDuration(duration?: string | number) {
 
         .badge {
           padding: 2px var(--space-sm);
-          background-color: rgba(var(--rgb-white), 0.05);
+          background-color: rgba(var(--rgb-foreground), 0.05);
           border-radius: 4px;
           font-size: 10px;
           text-transform: uppercase;

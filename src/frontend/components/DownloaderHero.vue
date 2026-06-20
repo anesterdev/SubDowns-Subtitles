@@ -84,7 +84,7 @@ function onDownload() {
     padding-left: 3rem;
     padding-right: 3rem;
     background-color: var(--bg-light);
-    border: 1px solid rgba(var(--rgb-white), 0.1);
+    border: 1px solid rgba(var(--rgb-foreground), 0.1);
     border-radius: var(--radius-md);
     color: var(--text-bright);
     font-size: var(--font-size-base);

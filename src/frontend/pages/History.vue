@@ -160,9 +160,9 @@ function viewVideo(vidId: string) {
   color: var(--text-muted);
   font-style: italic;
   padding: calc(var(--space-xl) * 2) 0;
-  background-color: rgba(var(--rgb-white), 0.02);
+  background-color: rgba(var(--rgb-foreground), 0.02);
   border-radius: var(--radius-lg);
-  border: 1px dashed rgba(var(--rgb-white), 0.1);
+  border: 1px dashed rgba(var(--rgb-foreground), 0.1);
 }
 
 .cards-grid {
@@ -175,7 +175,7 @@ function viewVideo(vidId: string) {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-light);
-  border: 1px solid rgba(var(--rgb-white), 0.05);
+  border: 1px solid rgba(var(--rgb-foreground), 0.05);
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
@@ -241,8 +241,8 @@ function viewVideo(vidId: string) {
 }
 
 .badge {
-  background: rgba(var(--rgb-white), 0.05);
-  border: 1px solid rgba(var(--rgb-white), 0.1);
+  background: rgba(var(--rgb-foreground), 0.05);
+  border: 1px solid rgba(var(--rgb-foreground), 0.1);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   font-size: 0.7rem;

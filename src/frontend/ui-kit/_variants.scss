@@ -1,13 +1,13 @@
 @mixin btn-default {
-  background-color: rgba(var(--rgb-white), 0.08);
-  color: rgba(var(--rgb-white), 0.82);
+  background-color: rgba(var(--rgb-foreground), 0.08);
+  color: rgba(var(--rgb-foreground), 0.82);
 
   &:hover {
-    background-color: rgba(var(--rgb-white), 0.12);
+    background-color: rgba(var(--rgb-foreground), 0.12);
   }
 
   &:active {
-    background-color: rgba(var(--rgb-white), 0.08);
+    background-color: rgba(var(--rgb-foreground), 0.08);
   }
 }
 
