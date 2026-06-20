@@ -35,8 +35,29 @@ Ensure you have [Node.js v24+](https://nodejs.org/) installed on your machine.
 4. Open your browser and navigate to the provided local URL (typically `http://localhost:5173`).
 
 ### Alternative Start (Docker)
-1. Build with `docker build -t subdowns-app .`
-2. Run with `docker run -p 3069:3069 -p 9000:9000 subdowns-app`
+
+You can run the application container using Docker Compose or native Docker commands:
+
+#### Option A: Docker Compose (Recommended)
+1. Start the container in detached mode:
+   ```bash
+   docker compose up -d
+   ```
+2. Stop the container:
+   ```bash
+   docker compose down
+   ```
+
+#### Option B: Manual Docker Commands
+1. Build the image:
+   ```bash
+   docker build -t subdowns-app .
+   ```
+2. Run the container:
+   ```bash
+   docker run -d -p 3069:3069 -p 9000:9000 --name subdowns subdowns-app
+   ```
+
 
 
 

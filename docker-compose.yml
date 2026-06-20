@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    container_name: subdowns
+    ports:
+      - "3069:3069"
+      - "9000:9000"
+    restart: unless-stopped
