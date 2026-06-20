@@ -13,7 +13,7 @@ export function extractJsonByName(html: string, varName: string): string | null 
         `window.${varName} = `,
         `${varName} = `
     ];
-    
+
     let startIdx = -1;
     for (const search of searchStrings) {
         startIdx = html.indexOf(search);
@@ -66,7 +66,7 @@ export async function fetchMetadata(videoId: string): Promise<YouTubePlayerRespo
         headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' }
     });
     const html = await res.text();
-    
+
     // Primary: robust balanced braces parser
     const jsonStr = extractJsonByName(html, 'ytInitialPlayerResponse');
     if (jsonStr) {
@@ -76,7 +76,7 @@ export async function fetchMetadata(videoId: string): Promise<YouTubePlayerRespo
             // Ignore and try fallback
         }
     }
-    
+
     // Secondary fallback: regex
     const match = html.match(/ytInitialPlayerResponse\s*=\s*({.*?});/);
     if (match) {
@@ -86,7 +86,7 @@ export async function fetchMetadata(videoId: string): Promise<YouTubePlayerRespo
             // Ignore
         }
     }
-    
+
     return null;
 }
 
@@ -96,7 +96,7 @@ export function extractVideoData(playerResponse: YouTubePlayerResponse, videoId:
     const channelId = playerResponse.videoDetails?.channelId || '';
     const publishDate = playerResponse.microformat?.playerMicroformatRenderer?.publishDate || '';
     const lengthSeconds = playerResponse.videoDetails?.lengthSeconds || '0';
-    
+
     const thumbnails = playerResponse.videoDetails?.thumbnail?.thumbnails || [];
     const bestThumbnail = thumbnails.length > 0 ? thumbnails[thumbnails.length - 1].url : undefined;
 
@@ -116,7 +116,7 @@ export function extractVideoData(playerResponse: YouTubePlayerResponse, videoId:
 }
 
 export function computeFileHash(content: string): string {
-    return crypto.createHash('md5').update(content, 'utf8').digest('hex');
+    return crypto.createHash('sha256').update(content, 'utf8').digest('hex');
 }
 
 export function getFileSize(content: string): string {
@@ -153,7 +153,7 @@ export function formatTime(secondsStr: string) {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = Math.floor(totalSeconds % 60);
     const ms = Math.floor((totalSeconds % 1) * 1000);
-    
+
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
 }
 
