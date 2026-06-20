@@ -3,14 +3,13 @@ import { apiReference } from '@scalar/hono-api-reference';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
 
+import apiRouter from './api/index.ts';
+
 const app = new OpenAPIHono();
 
 // Add CORS so the Vite frontend can access it
 app.use('/api/*', cors());
 
-const api = new OpenAPIHono();
-
-// Example route using Zod for validation
 const healthRoute = createRoute({
   method: 'get',
   path: '/health',
@@ -28,17 +27,13 @@ const healthRoute = createRoute({
   },
 });
 
-import videoPreviewRouter from './api/v0/video-preview/index.ts';
 
-api.openapi(healthRoute, (c) => {
+apiRouter.openapi(healthRoute, (c) => {
   return c.json({ status: 'ok' }, 200);
 });
 
 // Mount the API on the main app
-app.route('/api', api);
-
-// Mount the v0 APIs
-app.route('/api/v0/video-preview', videoPreviewRouter);
+app.route('/api', apiRouter);
 
 // Configure OpenAPI spec endpoint
 app.doc('/api/openapi.json', {

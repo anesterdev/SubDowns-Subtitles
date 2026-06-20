@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
-defineProps<{
+const props = defineProps<{
   video: IVideoObject['video'];
 }>();
+
+function downloadSubs(lang: string, format: string) {
+  if (!props.video?.video_id) return;
+  const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}`;
+  window.open(url, '_blank');
+}
 </script>
 
 <template>
@@ -33,13 +39,13 @@ defineProps<{
           <span class="badge">Auto-generated</span>
         </div>
         <div class="actions">
-          <button variant="action" size="sm">
+          <button variant="action" size="sm" @click="downloadSubs('English', 'srt')">
             <span class="material-symbols-outlined">description</span> SRT
           </button>
-          <button variant="action" size="sm">
+          <button variant="action" size="sm" @click="downloadSubs('English', 'txt')">
             <span class="material-symbols-outlined">article</span> TXT
           </button>
-          <button variant="action" size="sm">
+          <button variant="action" size="sm" @click="downloadSubs('English', 'raw')">
             <span class="material-symbols-outlined">data_object</span> RAW
           </button>
         </div>

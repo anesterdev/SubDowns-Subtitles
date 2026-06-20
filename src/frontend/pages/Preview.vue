@@ -34,12 +34,14 @@ onMounted(async () => {
         <SubtitlesList 
           title="Original Subtitles" 
           icon="subtitles" 
+          :videoId="videoStore.currentVideo.video.video_id"
           :languages="videoStore.currentVideo.subtitles?.available_languages || []" 
         />
         
         <SubtitlesList 
           title="Auto-translate" 
           icon="auto_fix" 
+          :videoId="videoStore.currentVideo.video.video_id"
           :languages="[]" 
         />
       </div>

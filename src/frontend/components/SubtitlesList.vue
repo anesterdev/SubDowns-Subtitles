@@ -3,7 +3,14 @@ defineProps<{
   title: string;
   icon: string;
   languages: string[];
+  videoId: string;
 }>();
+
+function downloadSubs(vidId: string, lang: string, format: string) {
+  if (!vidId) return;
+  const url = `/api/v0/download?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}&format=${format}`;
+  window.open(url, '_blank');
+}
 </script>
 
 <template>
@@ -31,13 +38,13 @@ defineProps<{
           <span class="lang-name">{{ lang }}</span>
         </div>
         <div class="col-actions">
-          <button variant="action" size="sm">
+          <button variant="action" size="sm" @click="downloadSubs(videoId, lang, 'srt')">
             <span class="material-symbols-outlined">description</span> SRT
           </button>
-          <button variant="action" size="sm">
+          <button variant="action" size="sm" @click="downloadSubs(videoId, lang, 'txt')">
             <span class="material-symbols-outlined">article</span> TXT
           </button>
-          <button variant="action" size="sm">
+          <button variant="action" size="sm" @click="downloadSubs(videoId, lang, 'raw')">
             <span class="material-symbols-outlined">data_object</span> RAW
           </button>
         </div>
