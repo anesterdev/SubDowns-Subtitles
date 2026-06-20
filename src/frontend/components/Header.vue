@@ -24,7 +24,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 <template>
   <header class="app-header">
     <div class="header-brand">
-      <strong>SubDowns</strong>
+      <strong><span>Sub</span>Downs</strong>
     </div>
     <nav class="header-pages">
       <router-link to="/" active-class="active">{{ $t('header.home') }}</router-link>
@@ -59,6 +59,10 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 .header-brand {
   justify-self: start;
   font-size: var(--font-size-lg);
+
+  span {
+    color: var(--text-accent)
+  }
 }
 
 .header-pages {

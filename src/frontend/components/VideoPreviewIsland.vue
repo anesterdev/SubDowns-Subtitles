@@ -1,23 +1,62 @@
 <script setup lang="ts">
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps<{
   video?: IVideoObject['video'];
+  author?: IVideoObject['author'];
+  subtitles?: IVideoObject['subtitles'];
   loading?: boolean;
 }>();
 
+const mainLanguageInfo = computed(() => {
+  if (props.subtitles?.available_languages && props.subtitles.available_languages.length > 0) {
+    return {
+      language: props.subtitles.available_languages[0],
+      type: 'manual' as const,
+      badgeText: 'Original'
+    };
+  }
+  if (props.subtitles?.auto_translate_languages && props.subtitles.auto_translate_languages.length > 0) {
+    return {
+      language: props.subtitles.auto_translate_languages[0],
+      type: 'auto' as const,
+      badgeText: 'Auto-generated'
+    };
+  }
+  return null;
+});
+
+function formatDuration(duration?: string | number) {
+  if (!duration) return '00:00';
+  const totalSeconds = parseInt(duration.toString(), 10);
+  if (isNaN(totalSeconds)) return '00:00';
+
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = Math.floor(totalSeconds % 60);
+
+  const mStr = m.toString().padStart(2, '0');
+  const sStr = s.toString().padStart(2, '0');
+
+  if (h > 0) {
+    const hStr = h.toString().padStart(2, '0');
+    return `${hStr}:${mStr}:${sStr}`;
+  }
+  return `${mStr}:${sStr}`;
+}
+
 const isDownloading = ref<Record<string, boolean>>({});
 
-async function downloadSubs(lang: string, format: string) {
+async function downloadSubs(lang: string, format: string, type: 'manual' | 'auto') {
   if (!props.video?.video_id) return;
   
   const key = `${lang}-${format}`;
   isDownloading.value[key] = true;
 
   try {
-    const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}&type=manual`;
+    const url = `/api/v0/download?vid_id=${encodeURIComponent(props.video.video_id)}&lang=${encodeURIComponent(lang)}&format=${format}&type=${type}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Download failed');
     
@@ -59,9 +98,13 @@ async function downloadSubs(lang: string, format: string) {
       </h2>
       
       <div class="details" :class="{ skeleton: loading || !video }">
+        <span class="detail-item" v-if="author">
+          <span class="material-symbols-outlined icon">person</span>
+          {{ author.channel_name }}
+        </span>
         <span class="detail-item">
           <span class="material-symbols-outlined icon">schedule</span>
-          {{ video?.duration || '00:00' }}
+          {{ formatDuration(video?.duration) }}
         </span>
         <span class="detail-item">
           <span class="material-symbols-outlined icon">hd</span>
@@ -69,25 +112,25 @@ async function downloadSubs(lang: string, format: string) {
         </span>
       </div>
 
-      <div class="main-language-block" :class="{ skeleton: loading || !video }" v-if="video?.main_language || loading || !video">
+      <div class="main-language-block" :class="{ skeleton: loading || !video }" v-if="mainLanguageInfo || loading || !video">
         <div class="lang-info">
           <span class="material-symbols-outlined text-accent icon">translate</span>
-          <span class="lang-name">{{ video?.main_language || 'English' }}</span>
-          <span class="badge">Auto-generated</span>
+          <span class="lang-name">{{ mainLanguageInfo?.language || 'Skeleton Text' }}</span>
+          <span class="badge" :class="{'auto-badge': mainLanguageInfo?.type === 'auto'}">{{ mainLanguageInfo?.badgeText || 'Original' }}</span>
         </div>
         <div class="actions">
-          <button variant="action" size="sm" :disabled="isDownloading['English-srt']" @click="downloadSubs('English', 'srt')">
-            <span class="material-symbols-outlined" v-if="!isDownloading['English-srt']">description</span>
+          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-srt`]" @click="mainLanguageInfo && downloadSubs(mainLanguageInfo.language, 'srt', mainLanguageInfo.type)">
+            <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-srt`]">description</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             SRT
           </button>
-          <button variant="action" size="sm" :disabled="isDownloading['English-txt']" @click="downloadSubs('English', 'txt')">
-            <span class="material-symbols-outlined" v-if="!isDownloading['English-txt']">article</span>
+          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-txt`]" @click="mainLanguageInfo && downloadSubs(mainLanguageInfo.language, 'txt', mainLanguageInfo.type)">
+            <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-txt`]">article</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             TXT
           </button>
-          <button variant="action" size="sm" :disabled="isDownloading['English-raw']" @click="downloadSubs('English', 'raw')">
-            <span class="material-symbols-outlined" v-if="!isDownloading['English-raw']">data_object</span>
+          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-raw`]" @click="mainLanguageInfo && downloadSubs(mainLanguageInfo.language, 'raw', mainLanguageInfo.type)">
+            <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-raw`]">data_object</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             RAW
           </button>

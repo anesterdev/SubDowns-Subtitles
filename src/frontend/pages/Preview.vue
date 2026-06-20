@@ -37,6 +37,8 @@ watch(() => videoStore.currentVideo, (newVal) => {
     <div v-if="videoStore.status === 'Fetching' || (videoStore.status === 'Ready' && videoStore.currentVideo)" class="preview-layout">
       <VideoPreviewIsland 
         :video="videoStore.currentVideo?.video" 
+        :author="videoStore.currentVideo?.author"
+        :subtitles="videoStore.currentVideo?.subtitles"
         :loading="videoStore.status === 'Fetching'"
       />
       
