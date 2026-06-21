@@ -84,7 +84,7 @@ describe('Header.vue Component', () => {
     // Toggle theme back to dark
     await button.trigger('click');
     expect(document.body.classList.contains('theme-white')).toBe(false);
-    expect(['dark', 'auto']).toContain(localStorage.getItem('theme'));
+    expect(localStorage.getItem('theme')).toBe('auto');
   });
 
   it('handles language changes correctly', async () => {
