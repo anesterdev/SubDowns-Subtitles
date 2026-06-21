@@ -1,5 +1,5 @@
 import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
-import { fetchMetadata } from '../../../../../utils/index.ts';
+import { fetchMetadata, selectCaptionTrack } from '../../../../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
 import { YouTubeCaptionTrack, SubtitleItem } from '../../../../../interfaces/YouTube.ts';
 
@@ -41,13 +41,9 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       return c.text('No subtitles available for this video', 400);
     }
 
-    const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
-    
-    let selectedTrack;
-    if (matchingTracks.length > 0) {
-      selectedTrack = matchingTracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase() === lang.toLowerCase()) || matchingTracks[0];
-    } else {
-      selectedTrack = tracks[0];
+    const selectedTrack = selectCaptionTrack(tracks, lang, true);
+    if (!selectedTrack) {
+        return c.text('No subtitles available for this video', 400);
     }
 
     const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });

@@ -1,5 +1,5 @@
 import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
-import { fetchMetadata, convertToSrt, fetchAutoSubtitles } from '../../../../utils/index.ts';
+import { fetchMetadata, convertToSrt, fetchAutoSubtitles, selectCaptionTrack } from '../../../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
 import { SubtitleItem, YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 
@@ -57,13 +57,10 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode);
         exactLangName = targetLang.languageName.simpleText;
     } else {
-        const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.includes(lang));
-        if (matchingTracks.length === 0) {
+        const selectedTrack = selectCaptionTrack(tracks, lang, false);
+        if (!selectedTrack) {
             return c.json({ error: `No manual subtitles found for language target '${lang}'` }, 400);
         }
-
-        const manualTrack = matchingTracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase() === lang.toLowerCase());
-        const selectedTrack = manualTrack || matchingTracks[0];
         exactLangName = selectedTrack.name.simpleText;
 
         subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });

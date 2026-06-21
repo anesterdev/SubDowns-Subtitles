@@ -5,7 +5,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { fetchMetadata } from "../utils/index.ts";
+import { fetchMetadata, selectCaptionTrack } from "../utils/index.ts";
 import { getSubtitles } from "youtube-caption-extractor";
 import { YouTubeCaptionTrack, SubtitleItem } from "../interfaces/YouTube.ts";
 import { config } from "./config.ts";
@@ -89,13 +89,9 @@ export function createMCPServer() {
           return { isError: true, content: [{ type: "text", text: "Error: No subtitles available for this video." }] };
         }
 
-        const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
-
-        let selectedTrack;
-        if (matchingTracks.length > 0) {
-          selectedTrack = matchingTracks[0];
-        } else {
-          selectedTrack = tracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase().includes('english')) || tracks[0];
+        const selectedTrack = selectCaptionTrack(tracks, lang, true);
+        if (!selectedTrack) {
+          return { isError: true, content: [{ type: "text", text: "Error: No subtitles available for this video." }] };
         }
 
         const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });

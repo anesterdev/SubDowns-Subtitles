@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
 import { serve } from '@hono/node-server';
@@ -85,13 +86,17 @@ app.get(
   })
 );
 
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+
 // Serve the compiled Vue frontend statically in production
 if (process.env.NODE_ENV === 'production') {
   app.use('/*', serveStatic({ root: './dist/frontend' }));
   app.get('/*', serveStatic({ path: './dist/frontend/index.html' }));
+}
 
+if (process.env.NODE_ENV === 'production' || isMainModule) {
   const port = config.PORT;
-  console.log(`Starting SubDowns Production Server on port ${port}...`);
+  console.log(`Starting SubDowns Server on port ${port}...`);
   serve({
     fetch: app.fetch,
     port,

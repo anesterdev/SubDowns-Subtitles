@@ -141,9 +141,9 @@ export function getFileSize(content: string): string {
     return (bytes / 1024).toFixed(2) + ' KB';
 }
 
-export function truncateObjectStrings(obj: unknown, defaultMax: number = 128, customLimits: Record<string, number> = {}): unknown {
+export function truncateObjectStrings<T>(obj: T, defaultMax: number = 128, customLimits: Record<string, number> = {}): T {
     if (Array.isArray(obj)) {
-        return obj.map((item: unknown) => truncateObjectStrings(item, defaultMax, customLimits));
+        return obj.map((item: unknown) => truncateObjectStrings(item, defaultMax, customLimits)) as unknown as T;
     }
     if (obj !== null && typeof obj === 'object') {
         const result: Record<string, unknown> = {};
@@ -159,9 +159,23 @@ export function truncateObjectStrings(obj: unknown, defaultMax: number = 128, cu
                 result[key] = truncateObjectStrings(value, defaultMax, customLimits);
             }
         }
-        return result;
+        return result as unknown as T;
     }
     return obj;
+}
+
+export function selectCaptionTrack(tracks: YouTubeCaptionTrack[], lang: string, allowFallback: boolean = true): YouTubeCaptionTrack | null {
+    if (!tracks || tracks.length === 0) return null;
+    
+    const matchingTracks = tracks.filter((t) => t.name.simpleText.toLowerCase().includes(lang.toLowerCase()));
+    
+    if (matchingTracks.length > 0) {
+        return matchingTracks.find((t) => t.name.simpleText.toLowerCase() === lang.toLowerCase()) || matchingTracks[0];
+    }
+    
+    if (!allowFallback) return null;
+    
+    return tracks.find((t) => t.name.simpleText.toLowerCase().includes('english')) || tracks[0];
 }
 
 export function formatTime(secondsStr: string) {

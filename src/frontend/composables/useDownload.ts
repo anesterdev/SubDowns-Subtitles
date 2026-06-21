@@ -6,7 +6,7 @@ export function useDownload() {
   const isDownloading = ref<Record<string, boolean>>({});
   const videoStore = useVideoStore();
 
-  async function downloadSubs(vidId: string, lang: string, format: string, type: 'manual' | 'auto') {
+  async function downloadSubs(vidId: string, lang: string, format: 'srt' | 'txt' | 'raw', type: 'manual' | 'auto') {
     if (!vidId) return;
 
     const key = `${lang}-${format}`;
