@@ -20,11 +20,6 @@ app.use(Vue3Toastify, {
   position: 'bottom-right'
 } as ToastContainerOptions);
 
-const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'dark' : 'dark';
-if (savedTheme === 'light' && typeof document !== 'undefined') {
-  document.body.classList.add('theme-white');
-}
-
 const savedLocale = typeof window !== 'undefined' ? localStorage.getItem('lang') || 'en' : 'en';
 if (savedLocale !== 'en') {
   try {

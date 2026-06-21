@@ -9,22 +9,16 @@ import { APP_TITLE } from '../constants/index.ts';
 const { locale, t } = useI18n();
 const route = useRoute();
 
-const isLightTheme = ref(false);
+import { useDark, useToggle } from '@vueuse/core';
 
-onMounted(() => {
-  isLightTheme.value = document.body.classList.contains('theme-white');
+const isDark = useDark({
+  selector: 'body',
+  attribute: 'class',
+  valueDark: '',
+  valueLight: 'theme-white',
+  storageKey: 'theme',
 });
-
-function toggleTheme() {
-  isLightTheme.value = !isLightTheme.value;
-  if (isLightTheme.value) {
-    document.body.classList.add('theme-white');
-    localStorage.setItem('theme', 'light');
-  } else {
-    document.body.classList.remove('theme-white');
-    localStorage.setItem('theme', 'dark');
-  }
-}
+const toggleTheme = useToggle(isDark);
 
 async function handleLanguageChange(event: Event) {
   const target = (event.target as HTMLSelectElement).value;
@@ -54,8 +48,8 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
         <option value="zh">ZH</option>
         <option value="ru">RU</option>
       </select>
-      <button class="theme-toggle" @click="toggleTheme">
-        {{ isLightTheme ? t('header.theme_dark') : t('header.theme_light') }}
+      <button class="theme-toggle" @click="toggleTheme()">
+        {{ !isDark ? t('header.theme_dark') : t('header.theme_light') }}
       </button>
       <a href="https://github.com/anesterdev" target="_blank">GitHub</a>
     </div>

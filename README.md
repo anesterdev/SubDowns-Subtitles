@@ -122,4 +122,4 @@ For each processed video in CLI mode, the tool creates a `subtitles/` folder and
 * Zod - industry standard validation
 * OpenAPI - industry standard api
 * Docker - do I need to comment on it?
-* And others - Vite, esbuild, vitest, lru-cache
+* And others - Vite, esbuild, vitest, scalar, lru-cache, mcp, pinia, VueUse
