@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Header from '../Header.vue';
-import { loadLocale } from '../../i18n.ts';
+import Header from './Header.vue';
+import { loadLocale } from '../i18n.ts';
 
 // Mock dependencies
 vi.mock('vue-i18n', () => ({
@@ -17,7 +17,7 @@ vi.mock('vue-router', () => ({
   }),
 }));
 
-vi.mock('../../i18n.ts', () => ({
+vi.mock('../i18n.ts', () => ({
   default: {
     global: {
       t: (key: string) => key,
@@ -26,7 +26,7 @@ vi.mock('../../i18n.ts', () => ({
   loadLocale: vi.fn(),
 }));
 
-vi.mock('../../constants/index.ts', () => ({
+vi.mock('../constants/index.ts', () => ({
   APP_TITLE: 'SubDowns',
 }));
 
