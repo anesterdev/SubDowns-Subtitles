@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createMCPServer } from './mcp.ts';
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { config } from './config.ts';
 import * as utils from '../utils/index.ts';
 import { AddressInfo } from 'node:net';
 import { serve, ServerType } from '@hono/node-server';
