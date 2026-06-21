@@ -8,6 +8,9 @@ import apiRouter from './api/index.ts';
 import { initMCPServer } from './mcp.ts';
 import { config } from './config.ts';
 
+import { rateLimiter } from 'hono-rate-limiter';
+import { getConnInfo } from '@hono/node-server/conninfo';
+
 initMCPServer(); // Boot the remote MCP Server for AI agents alongside the backend
 
 const app = new OpenAPIHono();
@@ -15,22 +18,24 @@ const app = new OpenAPIHono();
 // Add CORS so the Vite frontend can access it
 app.use('/api/*', cors());
 
-// Simple memory-based rate limiter middleware
-const ipCache = new Map<string, { count: number; resetTime: number }>();
-app.use('/api/*', async (c, next) => {
-  const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'ip';
-  const now = Date.now();
-  const client = ipCache.get(ip);
-  if (!client || now > client.resetTime) {
-    ipCache.set(ip, { count: 1, resetTime: now + config.RATE_LIMIT_WINDOW_MS });
-  } else {
-    client.count++;
-    if (client.count > config.RATE_LIMIT_MAX) {
-      return c.json({ error: 'Too many requests, please try again later.' }, 429);
+// Rate limiter using hono-rate-limiter with secure key generator
+const limiter = rateLimiter({
+  windowMs: config.RATE_LIMIT_WINDOW_MS,
+  limit: config.RATE_LIMIT_MAX,
+  keyGenerator: (c) => {
+    if (config.TRUST_PROXY) {
+      const forwardedFor = c.req.header('x-forwarded-for');
+      if (forwardedFor) {
+        return forwardedFor.split(',')[0].trim();
+      }
     }
-  }
-  return await next();
+    const conn = getConnInfo(c);
+    return conn.remote.address || 'ip';
+  },
+  message: { error: 'Too many requests, please try again later.' },
+  statusCode: 429,
 });
+app.use('/api/*', limiter);
 
 const healthRoute = createRoute({
   method: 'get',

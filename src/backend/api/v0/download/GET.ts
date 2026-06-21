@@ -42,7 +42,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     const title = playerResponse.videoDetails?.title?.replace(/[<>:"/\\|?*]+/g, '') || 'Video';
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
     
-    let subtitles: SubtitleItem[] | any[] = [];
+    let subtitles: SubtitleItem[] = [];
     let exactLangName = lang;
 
     if (type === 'auto') {
