@@ -1,7 +1,8 @@
 {
   "page_titles": {
     "home": "Descargar Subtítulos de YouTube",
-    "history": "Historial"
+    "history": "Historial",
+    "not_found": "Página no encontrada"
   },
   "home": {
     "placeholder": "Pega la URL de YouTube aquí...",
@@ -34,5 +35,10 @@
     "date": "Fecha",
     "empty": "No se encontraron descargas en tu historial.",
     "view": "Ver Video"
+  },
+  "not_found": {
+    "title": "Perdido en la traducción",
+    "description": "Los subtítulos de esta ruta parecen haber desaparecido. Volvamos a la página principal.",
+    "back_home": "Volver al Inicio"
   }
 }

@@ -1,7 +1,8 @@
 {
   "page_titles": {
     "home": "Download YouTube Subtitles",
-    "history": "History"
+    "history": "History",
+    "not_found": "Page Not Found"
   },
   "home": {
     "placeholder": "Paste YouTube URL here...",
@@ -34,5 +35,10 @@
     "date": "Date",
     "empty": "No downloads found in your history.",
     "view": "View Video"
+  },
+  "not_found": {
+    "title": "Lost in Translation",
+    "description": "The subtitles for this route seem to be missing. Let's get you back on track.",
+    "back_home": "Go Back Home"
   }
 }

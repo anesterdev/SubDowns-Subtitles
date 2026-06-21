@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { YouTubePlayerResponse, SubtitleItem } from '../interfaces/YouTube.ts';
+import { YouTubePlayerResponse, SubtitleItem, YouTubeCaptionTrack } from '../interfaces/YouTube.ts';
 import { LRUCache } from 'lru-cache';
 
 const metadataCache = new LRUCache<string, YouTubePlayerResponse>({

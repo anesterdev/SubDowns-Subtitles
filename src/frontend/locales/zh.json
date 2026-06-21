@@ -1,7 +1,8 @@
 {
   "page_titles": {
     "home": "下载 YouTube 字幕",
-    "history": "历史"
+    "history": "历史",
+    "not_found": "页面未找到"
   },
   "home": {
     "placeholder": "在此粘贴 YouTube 链接...",
@@ -34,5 +35,10 @@
     "date": "日期",
     "empty": "您的历史记录中未找到下载。",
     "view": "观看视频"
+  },
+  "not_found": {
+    "title": "迷失在翻译中",
+    "description": "该页面的字幕似乎丢失了。让我们带您回到首页。",
+    "back_home": "返回首页"
   }
 }

@@ -23,6 +23,12 @@ const routes = [
     component: () => import('./pages/History.vue'),
     meta: { titleKey: 'page_titles.history' }
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('./pages/NotFound.vue'),
+    meta: { titleKey: 'page_titles.not_found' }
+  },
 ];
 
 const router = createRouter({
