@@ -4,8 +4,6 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { config } from './config.ts';
 import * as utils from '../utils/index.ts';
-import { getSubtitles } from 'youtube-caption-extractor';
-import http from 'node:http';
 import { AddressInfo } from 'node:net';
 import { serve, ServerType } from '@hono/node-server';
 import app from './server.ts';
@@ -15,7 +13,6 @@ vi.mock('./config.ts', async (importOriginal) => {
   return {
     config: {
       ...actual.config,
-      MCP_PORT: 0,
       RATE_LIMIT_MAX: 2,
       RATE_LIMIT_WINDOW_MS: 10000,
     }
@@ -31,9 +28,6 @@ vi.mock('../utils/index.ts', async (importOriginal) => {
   };
 });
 
-vi.mock('youtube-caption-extractor', () => ({
-  getSubtitles: vi.fn(),
-}));
 
 describe('MCP Server Unit Tests', () => {
   beforeEach(() => {

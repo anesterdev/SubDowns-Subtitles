@@ -20,7 +20,7 @@ app.use('/api/*', cors());
 // Rate limiter using hono-rate-limiter with secure key generator
 const limiter = rateLimiter({
   windowMs: config.RATE_LIMIT_WINDOW_MS,
-  limit: config.RATE_LIMIT_MAX,
+  limit: (c) => c.req.path === '/api/mcp/message' ? config.RATE_LIMIT_MAX * 2 : config.RATE_LIMIT_MAX, // higher rate for mcp, but will eventually hit 429 from YT api
   keyGenerator: (c) => {
     if (config.TRUST_PROXY) {
       const forwardedFor = c.req.header('x-forwarded-for');

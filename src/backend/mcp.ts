@@ -76,17 +76,25 @@ const activeConnections = new Map<string, {
   res: ServerResponse;
 }>();
 
-// Prune inactive sessions periodically
-setInterval(() => {
-  for (const [sessionId, connection] of activeConnections.entries()) {
-    const res = connection.res;
-    if (res.writableEnded || res.finished || res.socket?.destroyed) {
-      console.log(`[MCP Server] Pruning dead session: ${sessionId}`);
-      activeConnections.delete(sessionId);
-      connection.server.close().catch(() => {});
+let pruneInterval: ReturnType<typeof setInterval> | null = null;
+
+function ensurePruneTimer() {
+  if (pruneInterval) return;
+  pruneInterval = setInterval(() => {
+    for (const [sessionId, connection] of activeConnections.entries()) {
+      const res = connection.res;
+      if (res.writableEnded || res.finished || res.socket?.destroyed) {
+        console.log(`[MCP Server] Pruning dead session: ${sessionId}`);
+        activeConnections.delete(sessionId);
+        connection.server.close().catch(() => { });
+      }
     }
-  }
-}, 30000);
+    if (activeConnections.size === 0 && pruneInterval) {
+      clearInterval(pruneInterval);
+      pruneInterval = null;
+    }
+  }, 30000);
+}
 
 export function initMCPServerRoutes(router: OpenAPIHono) {
   router.get('/mcp/sse', async (c) => {
@@ -106,6 +114,7 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
     const transport = new SSEServerTransport(messageUrl, nodeRes);
     const sessionId = transport.sessionId;
 
+    // Bridge: Monkey-patches writeHead and end to prevent MCP's SSEServerTransport from conflicting with Hono's response lifecycle (avoiding double-writes and premature stream closure).
     const originalWriteHead = nodeRes.writeHead;
     nodeRes.writeHead = (function (this: ServerResponse, ...args: unknown[]) {
       if (!nodeRes.headersSent) {
@@ -123,6 +132,7 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
     } as unknown as typeof nodeRes.end);
 
     activeConnections.set(sessionId, { server, transport, res: nodeRes });
+    ensurePruneTimer();
     console.log(`[MCP Server] SSE connection established. Session: ${sessionId}, Message URL: ${messageUrl}`);
 
     nodeReq.on('close', async () => {
@@ -130,7 +140,7 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
       activeConnections.delete(sessionId);
       try {
         await server.close();
-      } catch (e) {}
+      } catch (e) { }
       (originalEnd as () => void).call(nodeRes);
     });
 

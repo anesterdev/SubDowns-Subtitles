@@ -39,9 +39,9 @@ describe('Header.vue Component', () => {
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       configurable: true,
-      value: vi.fn().mockImplementation(() => ({
-        matches: false,
-        media: '',
+      value: vi.fn().mockImplementation((query) => ({
+        matches: query.includes('dark'),
+        media: query,
         onchange: null,
         addListener: vi.fn(),
         removeListener: vi.fn(),
@@ -79,7 +79,7 @@ describe('Header.vue Component', () => {
     // Toggle theme to light
     await button.trigger('click');
     expect(document.body.classList.contains('theme-white')).toBe(true);
-    expect(['light', 'auto']).toContain(localStorage.getItem('theme'));
+    expect(localStorage.getItem('theme')).toBe('light');
 
     // Toggle theme back to dark
     await button.trigger('click');
