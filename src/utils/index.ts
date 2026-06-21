@@ -1,5 +1,11 @@
 import crypto from 'crypto';
 import { YouTubePlayerResponse, SubtitleItem } from '../interfaces/YouTube.ts';
+import { LRUCache } from 'lru-cache';
+
+const metadataCache = new LRUCache<string, YouTubePlayerResponse>({
+    max: 500,
+    ttl: 1000 * 60 * 10,
+});
 
 export function extractVideoId(url: string): string | null {
     const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
@@ -62,32 +68,43 @@ export function extractJsonByName(html: string, varName: string): string | null 
 }
 
 export async function fetchMetadata(videoId: string): Promise<YouTubePlayerResponse | null> {
+    const cached = metadataCache.get(videoId);
+    if (cached) return cached;
+
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
         headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' }
     });
     const html = await res.text();
 
+    let result: YouTubePlayerResponse | null = null;
+
     // Primary: robust balanced braces parser
     const jsonStr = extractJsonByName(html, 'ytInitialPlayerResponse');
     if (jsonStr) {
         try {
-            return JSON.parse(jsonStr);
+            result = JSON.parse(jsonStr);
         } catch (e) {
             // Ignore and try fallback
         }
     }
 
-    // Secondary fallback: regex
-    const match = html.match(/ytInitialPlayerResponse\s*=\s*({.*?});/);
-    if (match) {
-        try {
-            return JSON.parse(match[1]);
-        } catch (e) {
-            // Ignore
+    if (!result) {
+        // Secondary fallback: regex
+        const match = html.match(/ytInitialPlayerResponse\s*=\s*({.*?});/);
+        if (match) {
+            try {
+                result = JSON.parse(match[1]);
+            } catch (e) {
+                // Ignore
+            }
         }
     }
 
-    return null;
+    if (result) {
+        metadataCache.set(videoId, result);
+    }
+
+    return result;
 }
 
 export function extractVideoData(playerResponse: YouTubePlayerResponse, videoId: string) {
