@@ -11,6 +11,10 @@ const route = useRoute();
 
 import { useDark, useToggle } from '@vueuse/core';
 
+if (typeof window !== 'undefined' && !localStorage.getItem('theme')) {
+  localStorage.setItem('theme', 'dark');
+}
+
 const isDark = useDark({
   selector: 'body',
   attribute: 'class',

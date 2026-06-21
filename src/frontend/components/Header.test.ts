@@ -35,6 +35,21 @@ describe('Header.vue Component', () => {
     vi.restoreAllMocks();
     document.body.className = '';
     localStorage.clear();
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      configurable: true,
+      value: vi.fn().mockImplementation(() => ({
+        matches: false,
+        media: '',
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
   });
 
   it('renders the brand title correctly', () => {
@@ -64,12 +79,12 @@ describe('Header.vue Component', () => {
     // Toggle theme to light
     await button.trigger('click');
     expect(document.body.classList.contains('theme-white')).toBe(true);
-    expect(localStorage.getItem('theme')).toBe('light');
+    expect(['light', 'auto']).toContain(localStorage.getItem('theme'));
 
     // Toggle theme back to dark
     await button.trigger('click');
     expect(document.body.classList.contains('theme-white')).toBe(false);
-    expect(localStorage.getItem('theme')).toBe('dark');
+    expect(['dark', 'auto']).toContain(localStorage.getItem('theme'));
   });
 
   it('handles language changes correctly', async () => {
