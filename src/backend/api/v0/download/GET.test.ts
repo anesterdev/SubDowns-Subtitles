@@ -9,8 +9,7 @@ vi.mock('../../../../utils/index.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../utils/index.ts')>();
   return {
     ...actual,
-    fetchMetadata: vi.fn(),
-    fetchAutoSubtitles: vi.fn(),
+    fetchSubtitles: vi.fn(),
   };
 });
 
@@ -34,38 +33,15 @@ describe('GET /api/v0/download', () => {
   });
 
   it('should successfully return manual subtitles formatted as SRT', async () => {
-    const mockPlayerResponse: YouTubePlayerResponse = {
-      videoDetails: {
-        title: 'Never Gonna Give You Up',
-        author: 'Rick Astley',
-        lengthSeconds: '212',
-        channelId: 'UCuAXFkgcl1yWxqiHs95V9hw',
-        thumbnail: {
-          thumbnails: [{ url: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg', width: 120, height: 90 }]
-        }
-      },
-      captions: {
-        playerCaptionsTracklistRenderer: {
-          captionTracks: [
-            {
-              baseUrl: 'https://video.google.com/timedtext?v=dQw4w9WgXcQ',
-              name: { simpleText: 'English' },
-              languageCode: 'en',
-              vssId: '.en',
-              isTranslatable: true,
-              isDefault: true
-            }
-          ]
-        }
-      }
-    };
-
     const mockSubtitles = [
       { start: '1.0', dur: '2.0', text: 'We are no strangers to love' }
     ];
 
-    vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse);
-    vi.mocked(getSubtitles).mockResolvedValue(mockSubtitles);
+    vi.mocked(utils.fetchSubtitles).mockResolvedValue({
+      title: 'Never Gonna Give You Up',
+      exactLangName: 'English',
+      subtitles: mockSubtitles
+    });
 
     const res = await app.request('/api/v0/download?vid_id=dQw4w9WgXcQ&lang=English&format=srt');
     expect(res.status).toBe(200);
@@ -76,38 +52,15 @@ describe('GET /api/v0/download', () => {
   });
 
   it('should successfully return auto-translated subtitles', async () => {
-    const mockPlayerResponse: YouTubePlayerResponse = {
-      videoDetails: {
-        title: 'Test Video',
-        author: 'Test Author',
-        channelId: 'TestChannel',
-        lengthSeconds: '100'
-      },
-      captions: {
-        playerCaptionsTracklistRenderer: {
-          captionTracks: [
-            {
-              baseUrl: 'https://base.url',
-              name: { simpleText: 'English' },
-              languageCode: 'en',
-              vssId: '.en',
-              isTranslatable: true,
-              isDefault: true
-            }
-          ],
-          translationLanguages: [
-            { languageCode: 'es', languageName: { simpleText: 'Spanish' } }
-          ]
-        }
-      }
-    };
-
     const mockSubtitles = [
       { start: '1.5', dur: '1.5', text: 'Hola Mundo' }
     ];
 
-    vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse);
-    vi.mocked(utils.fetchAutoSubtitles).mockResolvedValue(mockSubtitles);
+    vi.mocked(utils.fetchSubtitles).mockResolvedValue({
+      title: 'Test Video',
+      exactLangName: 'Spanish',
+      subtitles: mockSubtitles
+    });
 
     const res = await app.request('/api/v0/download?vid_id=dQw4w9WgXcQ&lang=Spanish&format=txt&type=auto');
     expect(res.status).toBe(200);

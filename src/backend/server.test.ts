@@ -19,7 +19,7 @@ vi.mock('../utils/index.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../utils/index.ts')>();
   return {
     ...actual,
-    fetchMetadata: vi.fn(),
+    fetchSubtitles: vi.fn(),
   };
 });
 
@@ -66,20 +66,13 @@ describe('Server Global Endpoints', () => {
 
   describe('E2E Download Flow', () => {
     it('should return SRT subtitles successfully', async () => {
-      const mockPlayerResponse = {
-        videoDetails: { title: 'Test Video' },
-        captions: {
-          playerCaptionsTracklistRenderer: {
-            captionTracks: [
-              { baseUrl: 'https://base.url', name: { simpleText: 'English' }, languageCode: 'en', vssId: '.en', isTranslatable: true }
-            ]
-          }
-        }
-      };
       const mockSubtitles = [{ start: '1.0', dur: '1.0', text: 'Hello World' }];
 
-      vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse as any);
-      vi.mocked(getSubtitles).mockResolvedValue(mockSubtitles);
+      vi.mocked(utils.fetchSubtitles).mockResolvedValue({
+        title: 'Test Video',
+        exactLangName: 'English',
+        subtitles: mockSubtitles
+      });
 
       // Using IP 1.2.3.5 to avoid rate limit from previous test
       const res = await app.request('/api/v0/download?vid_id=dQw4w9WgXcQ&lang=English&format=srt&type=manual', {

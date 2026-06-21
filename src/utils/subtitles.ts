@@ -53,22 +53,60 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
     return subtitles;
 }
 
-export async function fetchSubtitlesText(vidId: string, lang: string): Promise<string> {
+export interface FetchSubtitlesOptions {
+    type?: 'manual' | 'auto';
+    allowFallback?: boolean;
+}
+
+export interface FetchSubtitlesResult {
+    subtitles: SubtitleItem[];
+    exactLangName: string;
+    title: string;
+}
+
+export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSubtitlesOptions = {}): Promise<FetchSubtitlesResult> {
+    const type = opts.type || 'manual';
+    const allowFallback = opts.allowFallback ?? true;
+
     const playerResponse = await fetchMetadata(vidId);
     if (!playerResponse) {
         throw new Error('Video metadata not found or unavailable');
     }
 
+    const title = playerResponse.videoDetails?.title?.replace(/[<>:"/\\|?*]+/g, '') || 'Video';
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
+    
     if (tracks.length === 0) {
         throw new Error('No subtitles available for this video');
     }
 
-    const selectedTrack = selectCaptionTrack(tracks, lang, true);
-    if (!selectedTrack) {
-        throw new Error('No subtitles available for this video');
+    let subtitles: SubtitleItem[] = [];
+    let exactLangName = lang;
+
+    if (type === 'auto') {
+        const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
+        // @ts-ignore
+        const targetLang = translationLanguages.find((t) => t.languageName.simpleText === lang);
+        if (!targetLang) throw new Error(`Auto-translate language not found: '${lang}'`);
+
+        const defaultTrack = tracks.find((t) => t.isDefault) || tracks[0];
+        if (!defaultTrack) throw new Error('No base track found for auto-translation');
+
+        subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode);
+        exactLangName = targetLang.languageName.simpleText;
+    } else {
+        const selectedTrack = selectCaptionTrack(tracks, lang, allowFallback);
+        if (!selectedTrack) {
+            throw new Error(`No manual subtitles found for language target '${lang}'`);
+        }
+        exactLangName = selectedTrack.name.simpleText;
+        subtitles = await getSubtitles({ videoID: vidId, lang: selectedTrack.languageCode });
     }
 
-    const subtitles = await getSubtitles({ videoID: vidId, lang: selectedTrack.languageCode });
+    return { subtitles, exactLangName, title };
+}
+
+export async function fetchSubtitlesText(vidId: string, lang: string): Promise<string> {
+    const { subtitles } = await fetchSubtitles(vidId, lang, { type: 'manual', allowFallback: true });
     return subtitles.map((s: SubtitleItem) => s.text).join('\n');
 }
