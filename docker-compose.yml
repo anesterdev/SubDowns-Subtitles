@@ -6,5 +6,4 @@ services:
       - .env
     ports:
       - "${PORT:-3069}:${PORT:-3069}"
-      - "${MCP_PORT:-9000}:${MCP_PORT:-9000}"
     restart: unless-stopped

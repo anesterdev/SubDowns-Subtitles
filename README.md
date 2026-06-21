@@ -55,7 +55,7 @@ You can run the application container using Docker Compose or native Docker comm
    ```
 2. Run the container:
    ```bash
-   docker run -d -p 3069:3069 -p 9000:9000 --name subdowns subdowns-app
+   docker run -d -p 3069:3069 --name subdowns subdowns-app
    ```
 
 
@@ -71,7 +71,7 @@ To hook your agent into SubDowns, simply add this to your agent's MCP configurat
 {
   "mcpServers": {
     "subdowns-subtitles-mcp": {
-      "url": "http://<ipconfig-ipv4-ip>:9000/sse"
+      "url": "http://<ipconfig-ipv4-ip>:3069/api/mcp/sse"
     }
   }
 }

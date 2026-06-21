@@ -25,7 +25,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev
 
-EXPOSE 3069 9000
+EXPOSE 3069
 
 # Start the minified backend server natively
 CMD ["node", "dist/server.mjs"]

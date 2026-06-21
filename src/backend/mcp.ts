@@ -135,6 +135,7 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
     });
 
     await server.connect(transport);
+    c.header('x-hono-already-sent', 'true');
     return c.body(null);
   });
 
@@ -157,6 +158,7 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
           const message = err instanceof Error ? err.message : 'Unknown error';
           console.error(`[MCP Server] Error handling POST message for session ${sessionId}:`, message);
         }
+        c.header('x-hono-already-sent', 'true');
         return c.body(null);
       }
     }
