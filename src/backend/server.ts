@@ -29,8 +29,12 @@ const limiter = rateLimiter({
         return forwardedFor.split(',')[0].trim();
       }
     }
-    const conn = getConnInfo(c);
-    return conn.remote.address || 'ip';
+    try {
+      const conn = getConnInfo(c);
+      return conn.remote.address || 'ip';
+    } catch (e) {
+      return 'ip';
+    }
   },
   message: { error: 'Too many requests, please try again later.' },
   statusCode: 429,
