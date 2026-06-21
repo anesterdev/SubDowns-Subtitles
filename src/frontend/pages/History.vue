@@ -180,7 +180,6 @@ function viewVideo(vidId: string) {
   overflow: hidden;
   cursor: pointer;
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease, color var(--transition-fast) ease;
-  will-change: background-color, border-color, box-shadow, color;
 
   &:hover {
     border-color: rgba(var(--rgb-accent), 0.3);

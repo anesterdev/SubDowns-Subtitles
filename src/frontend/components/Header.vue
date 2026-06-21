@@ -70,7 +70,6 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
   border-bottom: 1px solid rgba(var(--rgb-foreground), 0.09);
   padding: 0 var(--space-xl);
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
-  will-change: background-color, border-color;
   
   display: grid;
   grid-template-columns: auto auto 1fr;

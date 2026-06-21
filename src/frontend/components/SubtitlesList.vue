@@ -127,7 +127,6 @@ const videoStore = useVideoStore();
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
-  will-change: background-color, border-color;
 }
 
 .list-header {
@@ -156,7 +155,6 @@ const videoStore = useVideoStore();
   background-color: var(--bg-light);
   border-top: 1px solid rgba(var(--rgb-foreground), 0.02);
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
-  will-change: background-color, border-color;
 
   &:hover {
     background-color: rgba(var(--rgb-foreground), 0.04);
