@@ -1,11 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createMCPServer, initMCPServer } from './mcp.ts';
+import { createMCPServer } from './mcp.ts';
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { config } from './config.ts';
 import * as utils from '../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
 import http from 'node:http';
+import { AddressInfo } from 'node:net';
+import { serve, ServerType } from '@hono/node-server';
+import app from './server.ts';
 
 vi.mock('./config.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./config.ts')>();
@@ -24,7 +27,7 @@ vi.mock('../utils/index.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../utils/index.ts')>();
   return {
     ...actual,
-    fetchMetadata: vi.fn(),
+    fetchSubtitlesText: vi.fn(),
   };
 });
 
@@ -62,20 +65,7 @@ describe('MCP Server Unit Tests', () => {
     const client = new Client({ name: "test-client", version: "1.0.0" }, {});
     await client.connect(clientTransport);
 
-    const mockPlayerResponse = {
-      videoDetails: { title: 'Test Video' },
-      captions: {
-        playerCaptionsTracklistRenderer: {
-          captionTracks: [
-            { baseUrl: 'https://base.url', name: { simpleText: 'English' }, languageCode: 'en', vssId: '.en', isTranslatable: true }
-          ]
-        }
-      }
-    };
-    const mockSubtitles = [{ start: '1.0', dur: '1.0', text: 'Hello World' }];
-
-    vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse as any);
-    vi.mocked(getSubtitles).mockResolvedValue(mockSubtitles);
+    vi.mocked(utils.fetchSubtitlesText).mockResolvedValue('Hello World');
 
     const result = await client.callTool({
       name: 'get_youtube_subtitles',
@@ -96,38 +86,36 @@ describe('MCP Server Unit Tests', () => {
 });
 
 describe('MCP Server HTTP Layer & Rate Limiting', () => {
-  let serverInstance: http.Server | undefined;
+  let serverInstance: ServerType | undefined;
   let serverPort: number;
 
   beforeEach(() => {
-    // Reset double-boot flag so initMCPServer does not return immediately
-    globalThis.__mcp_server_running__ = undefined;
   });
 
   afterEach(async () => {
     if (serverInstance) {
-      serverInstance.closeAllConnections();
+      if ('closeAllConnections' in serverInstance) {
+        (serverInstance as import('node:http').Server).closeAllConnections();
+      }
       await new Promise<void>((resolve) => serverInstance!.close(() => resolve()));
     }
   });
 
   it('enforces rate limits on HTTP SSE connection requests', async () => {
-    serverInstance = await initMCPServer();
-    if (serverInstance) {
-      await new Promise<void>((resolve) => {
-        if (serverInstance!.listening) {
-          resolve();
-        } else {
-          serverInstance!.once('listening', () => resolve());
-        }
-      });
-    }
+    await new Promise<void>((resolve) => {
+      serverInstance = serve({
+        fetch: app.fetch,
+        port: 0,
+        hostname: '127.0.0.1'
+      }, () => resolve());
+    });
+
     const address = serverInstance?.address();
-    serverPort = (address as any).port;
+    serverPort = (address as AddressInfo).port;
 
     // Send 3 requests (limit is 2)
     const makeRequest = async () => {
-      const res = await fetch(`http://127.0.0.1:${serverPort}/sse`);
+      const res = await fetch(`http://127.0.0.1:${serverPort}/api/mcp/sse`);
       return res;
     };
 

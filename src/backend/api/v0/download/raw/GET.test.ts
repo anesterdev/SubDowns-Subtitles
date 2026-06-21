@@ -9,13 +9,9 @@ vi.mock('../../../../../utils/index.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../../utils/index.ts')>();
   return {
     ...actual,
-    fetchMetadata: vi.fn(),
+    fetchSubtitlesText: vi.fn(),
   };
 });
-
-vi.mock('youtube-caption-extractor', () => ({
-  getSubtitles: vi.fn(),
-}));
 
 describe('GET /api/v0/download/raw', () => {
   beforeEach(() => {
@@ -31,36 +27,7 @@ describe('GET /api/v0/download/raw', () => {
   });
 
   it('should successfully return plain text raw subtitles', async () => {
-    const mockPlayerResponse: YouTubePlayerResponse = {
-      videoDetails: {
-        title: 'Test Video',
-        author: 'Test Author',
-        channelId: 'TestChannel',
-        lengthSeconds: '100'
-      },
-      captions: {
-        playerCaptionsTracklistRenderer: {
-          captionTracks: [
-            {
-              baseUrl: 'https://base.url',
-              name: { simpleText: 'English' },
-              languageCode: 'en',
-              vssId: '.en',
-              isTranslatable: true,
-              isDefault: true
-            }
-          ]
-        }
-      }
-    };
-
-    const mockSubtitles = [
-      { start: '1.0', dur: '2.0', text: 'Hello' },
-      { start: '3.0', dur: '1.0', text: 'World' }
-    ];
-
-    vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse);
-    vi.mocked(getSubtitles).mockResolvedValue(mockSubtitles);
+    vi.mocked(utils.fetchSubtitlesText).mockResolvedValue('Hello\nWorld');
 
     const res = await app.request('/api/v0/download/raw?vid_id=dQw4w9WgXcQ&lang=English');
     expect(res.status).toBe(200);

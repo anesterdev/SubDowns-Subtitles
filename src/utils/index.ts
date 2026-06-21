@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { YouTubePlayerResponse, SubtitleItem, YouTubeCaptionTrack } from '../interfaces/YouTube.ts';
 import { LRUCache } from 'lru-cache';
+import { getSubtitles } from 'youtube-caption-extractor';
 
 const metadataCache = new LRUCache<string, YouTubePlayerResponse>({
     max: 500,
@@ -232,3 +233,24 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
     }
     return subtitles;
 }
+
+export async function fetchSubtitlesText(vidId: string, lang: string): Promise<string> {
+    const playerResponse = await fetchMetadata(vidId);
+    if (!playerResponse) {
+        throw new Error('Video metadata not found or unavailable');
+    }
+
+    const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
+    if (tracks.length === 0) {
+        throw new Error('No subtitles available for this video');
+    }
+
+    const selectedTrack = selectCaptionTrack(tracks, lang, true);
+    if (!selectedTrack) {
+        throw new Error('No subtitles available for this video');
+    }
+
+    const subtitles = await getSubtitles({ videoID: vidId, lang: selectedTrack.languageCode });
+    return subtitles.map((s: SubtitleItem) => s.text).join('\n');
+}
+

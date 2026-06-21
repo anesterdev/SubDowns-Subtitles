@@ -1,7 +1,5 @@
 import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
-import { fetchMetadata, selectCaptionTrack } from '../../../../../utils/index.ts';
-import { getSubtitles } from 'youtube-caption-extractor';
-import { YouTubeCaptionTrack, SubtitleItem } from '../../../../../interfaces/YouTube.ts';
+import { fetchSubtitlesText } from '../../../../../utils/index.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -31,26 +29,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
   const { vid_id, lang } = c.req.valid('query');
 
   try {
-    const playerResponse = await fetchMetadata(vid_id);
-    if (!playerResponse) {
-      return c.text('Video metadata not found', 400);
-    }
-
-    const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
-    if (tracks.length === 0) {
-      return c.text('No subtitles available for this video', 400);
-    }
-
-    const selectedTrack = selectCaptionTrack(tracks, lang, true);
-    if (!selectedTrack) {
-        return c.text('No subtitles available for this video', 400);
-    }
-
-    const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });
-    const content = subtitles.map((s: SubtitleItem) => s.text).join('\n');
-
+    const content = await fetchSubtitlesText(vid_id, lang);
     return c.text(content, 200);
-
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch subtitles';
     return c.text(message, 400);

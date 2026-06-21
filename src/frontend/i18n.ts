@@ -14,9 +14,9 @@ const i18n = createI18n({
 export async function loadLocale(locale: string) {
   if (!(i18n.global.availableLocales as string[]).includes(locale)) {
     const messages = await import(`./locales/${locale}.json`);
-    i18n.global.setLocaleMessage(locale as any, messages.default);
+    i18n.global.setLocaleMessage(locale, messages.default as unknown as Parameters<typeof i18n.global.setLocaleMessage>[1]);
   }
-  (i18n.global.locale as any).value = locale;
+  (i18n.global.locale as unknown as import('vue').WritableComputedRef<string>).value = locale;
   if (typeof window !== 'undefined') {
     localStorage.setItem('lang', locale);
   }

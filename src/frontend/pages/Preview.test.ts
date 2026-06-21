@@ -18,7 +18,7 @@ vi.mock('vue-router', () => ({
 const mockFetchVideo = vi.fn();
 const mockVideoStore = reactive({
   status: 'Idle',
-  currentVideo: null as any,
+  currentVideo: null as null | Record<string, unknown>,
   fetchVideo: mockFetchVideo,
 });
 vi.mock('../stores/videoStore.ts', () => ({

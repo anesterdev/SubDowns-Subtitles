@@ -19,7 +19,10 @@ vi.mock('vue-i18n', () => ({
 }));
 
 describe('History.vue Page', () => {
-  let mockCache: any;
+  let mockCache: {
+    keys: import('vitest').Mock;
+    match: import('vitest').Mock;
+  };
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -31,8 +34,8 @@ describe('History.vue Page', () => {
     };
 
     globalThis.caches = {
-      open: vi.fn().mockResolvedValue(mockCache),
-    } as any;
+      open: vi.fn().mockResolvedValue(mockCache as unknown as Cache),
+    } as unknown as CacheStorage;
   });
 
   it('shows loading state initially', async () => {

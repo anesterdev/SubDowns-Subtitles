@@ -1,41 +1,16 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import http from "node:http";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { fetchMetadata, selectCaptionTrack } from "../utils/index.ts";
-import { getSubtitles } from "youtube-caption-extractor";
-import { YouTubeCaptionTrack, SubtitleItem } from "../interfaces/YouTube.ts";
-import { config } from "./config.ts";
+import { fetchSubtitlesText } from "../utils/index.ts";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { IncomingMessage, ServerResponse } from "node:http";
 
-declare global {
-  var __mcp_server_running__: boolean | undefined;
-}
-
-const ipCache = new Map<string, { count: number; resetTime: number }>();
-
-function getClientIp(req: http.IncomingMessage): string {
-  if (config.TRUST_PROXY) {
-    const forwardedFor = req.headers["x-forwarded-for"];
-    if (forwardedFor) {
-      const headerStr = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
-      return headerStr.split(",")[0].trim();
-    }
-  }
-  return req.socket.remoteAddress || "127.0.0.1";
-}
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const client = ipCache.get(ip);
-  if (!client || now > client.resetTime) {
-    ipCache.set(ip, { count: 1, resetTime: now + config.RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  client.count++;
-  return client.count > config.RATE_LIMIT_MAX;
+interface NodeServerEnv {
+  incoming?: IncomingMessage;
+  outgoing?: ServerResponse;
 }
 
 export function createMCPServer() {
@@ -79,24 +54,7 @@ export function createMCPServer() {
       }
 
       try {
-        const playerResponse = await fetchMetadata(vid_id);
-        if (!playerResponse) {
-          return { isError: true, content: [{ type: "text", text: "Error: Video metadata not found or unavailable." }] };
-        }
-
-        const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
-        if (tracks.length === 0) {
-          return { isError: true, content: [{ type: "text", text: "Error: No subtitles available for this video." }] };
-        }
-
-        const selectedTrack = selectCaptionTrack(tracks, lang, true);
-        if (!selectedTrack) {
-          return { isError: true, content: [{ type: "text", text: "Error: No subtitles available for this video." }] };
-        }
-
-        const subtitles = await getSubtitles({ videoID: vid_id, lang: selectedTrack.languageCode });
-        const content = subtitles.map((s: SubtitleItem) => s.text).join('\n');
-
+        const content = await fetchSubtitlesText(vid_id, lang);
         return {
           content: [{ type: "text", text: content }],
         };
@@ -115,97 +73,95 @@ export function createMCPServer() {
 const activeConnections = new Map<string, {
   server: Server;
   transport: SSEServerTransport;
+  res: ServerResponse;
 }>();
 
-export async function initMCPServer() {
-  if (globalThis.__mcp_server_running__) {
-    return;
+// Prune inactive sessions periodically
+setInterval(() => {
+  for (const [sessionId, connection] of activeConnections.entries()) {
+    const res = connection.res;
+    if (res.writableEnded || res.finished || res.socket?.destroyed) {
+      console.log(`[MCP Server] Pruning dead session: ${sessionId}`);
+      activeConnections.delete(sessionId);
+      connection.server.close().catch(() => {});
+    }
   }
-  globalThis.__mcp_server_running__ = true;
+}, 30000);
 
-  const port = config.MCP_PORT;
+export function initMCPServerRoutes(router: OpenAPIHono) {
+  router.get('/mcp/sse', async (c) => {
+    const env = c.env as NodeServerEnv;
+    const nodeReq = env?.incoming;
+    const nodeRes = env?.outgoing;
 
-  const httpServer = http.createServer(async (req, res) => {
-    console.log(`[MCP Server] Incoming request: ${req.method} ${req.url}`);
-
-    // Enable CORS for remote connections
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-    if (req.method === "OPTIONS") {
-      res.writeHead(200);
-      res.end();
-      return;
+    if (!nodeReq || !nodeRes) {
+      return c.text('Not running under Node.js server environment', 500);
     }
 
-    const ip = getClientIp(req);
-    if (isRateLimited(ip)) {
-      res.writeHead(429, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Too many requests, please try again later." }));
-      return;
-    }
+    const host = c.req.header('host') || '127.0.0.1:3069';
+    const protocol = c.req.header('x-forwarded-proto') || 'http';
+    const messageUrl = `${protocol}://${host}/api/mcp/message`;
 
-    if (req.method === "GET" && req.url === "/sse") {
-      const server = createMCPServer();
+    const server = createMCPServer();
+    const transport = new SSEServerTransport(messageUrl, nodeRes);
+    const sessionId = transport.sessionId;
 
-      const host = req.headers.host || "127.0.0.1:9000";
-      const protocol = (req.socket as import('node:tls').TLSSocket).encrypted ? "https" : "http";
-      const messageUrl = `${protocol}://${host}/message`;
-
-      const transport = new SSEServerTransport(messageUrl, res);
-      const sessionId = transport.sessionId;
-
-      activeConnections.set(sessionId, { server, transport });
-      console.log(`[MCP Server] SSE connection established. Session: ${sessionId}, Message URL: ${messageUrl}`);
-
-      req.on("close", async () => {
-        console.log(`[MCP Server] SSE connection closed for session: ${sessionId}`);
-        activeConnections.delete(sessionId);
-        try {
-          await server.close();
-        } catch (e) {}
-      });
-
-      await server.connect(transport);
-    } else if (req.url?.startsWith("/message") && req.method === "POST") {
-      const urlObj = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`);
-      const sessionId = urlObj.searchParams.get("sessionId");
-
-      if (sessionId) {
-        const connection = activeConnections.get(sessionId);
-        if (connection) {
-          try {
-            await connection.transport.handlePostMessage(req, res);
-          } catch (err) {
-            const message = err instanceof Error ? err.message : 'Unknown error';
-            console.error(`[MCP Server] Error handling POST message for session ${sessionId}:`, message);
-          }
-          return;
-        }
+    const originalWriteHead = nodeRes.writeHead;
+    nodeRes.writeHead = (function (this: ServerResponse, ...args: unknown[]) {
+      if (!nodeRes.headersSent) {
+        return (originalWriteHead.apply(this, args as unknown as Parameters<ServerResponse['writeHead']>) as unknown as ServerResponse);
       }
+      return this;
+    } as unknown as typeof nodeRes.writeHead);
 
-      console.log(`[MCP Server] Rejected POST message: Session not found or SSE transport not established.`);
-      res.writeHead(400);
-      res.end("SSE connection not established");
-    } else {
-      console.log(`[MCP Server] 404 Not Found for ${req.method} ${req.url}`);
-      res.writeHead(404);
-      res.end("Not found");
+    const originalEnd = nodeRes.end;
+    nodeRes.end = (function (this: ServerResponse, ...args: unknown[]) {
+      if (activeConnections.has(sessionId)) {
+        return this;
+      }
+      return (originalEnd.apply(this, args as unknown as Parameters<ServerResponse['end']>) as unknown as ServerResponse);
+    } as unknown as typeof nodeRes.end);
+
+    activeConnections.set(sessionId, { server, transport, res: nodeRes });
+    console.log(`[MCP Server] SSE connection established. Session: ${sessionId}, Message URL: ${messageUrl}`);
+
+    nodeReq.on('close', async () => {
+      console.log(`[MCP Server] SSE connection closed for session: ${sessionId}`);
+      activeConnections.delete(sessionId);
+      try {
+        await server.close();
+      } catch (e) {}
+      (originalEnd as () => void).call(nodeRes);
+    });
+
+    await server.connect(transport);
+    return c.body(null);
+  });
+
+  router.post('/mcp/message', async (c) => {
+    const env = c.env as NodeServerEnv;
+    const nodeReq = env?.incoming;
+    const nodeRes = env?.outgoing;
+
+    if (!nodeReq || !nodeRes) {
+      return c.text('Not running under Node.js server environment', 500);
     }
-  });
 
-  httpServer.on('error', (e: NodeJS.ErrnoException) => {
-    if (e.code === 'EADDRINUSE') {
-      console.log(`MCP Server port ${port} already in use (HMR reload).`);
-    } else {
-      console.error('MCP Server Error:', e);
+    const sessionId = c.req.query('sessionId');
+    if (sessionId) {
+      const connection = activeConnections.get(sessionId);
+      if (connection) {
+        try {
+          await connection.transport.handlePostMessage(nodeReq, nodeRes);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          console.error(`[MCP Server] Error handling POST message for session ${sessionId}:`, message);
+        }
+        return c.body(null);
+      }
     }
-  });
 
-  httpServer.listen(port, "0.0.0.0", () => {
-    console.log(`🚀 MCP Remote Server running on http://0.0.0.0:${port}/sse`);
+    console.log(`[MCP Server] Rejected POST message: Session not found or SSE transport not established.`);
+    return c.text('SSE connection not established', 400);
   });
-
-  return httpServer;
 }

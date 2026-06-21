@@ -18,7 +18,15 @@ export const route = createRoute({
     200: {
       content: {
         'text/plain': { schema: z.string() },
-        'application/json': { schema: z.any() },
+        'application/json': {
+          schema: z.array(
+            z.object({
+              start: z.string(),
+              dur: z.string(),
+              text: z.string(),
+            })
+          ),
+        },
       },
       description: 'Subtitle file contents',
     },
@@ -79,7 +87,8 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }
 
     const baseFilename = `[${vid_id}] - ${title} - [${exactLangName}].${format}`;
-    const safeFilename = encodeURIComponent(baseFilename).replace(/['()]/g, escape).replace(/\*/g, '%2A');
+    const escapeMap: Record<string, string> = { "'": '%27', '(': '%28', ')': '%29', '*': '%2A' };
+    const safeFilename = encodeURIComponent(baseFilename).replace(/['()*]/g, (char) => escapeMap[char]);
 
     return new Response(format === 'raw' ? JSON.stringify(content, null, 2) : content as string, {
         status: 200,

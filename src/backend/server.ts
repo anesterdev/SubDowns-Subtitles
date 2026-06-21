@@ -6,13 +6,11 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
 
 import apiRouter from './api/index.ts';
-import { initMCPServer } from './mcp.ts';
+import { initMCPServerRoutes } from './mcp.ts';
 import { config } from './config.ts';
 
 import { rateLimiter } from 'hono-rate-limiter';
 import { getConnInfo } from '@hono/node-server/conninfo';
-
-initMCPServer(); // Boot the remote MCP Server for AI agents alongside the backend
 
 const app = new OpenAPIHono();
 
@@ -44,7 +42,7 @@ app.use('/api/*', limiter);
 
 const healthRoute = createRoute({
   method: 'get',
-  path: '/health',
+  path: '/api/health',
   responses: {
     200: {
       content: {
@@ -59,9 +57,12 @@ const healthRoute = createRoute({
   },
 });
 
-apiRouter.openapi(healthRoute, (c) => {
+app.openapi(healthRoute, (c) => {
   return c.json({ status: 'ok' }, 200);
 });
+
+// Register MCP server routes on apiRouter
+initMCPServerRoutes(apiRouter);
 
 // Mount the API on the main app
 app.route('/api', apiRouter);
@@ -87,14 +88,14 @@ app.get(
 );
 
 const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+const shouldBoot = process.env.NODE_ENV === 'production' || isMainModule;
 
-// Serve the compiled Vue frontend statically in production
-if (process.env.NODE_ENV === 'production') {
-  app.use('/*', serveStatic({ root: './dist/frontend' }));
-  app.get('/*', serveStatic({ path: './dist/frontend/index.html' }));
-}
+if (shouldBoot) {
+  if (process.env.NODE_ENV === 'production') {
+    app.use('/*', serveStatic({ root: './dist/frontend' }));
+    app.get('/*', serveStatic({ path: './dist/frontend/index.html' }));
+  }
 
-if (process.env.NODE_ENV === 'production' || isMainModule) {
   const port = config.PORT;
   console.log(`Starting SubDowns Server on port ${port}...`);
   serve({
