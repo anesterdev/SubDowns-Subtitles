@@ -4,6 +4,7 @@ import hono from '@hono/vite-dev-server';
 
 export default defineConfig(() => {
   return {
+    root: 'src/frontend',
     plugins: [
       hono({
         entry: 'src/backend/server.ts',
@@ -12,7 +13,8 @@ export default defineConfig(() => {
       vue(),
     ],
     build: {
-      outDir: 'dist/frontend',
+      outDir: '../../dist/frontend',
+      emptyOutDir: true,
     }
   };
 });

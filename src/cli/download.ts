@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { getSubtitles } from 'youtube-caption-extractor';
-import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData, truncateObjectStrings, selectCaptionTrack } from './src/utils/index.ts';
-import type { IVideoObject } from './src/interfaces/index.ts';
-import type { YouTubeCaptionTrack, SubtitleItem } from './src/interfaces/YouTube.ts';
+import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData, truncateObjectStrings, selectCaptionTrack } from '../utils/index.ts';
+import type { IVideoObject } from '../interfaces/index.ts';
+import type { YouTubeCaptionTrack, SubtitleItem } from '../interfaces/YouTube.ts';
 import { fileURLToPath } from 'url';
 
 export async function downloadSubtitles(linksFilePath: string, metaDir = 'subtitles', targetLanguage = 'English') {

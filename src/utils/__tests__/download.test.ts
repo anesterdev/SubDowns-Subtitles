@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { downloadSubtitles } from '../../../download.ts';
+import { downloadSubtitles } from '../../cli/download.ts';
 import fs from 'fs';
 import * as utils from '../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';

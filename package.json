@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "YouTube Subtitle Downloader & MCP Server",
   "scripts": {
-    "start": "node download.ts",
+    "start": "node src/cli/download.ts",
     "dev": "vite",
     "dev:host": "vite --host 0.0.0.0",
     "build:client": "vite build",
