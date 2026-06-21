@@ -10,7 +10,35 @@ import { getSubtitles } from "youtube-caption-extractor";
 import { YouTubeCaptionTrack, SubtitleItem } from "../interfaces/YouTube.ts";
 import { config } from "./config.ts";
 
-function createMCPServer() {
+declare global {
+  var __mcp_server_running__: boolean | undefined;
+}
+
+const ipCache = new Map<string, { count: number; resetTime: number }>();
+
+function getClientIp(req: http.IncomingMessage): string {
+  if (config.TRUST_PROXY) {
+    const forwardedFor = req.headers["x-forwarded-for"];
+    if (forwardedFor) {
+      const headerStr = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
+      return headerStr.split(",")[0].trim();
+    }
+  }
+  return req.socket.remoteAddress || "127.0.0.1";
+}
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const client = ipCache.get(ip);
+  if (!client || now > client.resetTime) {
+    ipCache.set(ip, { count: 1, resetTime: now + config.RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  client.count++;
+  return client.count > config.RATE_LIMIT_MAX;
+}
+
+export function createMCPServer() {
   const server = new Server(
     { name: "subdowns", version: "1.0.0" },
     { capabilities: { tools: {} } }
@@ -94,11 +122,10 @@ const activeConnections = new Map<string, {
 }>();
 
 export async function initMCPServer() {
-  const globalKey = "__mcp_server_running__";
-  if ((globalThis as any)[globalKey]) {
+  if (globalThis.__mcp_server_running__) {
     return;
   }
-  (globalThis as any)[globalKey] = true;
+  globalThis.__mcp_server_running__ = true;
 
   const port = config.MCP_PORT;
 
@@ -113,6 +140,13 @@ export async function initMCPServer() {
     if (req.method === "OPTIONS") {
       res.writeHead(200);
       res.end();
+      return;
+    }
+
+    const ip = getClientIp(req);
+    if (isRateLimited(ip)) {
+      res.writeHead(429, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Too many requests, please try again later." }));
       return;
     }
 
@@ -176,4 +210,6 @@ export async function initMCPServer() {
   httpServer.listen(port, "0.0.0.0", () => {
     console.log(`🚀 MCP Remote Server running on http://0.0.0.0:${port}/sse`);
   });
+
+  return httpServer;
 }
