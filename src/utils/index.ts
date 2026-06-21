@@ -8,10 +8,7 @@ const metadataCache = new LRUCache<string, YouTubePlayerResponse>({
     ttl: 1000 * 60 * 10,
 });
 
-export function extractVideoId(url: string): string | null {
-    const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
-    return match ? match[1] : null;
-}
+export { extractVideoId } from './url.ts';
 
 export function extractJsonByName(html: string, varName: string): string | null {
     const searchStrings = [

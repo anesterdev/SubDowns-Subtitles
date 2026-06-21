@@ -7,13 +7,6 @@ import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
 const { t } = useI18n();
 
-interface DownloadItem {
-  language: string;
-  format: string;
-  type: string;
-  timestamp: number;
-}
-
 interface HistoryVideoCard {
   videoId: string;
   video: IVideoObject['video'];

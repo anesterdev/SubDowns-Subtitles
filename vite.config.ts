@@ -7,7 +7,7 @@ export default defineConfig(() => {
     plugins: [
       hono({
         entry: 'src/backend/server.ts',
-        exclude: [/^(?!\/api).*$/], // Exclude everything except for routes starting with /api
+        exclude: [/^(?!\/api).*$/], // Exclude everything except for /api/* routes so they are passed to Hono Dev Server
       }),
       vue(),
     ],

@@ -5,6 +5,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import i18n from '../i18n.ts';
 import { APP_TITLE } from '../constants/index.ts';
+import { GITHUB_LINK } from '../constants/header.ts';
 
 const { locale, t } = useI18n();
 const route = useRoute();
@@ -55,7 +56,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
       <button class="theme-toggle" @click="toggleTheme()">
         {{ !isDark ? t('header.theme_dark') : t('header.theme_light') }}
       </button>
-      <a href="https://github.com/anesterdev" target="_blank">GitHub</a>
+      <a :href="GITHUB_LINK" target="_blank">GitHub</a>
     </div>
   </header>
 </template>

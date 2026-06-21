@@ -3,26 +3,14 @@ import { useRouter } from 'vue-router';
 import DownloaderHero from '../components/DownloaderHero.vue';
 import { toast } from 'vue3-toastify';
 
+import { extractVideoId } from '../../utils/url.ts';
+
 const router = useRouter();
 
 function handleDownload(url: string) {
   try {
-    const parsedUrl = new URL(url);
-    let vidId = '';
-    
-    if (parsedUrl.hostname === 'youtu.be') {
-      vidId = parsedUrl.pathname.slice(1);
-    } else {
-      vidId = parsedUrl.searchParams.get('v') || '';
-    }
-    
-    if (!vidId && parsedUrl.pathname.startsWith('/embed/')) {
-      vidId = parsedUrl.pathname.split('/')[2];
-    }
-    if (!vidId && parsedUrl.pathname.startsWith('/shorts/')) {
-      vidId = parsedUrl.pathname.split('/')[2];
-    }
-    
+    new URL(url);
+    const vidId = extractVideoId(url);
     if (vidId) {
       router.push(`/preview?vid_id=${vidId}`);
     } else {

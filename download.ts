@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { getSubtitles } from 'youtube-caption-extractor';
-import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData, truncateObjectStrings } from './src/utils/index.ts';
+import { extractVideoId, fetchMetadata, computeFileHash, getFileSize, extractVideoData, truncateObjectStrings, selectCaptionTrack } from './src/utils/index.ts';
 import type { IVideoObject } from './src/interfaces/index.ts';
 import type { YouTubeCaptionTrack, SubtitleItem } from './src/interfaces/YouTube.ts';
+import { fileURLToPath } from 'url';
 
-async function downloadSubtitles(linksFilePath: string, metaDir = 'subtitles', targetLanguage = 'English') {
+export async function downloadSubtitles(linksFilePath: string, metaDir = 'subtitles', targetLanguage = 'English') {
     if (!fs.existsSync(linksFilePath)) {
         console.log(`✗ Error: Could not find ${linksFilePath}`);
         return;
@@ -42,15 +43,11 @@ async function downloadSubtitles(linksFilePath: string, metaDir = 'subtitles', t
 
             const availableLanguages = tracks.map((t: YouTubeCaptionTrack) => t.name.simpleText);
 
-            const matchingTracks = tracks.filter((t: YouTubeCaptionTrack) => t.name.simpleText.includes(targetLanguage));
-            if (matchingTracks.length === 0) {
+            const selectedTrack = selectCaptionTrack(tracks, targetLanguage, false);
+            if (!selectedTrack) {
                 console.log(`✗ Error: No subtitles found for language target '${targetLanguage}'`);
                 continue;
             }
-
-            // Prefer manual subs (exact match) over auto-generated
-            const manualTrack = matchingTracks.find((t: YouTubeCaptionTrack) => t.name.simpleText.toLowerCase() === targetLanguage.toLowerCase());
-            const selectedTrack = manualTrack || matchingTracks[0];
             const exactLangName = selectedTrack.name.simpleText;
 
             const subtitles = await getSubtitles({ videoID: videoId, lang: selectedTrack.languageCode });
@@ -94,19 +91,22 @@ async function downloadSubtitles(linksFilePath: string, metaDir = 'subtitles', t
     console.log('\nDone!');
 }
 
-const args = process.argv.slice(2);
-let inputFile = 'links.json';
-let metaDir = 'subtitles';
-let targetLanguage = 'English';
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMain) {
+    const args = process.argv.slice(2);
+    let inputFile = 'links.json';
+    let metaDir = 'subtitles';
+    let targetLanguage = 'English';
 
-for (const arg of args) {
-    if (arg.startsWith('--meta-dir=')) {
-        metaDir = arg.split('=')[1];
-    } else if (arg.startsWith('--lang=')) {
-        targetLanguage = arg.split('=')[1];
-    } else if (!arg.startsWith('--')) {
-        inputFile = arg;
+    for (const arg of args) {
+        if (arg.startsWith('--meta-dir=')) {
+            metaDir = arg.split('=')[1];
+        } else if (arg.startsWith('--lang=')) {
+            targetLanguage = arg.split('=')[1];
+        } else if (!arg.startsWith('--')) {
+            inputFile = arg;
+        }
     }
-}
 
-downloadSubtitles(inputFile, metaDir, targetLanguage);
+    downloadSubtitles(inputFile, metaDir, targetLanguage);
+}
