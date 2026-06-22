@@ -14,6 +14,7 @@ vi.mock('./config.ts', async (importOriginal) => {
       ...actual.config,
       RATE_LIMIT_MAX: 2,
       RATE_LIMIT_WINDOW_MS: 10000,
+      TRUST_PROXY: true,
     }
   };
 });
@@ -108,7 +109,9 @@ describe('MCP Server HTTP Layer & Rate Limiting', () => {
 
     // Send 3 requests (limit is 2)
     const makeRequest = async () => {
-      const res = await fetch(`http://127.0.0.1:${serverPort}/api/mcp/sse`);
+      const res = await fetch(`http://127.0.0.1:${serverPort}/api/mcp/sse`, {
+        headers: { 'x-forwarded-for': '1.1.1.1' }
+      });
       return res;
     };
 
@@ -124,5 +127,64 @@ describe('MCP Server HTTP Layer & Rate Limiting', () => {
 
     const body = await res3.json();
     expect(body).toEqual({ error: 'Too many requests, please try again later.' });
+  });
+
+  it('supports full MCP SSE connection and message POST lifecycle', async () => {
+    await new Promise<void>((resolve) => {
+      serverInstance = serve({
+        fetch: app.fetch,
+        port: 0,
+        hostname: '127.0.0.1'
+      }, () => resolve());
+    });
+
+    const address = serverInstance?.address();
+    serverPort = (address as AddressInfo).port;
+
+    // 1. Connect to SSE
+    const sseResponse = await fetch(`http://127.0.0.1:${serverPort}/api/mcp/sse`, {
+      headers: { 'x-forwarded-for': '2.2.2.2' }
+    });
+    expect(sseResponse.status).toBe(200);
+    expect(sseResponse.headers.get('content-type')).toContain('text/event-stream');
+
+    const reader = sseResponse.body!.getReader();
+    
+    // Read the first chunk (which contains the message endpoint setup)
+    const chunk1 = await reader.read();
+    const text1 = new TextDecoder().decode(chunk1.value);
+    
+    expect(text1).toContain('event: endpoint');
+    
+    const sessionMatch = text1.match(/sessionId=([a-zA-Z0-9-]+)/);
+    expect(sessionMatch).not.toBeNull();
+    const sessionId = sessionMatch![1];
+    
+    // 2. Send JSON-RPC listTools request via POST
+    const postResponse = await fetch(`http://127.0.0.1:${serverPort}/api/mcp/message?sessionId=${sessionId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': '2.2.2.2',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'tools/list',
+        params: {}
+      }),
+    });
+    
+    expect(postResponse.status).toBe(202);
+
+    // 3. Read the JSON-RPC response from the SSE stream
+    const chunk2 = await reader.read();
+    const text2 = new TextDecoder().decode(chunk2.value);
+    
+    expect(text2).toContain('event: message');
+    expect(text2).toContain('get_youtube_subtitles');
+    
+    // Close stream
+    await reader.cancel();
   });
 });

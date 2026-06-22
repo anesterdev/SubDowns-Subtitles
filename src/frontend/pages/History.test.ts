@@ -69,7 +69,7 @@ describe('History.vue Page', () => {
 
     mockCache.match.mockResolvedValue({
       json: vi.fn().mockResolvedValue(mockCachedData),
-    } as any);
+    } as unknown as Response);
 
     const wrapper = mount(History);
     await new Promise((resolve) => setTimeout(resolve, 0));

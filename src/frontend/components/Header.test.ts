@@ -87,6 +87,41 @@ describe('Header.vue Component', () => {
     expect(localStorage.getItem('theme')).toBe('auto');
   });
 
+  it('respects light-mode OS preference initially and toggles to dark', async () => {
+    // Override matchMedia mock to prefer light mode (matches dark is false)
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      configurable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: false, // does not prefer dark
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    const wrapper = mount(Header, {
+      global: {
+        stubs: {
+          'router-link': true,
+        },
+      },
+    });
+
+    // Should default to theme-white because OS prefers light mode
+    expect(document.body.classList.contains('theme-white')).toBe(true);
+
+    const button = wrapper.find('.theme-toggle');
+    // Toggle to dark mode
+    await button.trigger('click');
+    expect(document.body.classList.contains('theme-white')).toBe(false);
+    expect(localStorage.getItem('theme')).toBe('dark');
+  });
+
   it('handles language changes correctly', async () => {
     const wrapper = mount(Header, {
       global: {

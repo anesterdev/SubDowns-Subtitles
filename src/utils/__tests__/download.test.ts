@@ -3,6 +3,7 @@ import { downloadSubtitles } from '../../cli/download.ts';
 import fs from 'fs';
 import * as utils from '../../utils/index.ts';
 import { getSubtitles } from 'youtube-caption-extractor';
+import { YouTubePlayerResponse } from '../../interfaces/YouTube.ts';
 
 vi.mock('fs', () => ({
   default: {
@@ -56,7 +57,7 @@ describe('CLI downloadSubtitles', () => {
     };
     const mockSubtitles = [{ start: '1.0', dur: '1.0', text: 'Hello CLI' }];
 
-    vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse as any);
+    vi.mocked(utils.fetchMetadata).mockResolvedValue(mockPlayerResponse as unknown as YouTubePlayerResponse);
     vi.mocked(getSubtitles).mockResolvedValue(mockSubtitles);
 
     await downloadSubtitles('links.json', 'custom-meta');
