@@ -64,6 +64,9 @@ describe('VideoPreviewIsland.vue Component', () => {
     expect(wrapper.find('.lang-name').text()).toBe('English');
     expect(wrapper.text()).toContain('Rick Astley');
     expect(wrapper.text()).toContain('03:32'); // 212 seconds
+    expect(wrapper.find('.thumbnail-wrapper').attributes('href')).toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    expect(wrapper.find('.thumbnail-wrapper').attributes('target')).toBe('_blank');
+    expect(wrapper.find('.detail-item').attributes('href')).toBe('https://www.youtube.com/channel/UCuAXFkgcl1yWxqiHs95V9hw');
   });
 
   it('triggers download actions correctly on button click', async () => {

@@ -34,6 +34,9 @@ const mainLanguageInfo = computed(() => {
   return null;
 });
 
+const videoUrl = computed(() => props.video ? `https://www.youtube.com/watch?v=${props.video.video_id}` : undefined);
+const channelUrl = computed(() => props.author?.channel_id ? `https://www.youtube.com/channel/${props.author.channel_id}` : undefined);
+
 function handleDownload(format: 'srt' | 'txt') {
   if (mainLanguageInfo.value && props.video) {
     downloadSubs(props.video.video_id, mainLanguageInfo.value.language, format, mainLanguageInfo.value.type);
@@ -49,9 +52,9 @@ function handleOpenRaw() {
 
 <template>
   <div class="video-preview-island glass-card">
-    <div class="thumbnail-wrapper" :class="{ skeleton: loading || !video }">
+    <a class="thumbnail-wrapper" :class="{ skeleton: loading || !video }" :href="videoUrl" target="_blank" rel="noopener noreferrer">
       <img v-if="video" :src="video.thumbnail_url" alt="Video Thumbnail" />
-    </div>
+    </a>
     
     <div class="metadata">
       <h2 class="title" :class="{ skeleton: loading || !video }">
@@ -59,10 +62,10 @@ function handleOpenRaw() {
       </h2>
       
       <div class="details" :class="{ skeleton: loading || !video }">
-        <span class="detail-item" v-if="author">
+        <a class="detail-item" v-if="author" :href="channelUrl" target="_blank" rel="noopener noreferrer">
           <span class="material-symbols-outlined icon">person</span>
           {{ author.channel_name }}
-        </span>
+        </a>
         <span class="detail-item">
           <span class="material-symbols-outlined icon">schedule</span>
           {{ formatDuration(video?.duration) }}
@@ -124,6 +127,8 @@ function handleOpenRaw() {
     flex-shrink: 0;
     aspect-ratio: 16 / 9;
     display: flex;
+    text-decoration: none;
+    color: inherit;
 
     @media (min-width: 768px) {
       width: 280px;
@@ -159,9 +164,15 @@ function handleOpenRaw() {
       font-size: var(--font-size-sm);
 
       .detail-item {
+        color: inherit;
+        
         display: flex;
         align-items: center;
         gap: var(--space-xs);
+
+        &span {
+          text-decoration: none;
+        }
         
         .icon {
           font-size: 1rem;
