@@ -16,7 +16,7 @@ export interface IVideoObject {
     channel_id: string;
     created_at?: string;
   };
-  meta: {
+  meta?: {
     requested_at: string;
     file_hash: string;
     file_size: string;
