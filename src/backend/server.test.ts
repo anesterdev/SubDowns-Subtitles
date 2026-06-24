@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import app from './server.ts';
 import * as utils from '../utils/index.ts';
 
@@ -27,10 +27,6 @@ vi.mock('youtube-caption-extractor', () => ({
 }));
 
 describe('Server Global Endpoints', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
   describe('GET /api/health', () => {
     it('should return 200 OK status', async () => {
       const res = await app.request('/api/health');

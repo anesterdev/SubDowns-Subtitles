@@ -108,6 +108,11 @@ const shouldBoot = process.env.NODE_ENV === 'production' || isMainModule;
 if (shouldBoot) {
   await initLogger();
 
+  process.on('SIGTERM', () => {
+    logger.info('SIGTERM received, shutting down');
+    process.exit(0);
+  });
+
   if (process.env.NODE_ENV === 'production') {
     app.use('/*', serveStatic({ root: './dist/frontend' }));
     app.get('/*', serveStatic({ path: './dist/frontend/index.html' }));
