@@ -60,7 +60,7 @@
       <p class="description">{{ $t('not_found.description') }}</p>
       
       <router-link to="/" class="back-link">
-        <span class="material-symbols-outlined">home</span>
+        <i class="material-symbols-outlined">home</i>
         {{ $t('not_found.back_home') }}
       </router-link>
     </div>

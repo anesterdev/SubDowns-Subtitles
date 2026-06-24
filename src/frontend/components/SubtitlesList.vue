@@ -25,7 +25,7 @@ const videoStore = useVideoStore();
   <div class="subtitles-list-container">
     <div class="header">
       <div class="title-group">
-        <span class="material-symbols-outlined icon">{{ icon }}</span>
+        <i class="material-symbols-outlined icon">{{ icon }}</i>
         <h3 class="title">{{ title }}</h3>
       </div>
     </div>
@@ -49,17 +49,17 @@ const videoStore = useVideoStore();
             </div>
             <div class="col-actions">
               <button variant="action" size="sm" :disabled="isDownloading[`${videoId}-${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
-                <span class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-srt`]">description</span>
-                <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+                <i class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-srt`]">description</i>
+                <i class="material-symbols-outlined" v-else>hourglass_empty</i>
                 SRT
               </button>
               <button variant="action" size="sm" :disabled="isDownloading[`${videoId}-${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
-                <span class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-txt`]">article</span>
-                <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+                <i class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-txt`]">article</i>
+                <i class="material-symbols-outlined" v-else>hourglass_empty</i>
                 TXT
               </button>
               <button variant="action" size="sm" @click="openRawTab(videoId, lang)">
-                <span class="material-symbols-outlined">data_object</span>
+                <i class="material-symbols-outlined">data_object</i>
                 RAW
               </button>
             </div>

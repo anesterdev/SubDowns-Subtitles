@@ -63,38 +63,40 @@ function handleOpenRaw() {
       
       <div class="details" :class="{ skeleton: loading || !video }">
         <a class="detail-item" v-if="author" :href="channelUrl" target="_blank" rel="noopener noreferrer">
-          <span class="material-symbols-outlined icon">person</span>
-          {{ author.channel_name }}
+          <i class="material-symbols-outlined icon">person</i>
+          <span>
+            {{ author.channel_name }}
+          </span>
         </a>
         <span class="detail-item">
-          <span class="material-symbols-outlined icon">schedule</span>
+          <i class="material-symbols-outlined icon">schedule</i>
           {{ formatDuration(video?.duration) }}
         </span>
         <span class="detail-item">
-          <span class="material-symbols-outlined icon">hd</span>
+          <i class="material-symbols-outlined icon">hd</i>
           HD
         </span>
       </div>
 
       <div class="main-language-block" :class="{ skeleton: loading || !video }" v-if="mainLanguageInfo || loading || !video">
         <div class="lang-info">
-          <span class="material-symbols-outlined text-accent icon">translate</span>
+          <i class="material-symbols-outlined text-accent icon">translate</i>
           <span class="lang-name">{{ mainLanguageInfo?.language || '\u00A0' }}</span>
           <span class="badge" :class="{'auto-badge': mainLanguageInfo?.type === 'auto'}">{{ mainLanguageInfo?.badgeText || 'Original' }}</span>
         </div>
         <div class="actions">
           <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]" @click="handleDownload('srt')">
-            <span class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]">description</span>
-            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+            <i class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]">description</i>
+            <i class="material-symbols-outlined" v-else>hourglass_empty</i>
             SRT
           </button>
           <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]" @click="handleDownload('txt')">
-            <span class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]">article</span>
-            <span class="material-symbols-outlined" v-else>hourglass_empty</span>
+            <i class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]">article</i>
+            <i class="material-symbols-outlined" v-else>hourglass_empty</i>
             TXT
           </button>
           <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo" @click="handleOpenRaw">
-            <span class="material-symbols-outlined">data_object</span>
+            <i class="material-symbols-outlined">data_object</i>
             RAW
           </button>
         </div>
@@ -165,13 +167,17 @@ function handleOpenRaw() {
 
       .detail-item {
         color: inherit;
+        text-decoration: none;
         
         display: flex;
         align-items: center;
         gap: var(--space-xs);
 
-        &span {
+        span {
           text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: var(--space-xs);
         }
         
         .icon {

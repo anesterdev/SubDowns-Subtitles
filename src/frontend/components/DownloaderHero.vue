@@ -27,7 +27,7 @@ function onDownload() {
   <div class="downloader-hero">
     <div class="input-container">
       <div class="input-wrapper">
-        <span class="material-symbols-outlined icon">link</span>
+        <i class="material-symbols-outlined icon">link</i>
         <input
           v-model="url"
           type="text"
@@ -36,12 +36,12 @@ function onDownload() {
           @keyup.enter="onDownload"
         />
         <button v-if="url" class="clear-btn" @click="url = ''">
-          <span class="material-symbols-outlined">close</span>
+          <i class="material-symbols-outlined">close</i>
         </button>
       </div>
 
       <button class="download-btn" :disabled="isDisabled" @click="onDownload">
-        <span class="material-symbols-outlined">download</span>
+        <i class="material-symbols-outlined">download</i>
         {{ t('home.download') }}
       </button>
     </div>
