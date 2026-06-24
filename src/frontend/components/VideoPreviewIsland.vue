@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IVideoObject } from '../../interfaces/VideoObject.ts';
+import type { VideoPreviewResponse } from '../../interfaces/index.ts';
 
 import { computed } from 'vue';
 import { useDownload } from '../composables/useDownload.ts';
@@ -8,9 +8,9 @@ import { formatDuration } from '../../utils/format.ts';
 const { isDownloading, downloadSubs, openRawTab } = useDownload();
 
 const props = defineProps<{
-  video?: IVideoObject['video'];
-  author?: IVideoObject['author'];
-  subtitles?: IVideoObject['subtitles'];
+  video?: VideoPreviewResponse['video'];
+  author?: VideoPreviewResponse['author'];
+  subtitles?: VideoPreviewResponse['subtitles'];
   loading?: boolean;
 }>();
 

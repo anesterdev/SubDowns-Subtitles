@@ -1,17 +1,13 @@
 import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
 import { convertToSrt, fetchSubtitles } from '../../../../utils/index.ts';
 import { type SubtitleItem } from '../../../../interfaces/YouTube.ts';
+import { DownloadQuerySchema } from '../../../../interfaces/index.ts';
 
 export const route = createRoute({
   method: 'get',
   path: '/',
   request: {
-    query: z.object({
-      vid_id: z.string().max(100).regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
-      lang: z.string().max(100).openapi({ description: 'Target Language', example: 'English' }),
-      format: z.enum(['srt', 'txt', 'raw']).openapi({ description: 'Download format' }),
-      type: z.enum(['manual', 'auto']).default('manual').openapi({ description: 'Subtitle type' }),
-    }),
+    query: DownloadQuerySchema,
   },
   responses: {
     200: {

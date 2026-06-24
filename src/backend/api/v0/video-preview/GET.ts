@@ -1,37 +1,19 @@
-import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
+import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { fetchMetadata, extractVideoData } from '../../../../utils/index.ts';
 import { type YouTubeCaptionTrack, type YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
+import { VideoPreviewQuerySchema, VideoPreviewResponseSchema } from '../../../../interfaces/index.ts';
 
 export const route = createRoute({
   method: 'get',
   path: '/',
   request: {
-    query: z.object({
-      vid_id: z.string().regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
-    }),
+    query: VideoPreviewQuerySchema,
   },
   responses: {
     200: {
       content: {
         'application/json': {
-          schema: z.object({
-            video: z.object({
-              title: z.string(),
-              video_id: z.string(),
-              created_at: z.string(),
-              thumbnail_url: z.string().optional(),
-              duration: z.string().optional(),
-            }),
-            author: z.object({
-              channel_name: z.string(),
-              channel_id: z.string(),
-            }),
-            subtitles: z.object({
-              available_languages: z.array(z.string()),
-              auto_translate_languages: z.array(z.string()),
-              count: z.number(),
-            }),
-          }),
+          schema: VideoPreviewResponseSchema,
         },
       },
       description: 'Successfully fetched video metadata',

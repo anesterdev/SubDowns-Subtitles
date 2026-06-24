@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { IVideoObject } from '../../interfaces/VideoObject.ts';
+import type { VideoPreviewResponse } from '../../interfaces/index.ts';
 import { videoPreviewUrl } from '../services/api.ts';
 import { saveHistoryEntry, loadHistoryEntries } from '../services/historyService.ts';
 
 export interface HistoryVideoCard {
   videoId: string;
-  video: IVideoObject['video'];
-  author: IVideoObject['author'];
+  video: VideoPreviewResponse['video'];
+  author: VideoPreviewResponse['author'];
   language: string;
   format: string;
   type: string;
@@ -16,7 +16,7 @@ export interface HistoryVideoCard {
 }
 
 export const useVideoStore = defineStore('video', () => {
-  const currentVideo = ref<IVideoObject | null>(null);
+  const currentVideo = ref<VideoPreviewResponse | null>(null);
   const status = ref<'Idle' | 'Fetching' | 'Ready' | 'Error'>('Idle');
 
   async function fetchVideo(vidId: string) {
@@ -44,7 +44,7 @@ export const useVideoStore = defineStore('video', () => {
       const clonedRes = res.clone();
       await cache.put(reqUrl, clonedRes);
       
-      const data: IVideoObject = await res.json();
+      const data: VideoPreviewResponse = await res.json();
       currentVideo.value = data;
       status.value = 'Ready';
     } catch {

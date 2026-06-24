@@ -1,14 +1,12 @@
 import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
 import { fetchSubtitlesText } from '../../../../../utils/index.ts';
+import { RawDownloadQuerySchema } from '../../../../../interfaces/index.ts';
 
 export const route = createRoute({
   method: 'get',
   path: '/raw',
   request: {
-    query: z.object({
-      vid_id: z.string().max(100).regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
-      lang: z.string().max(100).optional().default('English').openapi({ description: 'Target Language', example: 'English' }),
-    }),
+    query: RawDownloadQuerySchema,
   },
   responses: {
     200: {
