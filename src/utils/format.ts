@@ -10,7 +10,7 @@ export function formatTime(secondsStr: string) {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
 }
 
-export function formatDuration(duration?: string | number): string { // Thought of using Intl lib, but this approach is nearly 200x slower
+export function formatDuration(duration?: string | number): string {
     if (!duration) return '00:00';
     const totalSeconds = parseInt(duration.toString(), 10);
     if (isNaN(totalSeconds)) return '00:00';

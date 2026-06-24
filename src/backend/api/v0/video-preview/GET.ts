@@ -2,6 +2,7 @@ import { createRoute, type RouteHandler } from '@hono/zod-openapi';
 import { fetchMetadata, extractVideoData } from '../../../../utils/index.ts';
 import { type YouTubeCaptionTrack, type YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 import { VideoPreviewQuerySchema, VideoPreviewResponseSchema } from '../../../../interfaces/index.ts';
+import { logger } from '../../../logger.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -58,9 +59,13 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         auto_translate_languages: autoLanguages,
         count: availableLanguages.length,
       }
-    }, 200);
+    }, 200, { 'Cache-Control': 'public, max-age=600' });
 
-  } catch {
-    return c.json({ error: 'fetch_failed' }, 400);
+    } catch (error) {
+    logger.error('Failed to fetch video preview for {vid_id}: {error}', {
+      vid_id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return c.json({ error: 'fetch_failed' }, 502);
   }
 };

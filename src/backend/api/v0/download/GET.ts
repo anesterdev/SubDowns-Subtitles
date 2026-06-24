@@ -2,6 +2,7 @@ import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
 import { convertToSrt, fetchSubtitles } from '../../../../utils/index.ts';
 import { type SubtitleItem } from '../../../../interfaces/YouTube.ts';
 import { DownloadQuerySchema } from '../../../../interfaces/index.ts';
+import { logger } from '../../../logger.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -67,7 +68,15 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     });
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to download subtitles';
-    return c.json({ error: message }, 400);
+    const raw = error instanceof Error ? error.message : String(error);
+    logger.error('Download failed for vid={vid_id} lang={lang}: {error}', { vid_id, lang, error: raw });
+
+    if (raw.includes('not found') || raw.includes('No subtitles') || raw.includes('No base track')) {
+      return c.json({ error: 'no_subtitles' }, 404);
+    }
+    if (raw.includes('language') || raw.includes('Auto-translate')) {
+      return c.json({ error: 'language_not_found' }, 404);
+    }
+    return c.json({ error: 'download_failed' }, 502);
   }
 };

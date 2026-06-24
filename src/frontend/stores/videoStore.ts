@@ -13,9 +13,13 @@ export const useVideoStore = defineStore('video', () => {
   const status = ref<'Idle' | 'Fetching' | 'Ready' | 'Error'>('Idle');
   const errorMessage = ref('');
   const downloadingMap = ref<Record<string, boolean>>({});
+  let fetchController: AbortController | null = null;
 
   async function fetchVideo(vidId: string) {
     if (!vidId) return;
+
+    if (fetchController) fetchController.abort();
+    fetchController = new AbortController();
 
     status.value = 'Fetching';
     currentVideo.value = null;
@@ -24,30 +28,21 @@ export const useVideoStore = defineStore('video', () => {
     const reqUrl = videoPreviewUrl(vidId);
 
     try {
-      const cache = await caches.open('video-metadata-cache');
-      const cachedResponse = await cache.match(reqUrl);
-
-      if (cachedResponse) {
-        currentVideo.value = await cachedResponse.json();
-        status.value = 'Ready';
-        return;
-      }
-
-      const res = await fetch(reqUrl);
+      const res = await fetch(reqUrl, { signal: fetchController.signal });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || 'fetch_failed');
       }
 
-      const clonedRes = res.clone();
-      await cache.put(reqUrl, clonedRes);
-
       const data: VideoPreviewResponse = await res.json();
       currentVideo.value = data;
       status.value = 'Ready';
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       errorMessage.value = err instanceof Error ? err.message : 'fetch_failed';
       status.value = 'Error';
+    } finally {
+      if (fetchController?.signal.aborted) fetchController = null;
     }
   }
 

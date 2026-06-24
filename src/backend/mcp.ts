@@ -55,7 +55,7 @@ export function createMCPServer() {
       }
 
       try {
-        const content = await fetchSubtitlesText(vid_id, lang);
+        const content = await fetchSubtitlesText(vid_id, lang, AbortSignal.timeout(30_000));
         return {
           content: [{ type: "text", text: content }],
         };

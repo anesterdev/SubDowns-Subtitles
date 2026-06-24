@@ -4,6 +4,7 @@ import { apiReference } from '@scalar/hono-api-reference';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
+import { secureHeaders } from 'hono/secure-headers';
 import { honoLogger } from '@logtape/hono';
 
 import apiRouter from './api/index.ts';
@@ -31,6 +32,7 @@ app.use('*', honoLogger({
 
 // Add CORS so the Vite frontend can access it
 app.use('/api/*', cors());
+app.use('*', secureHeaders());
 
 // Rate limiter using hono-rate-limiter with secure key generator
 const limiter = rateLimiter({

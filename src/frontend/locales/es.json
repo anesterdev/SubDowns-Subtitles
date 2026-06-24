@@ -48,6 +48,10 @@
     "invalid_url": "Por favor, introduce una URL válida.",
     "invalid_youtube_url": "URL de YouTube no válida. No se pudo extraer el ID del video.",
     "video_not_found": "Video no encontrado o no disponible.",
-    "fetch_failed": "Error al obtener la vista previa del video."
+    "fetch_failed": "Error al obtener la vista previa del video.",
+    "no_subtitles": "No hay subtítulos disponibles para este video.",
+    "language_not_found": "El idioma solicitado no se encontró.",
+    "download_failed": "Error al descargar los subtítulos. Inténtalo de nuevo.",
+    "youtube_unavailable": "YouTube no está disponible temporalmente. Inténtalo de nuevo más tarde."
   }
 }
