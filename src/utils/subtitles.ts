@@ -1,5 +1,6 @@
 import { getSubtitles } from 'youtube-caption-extractor';
-import { SubtitleItem, YouTubeCaptionTrack } from '../interfaces/YouTube.ts';
+import { decodeHTML } from 'entities';
+import { SubtitleItem, YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../interfaces/YouTube.ts';
 import { fetchMetadata } from './metadata.ts';
 
 export function selectCaptionTrack(tracks: YouTubeCaptionTrack[], lang: string, allowFallback: boolean = true): YouTubeCaptionTrack | null {
@@ -27,6 +28,10 @@ interface AutoSubtitleResponse {
     events?: AutoSubtitleEvent[];
 }
 
+export function decodeHtmlEntities(str: string): string {
+    return decodeHTML(str.replace(/<[^>]+>/g, '')).trim();
+}
+
 export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<SubtitleItem[]> {
     const url = baseUrl.replace(/&fmt=[^&]+/, '') + '&fmt=json3&tlang=' + targetLangCode;
     const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -40,7 +45,7 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
     for (const event of events) {
         if (!event.segs || event.aAppend === 1) continue;
         const raw = event.segs.map((s) => s.utf8 ?? '').join('');
-        const text = raw.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+        const text = decodeHtmlEntities(raw);
         if (!text) continue;
         const startMs = event.tStartMs ?? 0;
         const durMs = event.dDurationMs ?? 0;
@@ -84,8 +89,7 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
     let exactLangName = lang;
 
     if (type === 'auto') {
-        const translationLanguages = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
-        // @ts-ignore
+        const translationLanguages: YouTubeTranslationLanguage[] = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
         const targetLang = translationLanguages.find((t) => t.languageName.simpleText === lang);
         if (!targetLang) throw new Error(`Auto-translate language not found: '${lang}'`);
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { selectCaptionTrack, fetchAutoSubtitles } from '../subtitles.ts';
+import { selectCaptionTrack, fetchAutoSubtitles, decodeHtmlEntities } from '../subtitles.ts';
 import { YouTubeCaptionTrack } from '../../interfaces/YouTube.ts';
 
 describe('selectCaptionTrack', () => {
@@ -42,6 +42,13 @@ describe('selectCaptionTrack', () => {
   it('returns null when no match is found and fallback is disabled', () => {
     const track = selectCaptionTrack(mockTracks, 'Russian', false);
     expect(track).toBeNull();
+  });
+});
+
+describe('decodeHtmlEntities', () => {
+  it('strips HTML tags and decodes named, numeric decimal, and hex entities', () => {
+    expect(decodeHtmlEntities('<b>Hello</b> &amp; Welcome&#39;s &#x27;Great&#x27;'))
+      .toBe("Hello & Welcome's 'Great'");
   });
 });
 

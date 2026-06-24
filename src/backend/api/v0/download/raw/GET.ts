@@ -6,8 +6,8 @@ export const route = createRoute({
   path: '/raw',
   request: {
     query: z.object({
-      vid_id: z.string().regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
-      lang: z.string().optional().default('English').openapi({ description: 'Target Language', example: 'English' }),
+      vid_id: z.string().max(100).regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
+      lang: z.string().max(100).optional().default('English').openapi({ description: 'Target Language', example: 'English' }),
     }),
   },
   responses: {

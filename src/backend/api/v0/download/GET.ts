@@ -7,8 +7,8 @@ export const route = createRoute({
   path: '/',
   request: {
     query: z.object({
-      vid_id: z.string().regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
-      lang: z.string().openapi({ description: 'Target Language', example: 'English' }),
+      vid_id: z.string().max(100).regex(/^[0-9A-Za-z_-]{11}$/).openapi({ description: 'YouTube Video ID', example: 'dQw4w9WgXcQ' }),
+      lang: z.string().max(100).openapi({ description: 'Target Language', example: 'English' }),
       format: z.enum(['srt', 'txt', 'raw']).openapi({ description: 'Download format' }),
       type: z.enum(['manual', 'auto']).default('manual').openapi({ description: 'Subtitle type' }),
     }),
@@ -59,8 +59,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }
 
     const baseFilename = `[${vid_id}] - ${title} - [${exactLangName}].${format}`;
-    const escapeMap: Record<string, string> = { "'": '%27', '(': '%28', ')': '%29', '*': '%2A' };
-    const safeFilename = encodeURIComponent(baseFilename).replace(/['()*]/g, (char) => escapeMap[char]);
+    const safeFilename = encodeURIComponent(baseFilename).replace(/['()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
 
     return new Response(format === 'raw' ? JSON.stringify(content, null, 2) : content as string, {
         status: 200,
