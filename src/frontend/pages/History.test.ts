@@ -35,7 +35,7 @@ describe('History.vue Page', () => {
 
   it('shows loading state initially', async () => {
     const wrapper = mount(History);
-    expect(wrapper.text()).toContain('Loading...');
+    expect(wrapper.text()).toContain('history.loading');
   });
 
   it('shows empty state when no downloads in cache history', async () => {

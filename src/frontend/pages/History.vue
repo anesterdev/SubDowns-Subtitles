@@ -36,7 +36,7 @@ function viewVideo(vidId: string) {
     </div>
 
     <div v-if="isLoading" class="loading-state">
-      Loading...
+      {{ t('history.loading') }}
     </div>
 
     <div v-else-if="historyItems.length === 0" class="empty-state">

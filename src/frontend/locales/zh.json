@@ -36,6 +36,7 @@
     "format": "格式",
     "date": "日期",
     "empty": "您的历史记录中未找到下载。",
+    "loading": "加载中...",
     "view": "观看视频"
   },
   "not_found": {

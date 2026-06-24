@@ -36,6 +36,7 @@
     "format": "Format",
     "date": "Date",
     "empty": "No downloads found in your history.",
+    "loading": "Loading...",
     "view": "View Video"
   },
   "not_found": {
