@@ -25,6 +25,8 @@
   "dependencies": {
     "@hono/node-server": "^2.0.5",
     "@hono/zod-openapi": "^1.4.0",
+    "@logtape/hono": "^2.2.1",
+    "@logtape/logtape": "^2.2.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@scalar/hono-api-reference": "^0.11.4",
     "@vueuse/core": "^14.3.0",

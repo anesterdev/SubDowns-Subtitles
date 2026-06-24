@@ -7,6 +7,7 @@ import {
 import { fetchSubtitlesText } from "../utils/index.ts";
 import { type OpenAPIHono } from "@hono/zod-openapi";
 import { type IncomingMessage, type ServerResponse } from "node:http";
+import { mcpLogger } from "./logger.ts";
 
 interface NodeServerEnv {
   incoming?: IncomingMessage;
@@ -84,7 +85,7 @@ function ensurePruneTimer() {
     for (const [sessionId, connection] of activeConnections.entries()) {
       const res = connection.res;
       if (res.writableEnded || res.finished || res.socket?.destroyed) {
-        console.log(`[MCP Server] Pruning dead session: ${sessionId}`);
+        mcpLogger.info("Pruning dead session {sessionId}", { sessionId });
         activeConnections.delete(sessionId);
         connection.server.close().catch(() => { });
       }
@@ -133,10 +134,10 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
 
     activeConnections.set(sessionId, { server, transport, res: nodeRes });
     ensurePruneTimer();
-    console.log(`[MCP Server] SSE connection established. Session: ${sessionId}, Message URL: ${messageUrl}`);
+    mcpLogger.info("SSE connection established. Session: {sessionId}, Message URL: {messageUrl}", { sessionId, messageUrl });
 
     nodeReq.on('close', async () => {
-      console.log(`[MCP Server] SSE connection closed for session: ${sessionId}`);
+      mcpLogger.info("SSE connection closed for session {sessionId}", { sessionId });
       activeConnections.delete(sessionId);
       try {
         await server.close();
@@ -166,14 +167,14 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
           await connection.transport.handlePostMessage(nodeReq, nodeRes);
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Unknown error';
-          console.error(`[MCP Server] Error handling POST message for session ${sessionId}:`, message);
+          mcpLogger.error("Error handling POST message for session {sessionId}: {message}", { sessionId, message });
         }
         c.header('x-hono-already-sent', 'true');
         return c.body(null);
       }
     }
 
-    console.log(`[MCP Server] Rejected POST message: Session not found or SSE transport not established.`);
+    mcpLogger.warn("Rejected POST message: Session not found or SSE transport not established.");
     return c.text('SSE connection not established', 400);
   });
 }

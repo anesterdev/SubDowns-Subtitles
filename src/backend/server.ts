@@ -4,15 +4,30 @@ import { apiReference } from '@scalar/hono-api-reference';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
+import { honoLogger } from '@logtape/hono';
 
 import apiRouter from './api/index.ts';
 import { initMCPServerRoutes } from './mcp.ts';
 import { config } from './config.ts';
+import { initLogger, logger } from './logger.ts';
 
 import { rateLimiter } from 'hono-rate-limiter';
 import { getConnInfo } from '@hono/node-server/conninfo';
 
 const app = new OpenAPIHono();
+
+app.use('*', honoLogger({
+  category: ['hono'],
+  skip: (c) => {
+    const p = c.req.path;
+    return p === '/api/health' ||
+      p.startsWith('/assets/') ||
+      p === '/favicon.ico' ||
+      p.startsWith('/.well-known/') ||
+      (p === '/' || p === '/index.html') ||
+      p.endsWith('.js') || p.endsWith('.css') || p.endsWith('.ico') || p.endsWith('.map');
+  },
+}));
 
 // Add CORS so the Vite frontend can access it
 app.use('/api/*', cors());
@@ -20,7 +35,7 @@ app.use('/api/*', cors());
 // Rate limiter using hono-rate-limiter with secure key generator
 const limiter = rateLimiter({
   windowMs: config.RATE_LIMIT_WINDOW_MS,
-  limit: (c) => c.req.path === '/api/mcp/message' ? config.RATE_LIMIT_MAX * 2 : config.RATE_LIMIT_MAX, // higher rate for mcp, but will eventually hit 429 from YT api
+  limit: (c) => c.req.path === '/api/mcp/message' ? config.RATE_LIMIT_MAX * 2 : config.RATE_LIMIT_MAX,
   keyGenerator: (c) => {
     if (config.TRUST_PROXY) {
       const forwardedFor = c.req.header('x-forwarded-for');
@@ -91,13 +106,15 @@ const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 const shouldBoot = process.env.NODE_ENV === 'production' || isMainModule;
 
 if (shouldBoot) {
+  await initLogger();
+
   if (process.env.NODE_ENV === 'production') {
     app.use('/*', serveStatic({ root: './dist/frontend' }));
     app.get('/*', serveStatic({ path: './dist/frontend/index.html' }));
   }
 
   const port = config.PORT;
-  console.log(`Starting SubDowns Server on port ${port}...`);
+  logger.info(`Starting SubDowns Server on port ${port}...`);
   serve({
     fetch: app.fetch,
     port,

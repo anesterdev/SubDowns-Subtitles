@@ -3,7 +3,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   PORT: z.string().optional().transform((v) => v ? parseInt(v, 10) : 3069),
   RATE_LIMIT_MAX: z.string().optional().transform((v) => v ? parseInt(v, 10) : 100),
-  RATE_LIMIT_WINDOW_MS: z.string().optional().transform((v) => v ? parseInt(v, 10) : 60000), // 1 minute default
+  RATE_LIMIT_WINDOW_MS: z.string().optional().transform((v) => v ? parseInt(v, 10) : 60000),
   TRUST_PROXY: z.string().optional().transform((v) => v === 'true'),
 });
 

@@ -23,7 +23,7 @@ ENV PORT=3069
 # Copy built assets and production dependencies from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm install --omit=dev
+RUN npm install --omit=dev --ignore-scripts
 
 EXPOSE 3069
 
