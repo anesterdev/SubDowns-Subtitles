@@ -61,6 +61,36 @@ describe('Server Global Endpoints', () => {
       const body = await res3.json();
       expect(body).toEqual({ error: 'Too many requests, please try again later.' });
     });
+
+    it('blocks a parallel burst beyond RATE_LIMIT_MAX from one IP', async () => {
+      const makeReq = () => app.request('/api/health', {
+        headers: { 'x-forwarded-for': '10.0.0.1' }
+      });
+
+      const responses = await Promise.all(Array.from({ length: 20 }, () => makeReq()));
+      const okCount = responses.filter(r => r.status === 200).length;
+      const limitedCount = responses.filter(r => r.status === 429).length;
+
+      expect(okCount).toBeLessThanOrEqual(2);
+      expect(limitedCount).toBeGreaterThanOrEqual(18);
+    });
+
+    it('isolates rate limiting per client IP', async () => {
+      const makeReqA = () => app.request('/api/health', {
+        headers: { 'x-forwarded-for': '10.0.0.2' }
+      });
+      const makeReqB = () => app.request('/api/health', {
+        headers: { 'x-forwarded-for': '10.0.0.3' }
+      });
+
+      await makeReqA();
+      await makeReqA();
+      const blockedA = await makeReqA();
+      expect(blockedA.status).toBe(429);
+
+      const resB = await makeReqB();
+      expect(resB.status).toBe(200);
+    });
   });
 
   describe('E2E Download Flow', () => {

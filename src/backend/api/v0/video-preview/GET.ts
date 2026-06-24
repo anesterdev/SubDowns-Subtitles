@@ -29,8 +29,8 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   const { vid_id } = c.req.valid('query');
 
-  try {
-    const playerResponse = await fetchMetadata(vid_id);
+    try {
+        const playerResponse = await fetchMetadata(vid_id, c.req.raw.signal);
     if (!playerResponse || playerResponse.playabilityStatus?.status === 'ERROR' || !playerResponse.videoDetails) {
       return c.json({ error: 'video_not_found' }, 404);
     }

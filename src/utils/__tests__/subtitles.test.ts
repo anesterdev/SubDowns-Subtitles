@@ -89,7 +89,7 @@ describe('fetchAutoSubtitles', () => {
     
     expect(fetchMock).toHaveBeenCalledWith(
       'https://youtube.com/api?v=123&fmt=json3&tlang=es',
-      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+      expect.objectContaining({ headers: { 'User-Agent': 'Mozilla/5.0' } })
     );
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({

@@ -36,11 +36,12 @@ export const route = createRoute({
 export const handler: RouteHandler<typeof route> = async (c) => {
   const { vid_id, lang, format, type } = c.req.valid('query');
 
-  try {
-    const { subtitles, exactLangName, title } = await fetchSubtitles(vid_id, lang, {
-        type: type as 'manual' | 'auto',
-        allowFallback: type === 'manual' ? false : true,
-    });
+    try {
+        const { subtitles, exactLangName, title } = await fetchSubtitles(vid_id, lang, {
+            type: type as 'manual' | 'auto',
+            allowFallback: type === 'manual' ? false : true,
+            signal: c.req.raw.signal,
+        });
     
     let content: string | object = '';
     let contentType = 'text/plain; charset=utf-8';

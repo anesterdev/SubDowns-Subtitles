@@ -155,12 +155,16 @@ function skipBlockComment(text: string, start: number): number {
     return closeIdx === -1 ? text.length : closeIdx + 2;
 }
 
-export async function fetchMetadata(videoId: string): Promise<YouTubePlayerResponse | null> {
+export async function fetchMetadata(videoId: string, clientSignal?: AbortSignal): Promise<YouTubePlayerResponse | null> {
     const cached = metadataCache.get(videoId);
     if (cached) return cached;
 
+    const timeoutSignal = AbortSignal.timeout(30_000);
+    const signal = clientSignal ? AbortSignal.any([clientSignal, timeoutSignal]) : timeoutSignal;
+
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-        headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' }
+        headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' },
+        signal,
     });
     const html = await res.text();
 

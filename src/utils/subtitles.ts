@@ -32,9 +32,11 @@ export function decodeHtmlEntities(str: string): string {
     return decodeHTML(str.replace(/<[^>]+>/g, '')).trim();
 }
 
-export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string): Promise<SubtitleItem[]> {
+export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string, clientSignal?: AbortSignal): Promise<SubtitleItem[]> {
     const url = baseUrl.replace(/&fmt=[^&]+/, '') + '&fmt=json3&tlang=' + targetLangCode;
-    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const timeoutSignal = AbortSignal.timeout(30_000);
+    const signal = clientSignal ? AbortSignal.any([clientSignal, timeoutSignal]) : timeoutSignal;
+    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal });
     if (response.status === 429) {
         throw new Error('YouTube blocked the auto-translate request (Error 429 Too Many Requests) due to bot detection. Node.js fetches lack browser cookies/tokens and get rate-limited for translated tracks.');
     }
@@ -61,6 +63,7 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
 export interface FetchSubtitlesOptions {
     type?: 'manual' | 'auto';
     allowFallback?: boolean;
+    signal?: AbortSignal;
 }
 
 export interface FetchSubtitlesResult {
@@ -72,8 +75,9 @@ export interface FetchSubtitlesResult {
 export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSubtitlesOptions = {}): Promise<FetchSubtitlesResult> {
     const type = opts.type || 'manual';
     const allowFallback = opts.allowFallback ?? true;
+    const clientSignal = opts.signal;
 
-    const playerResponse = await fetchMetadata(vidId);
+    const playerResponse = await fetchMetadata(vidId, clientSignal);
     if (!playerResponse) {
         throw new Error('Video metadata not found or unavailable');
     }
@@ -96,7 +100,7 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
         const defaultTrack = tracks.find((t) => t.isDefault) || tracks[0];
         if (!defaultTrack) throw new Error('No base track found for auto-translation');
 
-        subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode);
+        subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode, clientSignal);
         exactLangName = targetLang.languageName.simpleText;
     } else {
         const selectedTrack = selectCaptionTrack(tracks, lang, allowFallback);
@@ -110,7 +114,7 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
     return { subtitles, exactLangName, title };
 }
 
-export async function fetchSubtitlesText(vidId: string, lang: string): Promise<string> {
-    const { subtitles } = await fetchSubtitles(vidId, lang, { type: 'manual', allowFallback: true });
+export async function fetchSubtitlesText(vidId: string, lang: string, clientSignal?: AbortSignal): Promise<string> {
+    const { subtitles } = await fetchSubtitles(vidId, lang, { type: 'manual', allowFallback: true, signal: clientSignal });
     return subtitles.map((s: SubtitleItem) => s.text).join('\n');
 }
