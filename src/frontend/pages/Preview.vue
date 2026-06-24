@@ -69,7 +69,7 @@ watch(() => videoStore.currentVideo, (newVal) => {
     </div>
     
     <div v-else-if="videoStore.status === 'Error'" class="error">
-      <p>{{ t('preview.error_fetching') }}</p>
+      <p>{{ videoStore.errorMessage ? t(`errors.${videoStore.errorMessage}`) : t('preview.error_fetching') }}</p>
       <button class="warn" @click="router.push('/')">{{ t('preview.go_back') }}</button>
     </div>
   </div>

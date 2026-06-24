@@ -46,6 +46,8 @@
   },
   "errors": {
     "invalid_url": "Пожалуйста, введите корректный URL.",
-    "invalid_youtube_url": "Неверный URL YouTube. Не удалось извлечь ID видео."
+    "invalid_youtube_url": "Неверный URL YouTube. Не удалось извлечь ID видео.",
+    "video_not_found": "Видео не найдено или недоступно.",
+    "fetch_failed": "Не удалось получить предпросмотр видео."
   }
 }

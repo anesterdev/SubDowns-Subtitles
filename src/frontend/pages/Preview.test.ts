@@ -19,6 +19,7 @@ const mockFetchVideo = vi.fn();
 const mockVideoStore = reactive({
   status: 'Idle',
   currentVideo: null as null | Record<string, unknown>,
+  errorMessage: '',
   fetchVideo: mockFetchVideo,
 });
 vi.mock('../stores/videoStore.ts', () => ({
@@ -38,6 +39,7 @@ describe('Preview.vue Page', () => {
     vi.clearAllMocks();
     mockVideoStore.status = 'Idle';
     mockVideoStore.currentVideo = null;
+    mockVideoStore.errorMessage = '';
   });
 
   it('triggers store fetchVideo on mounted', () => {
@@ -70,6 +72,7 @@ describe('Preview.vue Page', () => {
 
   it('renders error block and handles navigation when store has error status', async () => {
     mockVideoStore.status = 'Error';
+    mockVideoStore.errorMessage = 'video_not_found';
     const wrapper = mount(Preview, {
       global: {
         stubs: {
@@ -80,9 +83,24 @@ describe('Preview.vue Page', () => {
     });
 
     expect(wrapper.find('.error').exists()).toBe(true);
-    expect(wrapper.find('.error').text()).toContain('preview.error_fetching');
+    expect(wrapper.find('.error').text()).toContain('errors.video_not_found');
 
     await wrapper.find('.error button').trigger('click');
     expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('falls back to i18n message when errorMessage is empty', async () => {
+    mockVideoStore.status = 'Error';
+    mockVideoStore.errorMessage = '';
+    const wrapper = mount(Preview, {
+      global: {
+        stubs: {
+          VideoPreviewIsland: true,
+          SubtitlesList: true,
+        },
+      },
+    });
+
+    expect(wrapper.find('.error').text()).toContain('preview.error_fetching');
   });
 });

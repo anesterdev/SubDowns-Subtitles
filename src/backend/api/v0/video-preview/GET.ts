@@ -32,8 +32,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
   try {
     const playerResponse = await fetchMetadata(vid_id);
     if (!playerResponse || playerResponse.playabilityStatus?.status === 'ERROR' || !playerResponse.videoDetails) {
-      const reason = playerResponse?.playabilityStatus?.reason || 'Video not found or unavailable';
-      return c.json({ error: reason }, 404);
+      return c.json({ error: 'video_not_found' }, 404);
     }
 
     const videoData = extractVideoData(playerResponse, vid_id);
@@ -62,6 +61,6 @@ export const handler: RouteHandler<typeof route> = async (c) => {
     }, 200);
 
   } catch {
-    return c.json({ error: 'Failed to fetch video preview' }, 400);
+    return c.json({ error: 'fetch_failed' }, 400);
   }
 };

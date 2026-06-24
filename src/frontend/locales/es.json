@@ -46,6 +46,8 @@
   },
   "errors": {
     "invalid_url": "Por favor, introduce una URL válida.",
-    "invalid_youtube_url": "URL de YouTube no válida. No se pudo extraer el ID del video."
+    "invalid_youtube_url": "URL de YouTube no válida. No se pudo extraer el ID del video.",
+    "video_not_found": "Video no encontrado o no disponible.",
+    "fetch_failed": "Error al obtener la vista previa del video."
   }
 }

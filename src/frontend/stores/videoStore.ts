@@ -18,12 +18,14 @@ export interface HistoryVideoCard {
 export const useVideoStore = defineStore('video', () => {
   const currentVideo = ref<VideoPreviewResponse | null>(null);
   const status = ref<'Idle' | 'Fetching' | 'Ready' | 'Error'>('Idle');
+  const errorMessage = ref('');
 
   async function fetchVideo(vidId: string) {
     if (!vidId) return;
 
     status.value = 'Fetching';
     currentVideo.value = null;
+    errorMessage.value = '';
     
     const reqUrl = videoPreviewUrl(vidId);
 
@@ -38,7 +40,10 @@ export const useVideoStore = defineStore('video', () => {
       }
 
       const res = await fetch(reqUrl);
-      if (!res.ok) throw new Error('Video metadata not found');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'fetch_failed');
+      }
       
       // Clone response before reading it to store in Cache Storage
       const clonedRes = res.clone();
@@ -47,7 +52,8 @@ export const useVideoStore = defineStore('video', () => {
       const data: VideoPreviewResponse = await res.json();
       currentVideo.value = data;
       status.value = 'Ready';
-    } catch {
+    } catch (err) {
+      errorMessage.value = err instanceof Error ? err.message : 'fetch_failed';
       status.value = 'Error';
     }
   }
@@ -72,6 +78,7 @@ export const useVideoStore = defineStore('video', () => {
   return {
     currentVideo,
     status,
+    errorMessage,
     fetchVideo,
     saveToHistory,
     loadHistory

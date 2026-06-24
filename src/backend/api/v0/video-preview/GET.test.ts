@@ -37,7 +37,7 @@ describe('GET /api/v0/video-preview', () => {
     expect(res.status).toBe(404);
 
     const body = await res.json();
-    expect(body).toEqual({ error: 'Video is private' });
+    expect(body).toEqual({ error: 'video_not_found' });
   });
 
   it('should successfully return video preview data', async () => {

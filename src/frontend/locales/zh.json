@@ -46,6 +46,8 @@
   },
   "errors": {
     "invalid_url": "请输入有效的链接。",
-    "invalid_youtube_url": "YouTube 链接无效。无法提取视频 ID。"
+    "invalid_youtube_url": "YouTube 链接无效。无法提取视频 ID。",
+    "video_not_found": "视频未找到或不可用。",
+    "fetch_failed": "获取视频预览失败。"
   }
 }
