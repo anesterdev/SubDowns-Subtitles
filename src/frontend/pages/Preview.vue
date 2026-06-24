@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useVideoStore } from '../stores/videoStore.ts';
 import { useI18n } from 'vue-i18n';
+import { APP_TITLE } from '../constants/index.ts';
 
 const { t } = useI18n();
 import VideoPreviewIsland from '../components/VideoPreviewIsland.vue';
@@ -13,9 +14,6 @@ const router = useRouter();
 const videoStore = useVideoStore();
 
 const vidId = ref(route.query.vid_id as string || '');
-
-import { watch } from 'vue';
-import { APP_TITLE } from '../constants/index.ts';
 
 onMounted(async () => {
   if (!vidId.value) {

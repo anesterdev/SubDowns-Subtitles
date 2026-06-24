@@ -1,6 +1,7 @@
 import { getSubtitles } from 'youtube-caption-extractor';
 import { decodeHTML } from 'entities';
 import { type SubtitleItem, type YouTubeCaptionTrack, type YouTubeTranslationLanguage } from '../interfaces/YouTube.ts';
+import { type FetchSubtitlesOptions, type FetchSubtitlesResult } from '../interfaces/index.ts';
 import { fetchMetadata } from './metadata.ts';
 
 export function selectCaptionTrack(tracks: YouTubeCaptionTrack[], lang: string, allowFallback: boolean = true): YouTubeCaptionTrack | null {
@@ -58,18 +59,6 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
         });
     }
     return subtitles;
-}
-
-export interface FetchSubtitlesOptions {
-    type?: 'manual' | 'auto';
-    allowFallback?: boolean;
-    signal?: AbortSignal;
-}
-
-export interface FetchSubtitlesResult {
-    subtitles: SubtitleItem[];
-    exactLangName: string;
-    title: string;
 }
 
 export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSubtitlesOptions = {}): Promise<FetchSubtitlesResult> {

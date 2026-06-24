@@ -1,4 +1,4 @@
-import type { HistoryVideoCard } from '../stores/videoStore.ts';
+import type { HistoryVideoCard } from '../../interfaces/index.ts';
 
 const STORAGE_KEY = 'subdowns.history';
 

@@ -2,7 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useVideoStore, type HistoryVideoCard } from '../stores/videoStore.ts';
+import { useVideoStore } from '../stores/videoStore.ts';
+import type { HistoryVideoCard } from '../../interfaces/index.ts';
 
 const { t } = useI18n();
 const router = useRouter();

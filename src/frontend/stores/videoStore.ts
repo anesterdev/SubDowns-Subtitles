@@ -1,19 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { VideoPreviewResponse, DownloadTarget } from '../../interfaces/index.ts';
+import type { VideoPreviewResponse, DownloadTarget, DownloadFormat, DownloadType, HistoryVideoCard } from '../../interfaces/index.ts';
 import { videoPreviewUrl } from '../services/api.ts';
 import { saveHistoryEntry, loadHistoryEntries } from '../services/historyService.ts';
-
-export interface HistoryVideoCard {
-  videoId: string;
-  video: VideoPreviewResponse['video'];
-  author: VideoPreviewResponse['author'];
-  language: string;
-  format: string;
-  type: string;
-  filename: string;
-  timestamp: number;
-}
 
 function downloadKey(t: DownloadTarget): string {
   return `${t.vidId}|${t.lang}|${t.format}|${t.type}`;
@@ -62,7 +51,7 @@ export const useVideoStore = defineStore('video', () => {
     }
   }
 
-  async function saveToHistory(lang: string, format: string, type: string, filename: string) {
+  async function saveToHistory(lang: string, format: DownloadFormat, type: DownloadType, filename: string) {
     if (!currentVideo.value) return;
     await saveHistoryEntry({
       videoId: currentVideo.value.video.video_id,

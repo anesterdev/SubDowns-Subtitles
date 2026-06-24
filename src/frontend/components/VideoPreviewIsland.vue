@@ -3,7 +3,7 @@ import type { VideoPreviewResponse } from '../../interfaces/index.ts';
 
 import { computed } from 'vue';
 import { useDownload } from '../composables/useDownload.ts';
-import type { DownloadFormat } from '../../interfaces/index.ts';
+import type { DownloadFormat, DownloadType } from '../../interfaces/index.ts';
 import { formatDuration } from '../../utils/format.ts';
 
 const { isDownloading, downloadSubs, openRawTab } = useDownload();
@@ -31,7 +31,7 @@ const mainLanguageInfo = computed(() => {
     const isAuto = lang.toLowerCase().includes('auto');
     return {
       language: lang,
-      type: 'manual' as const,
+      type: (isAuto ? 'auto' : 'manual') as DownloadType,
       badgeText: isAuto ? 'Auto-generated' : 'Original'
     };
   }
