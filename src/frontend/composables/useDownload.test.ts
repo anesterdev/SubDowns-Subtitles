@@ -134,6 +134,7 @@ describe('useDownload Composable', () => {
       json: async () => ({ error: 'Video blocked in your country' }),
     });
     vi.stubGlobal('fetch', fetchMock);
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const { downloadSubs } = useDownload();
     await downloadSubs('dQw4w9WgXcQ', 'English', 'srt', 'manual');

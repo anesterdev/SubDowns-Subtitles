@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import { useVideoStore } from '../stores/videoStore.ts';
+import { downloadSubtitlesUrl, rawSubtitlesUrl } from '../services/api.ts';
 
 export function useDownload() {
   const isDownloading = ref<Record<string, boolean>>({});
@@ -13,7 +14,7 @@ export function useDownload() {
     isDownloading.value[key] = true;
 
     try {
-      const url = `/api/v0/download?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}&format=${format}&type=${type}`;
+      const url = downloadSubtitlesUrl(vidId, lang, format, type);
       const response = await fetch(url);
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
@@ -51,8 +52,7 @@ export function useDownload() {
   }
 
   function openRawTab(vidId: string, lang: string) {
-    const url = `/api/v0/download/raw?vid_id=${encodeURIComponent(vidId)}&lang=${encodeURIComponent(lang)}`;
-    window.open(url, '_blank');
+    window.open(rawSubtitlesUrl(vidId, lang), '_blank');
   }
 
   return {

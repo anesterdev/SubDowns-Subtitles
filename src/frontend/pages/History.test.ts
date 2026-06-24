@@ -18,25 +18,19 @@ vi.mock('vue-i18n', () => ({
   }),
 }));
 
-describe('History.vue Page', () => {
-  let mockCache: {
-    keys: import('vitest').Mock;
-    match: import('vitest').Mock;
-  };
+// Mock history service
+const { mockLoadHistoryEntries } = vi.hoisted(() => ({
+  mockLoadHistoryEntries: vi.fn(),
+}));
+vi.mock('../services/historyService.ts', () => ({
+  loadHistoryEntries: mockLoadHistoryEntries,
+}));
 
+describe('History.vue Page', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     setActivePinia(createPinia());
-    
-    // Setup Mock Cache Storage
-    mockCache = {
-      keys: vi.fn().mockResolvedValue([]),
-      match: vi.fn(),
-    };
-
-    globalThis.caches = {
-      open: vi.fn().mockResolvedValue(mockCache as unknown as Cache),
-    } as unknown as CacheStorage;
+    mockLoadHistoryEntries.mockResolvedValue([]);
   });
 
   it('shows loading state initially', async () => {
@@ -45,32 +39,26 @@ describe('History.vue Page', () => {
   });
 
   it('shows empty state when no downloads in cache history', async () => {
-    mockCache.keys.mockResolvedValue([]);
+    mockLoadHistoryEntries.mockResolvedValue([]);
 
     const wrapper = mount(History);
-    // Wait for onMounted macro/tasks to flush
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(wrapper.text()).toContain('history.empty');
   });
 
   it('renders history items and navigates on click', async () => {
-    const mockRequest1 = { url: 'https://localhost/downloads/item1' };
-    mockCache.keys.mockResolvedValue([mockRequest1]);
-
-    const mockCachedData = {
-      videoId: 'dQw4w9WgXcQ',
-      video: { title: 'Never Gonna Give You Up', thumbnail_url: 'https://thumbnail.url' },
-      author: { channel_name: 'Rick Astley' },
-      language: 'English',
-      format: 'srt',
-      type: 'manual',
-      timestamp: 1624280400000,
-    };
-
-    mockCache.match.mockResolvedValue({
-      json: vi.fn().mockResolvedValue(mockCachedData),
-    } as unknown as Response);
+    mockLoadHistoryEntries.mockResolvedValue([
+      {
+        videoId: 'dQw4w9WgXcQ',
+        video: { title: 'Never Gonna Give You Up', thumbnail_url: 'https://thumbnail.url' },
+        author: { channel_name: 'Rick Astley' },
+        language: 'English',
+        format: 'srt',
+        type: 'manual',
+        timestamp: 1624280400000,
+      },
+    ]);
 
     const wrapper = mount(History);
     await new Promise((resolve) => setTimeout(resolve, 0));

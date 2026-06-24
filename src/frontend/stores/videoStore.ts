@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
+import { videoPreviewUrl } from '../services/api.ts';
+import { saveHistoryEntry, loadHistoryEntries } from '../services/historyService.ts';
 
 export interface HistoryVideoCard {
   videoId: string;
@@ -9,6 +11,7 @@ export interface HistoryVideoCard {
   language: string;
   format: string;
   type: string;
+  filename: string;
   timestamp: number;
 }
 
@@ -22,7 +25,7 @@ export const useVideoStore = defineStore('video', () => {
     status.value = 'Fetching';
     currentVideo.value = null;
     
-    const reqUrl = `/api/v0/video-preview?vid_id=${vidId}`;
+    const reqUrl = videoPreviewUrl(vidId);
 
     try {
       const cache = await caches.open('video-metadata-cache');
@@ -51,66 +54,19 @@ export const useVideoStore = defineStore('video', () => {
 
   async function saveToHistory(lang: string, format: string, type: string, filename: string) {
     if (!currentVideo.value) return;
-    
-    try {
-      const cache = await caches.open('metadata');
-      const ts = Date.now();
-      const vidId = currentVideo.value.video.video_id;
-      const metadataKey = `/metadata/history/${ts}-${vidId}`;
-      
-      const historyData = {
-        videoId: vidId,
-        video: currentVideo.value.video,
-        author: currentVideo.value.author,
-        language: lang,
-        format,
-        type,
-        filename,
-        timestamp: ts
-      };
-
-      await cache.put(metadataKey, new Response(JSON.stringify(historyData), {
-        headers: { 'Content-Type': 'application/json' }
-      }));
-    } catch (cacheErr) {
-      console.error('Failed to save download metadata to cache', cacheErr);
-    }
+    await saveHistoryEntry({
+      videoId: currentVideo.value.video.video_id,
+      video: currentVideo.value.video,
+      author: currentVideo.value.author,
+      language: lang,
+      format,
+      type,
+      filename,
+    });
   }
 
   async function loadHistory(): Promise<HistoryVideoCard[]> {
-    try {
-      const cache = await caches.open('metadata');
-      const keys = await cache.keys();
-      const items: HistoryVideoCard[] = [];
-
-      for (const req of keys) {
-        if (!req.url.includes('/history/') && !req.url.includes('/downloads/')) continue;
-        const res = await cache.match(req);
-        if (!res) continue;
-        try {
-          const data = await res.json();
-          if (data.language && data.format) {
-            items.push({
-              videoId: data.videoId,
-              video: data.video || { title: `Unknown Video (${data.videoId})`, thumbnail_url: '' },
-              author: data.author || { channel_name: 'Unknown Author' },
-              language: data.language,
-              format: data.format,
-              type: data.type,
-              timestamp: data.timestamp,
-            });
-          }
-        } catch (e) {
-          console.error('Failed to parse history item', e);
-        }
-      }
-
-      items.sort((a, b) => b.timestamp - a.timestamp);
-      return items;
-    } catch (err) {
-      console.error('Failed to load history', err);
-      return [];
-    }
+    return loadHistoryEntries();
   }
 
   return {
