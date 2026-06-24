@@ -3,93 +3,55 @@ import { mount } from '@vue/test-utils';
 import Downloader from './Downloader.vue';
 import { toast } from 'vue3-toastify';
 
-// Mock router
 const mockPush = vi.fn();
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}));
+vi.mock('vue-router', () => ({ useRouter: () => ({ push: mockPush }) }));
+vi.mock('vue3-toastify', () => ({ toast: { error: vi.fn() } }));
+vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }));
 
-// Mock toast
-vi.mock('vue3-toastify', () => ({
-  toast: {
-    error: vi.fn(),
-  },
-}));
+const mountPage = (url: string) =>
+  mount(Downloader, {
+    global: {
+      stubs: {
+        DownloaderHero: {
+          template: `<button :data-disabled="disabled" @click="$emit('download', '${url}')">go</button>`,
+          props: ['disabled'],
+          emits: ['download'],
+        },
+      },
+    },
+  });
 
-// Mock i18n
-vi.mock('vue-i18n', () => ({
-  useI18n: () => ({
-    t: (key: string) => key,
-  }),
-}));
-
-describe('Downloader.vue Page', () => {
+describe('Downloader.vue', () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
     vi.clearAllMocks();
+    mockPush.mockResolvedValue(undefined);
   });
 
-  it('navigates to preview page on valid youtube URL input via handleDownload', async () => {
-    const wrapper = mount(Downloader, {
-      global: {
-        stubs: {
-          DownloaderHero: {
-            template: '<button @click="$emit(\'download\', \'https://www.youtube.com/watch?v=dQw4w9WgXcQ\')">Download</button>'
-          }
-        }
-      }
-    });
-
-    await wrapper.find('button').trigger('click');
+  it('navigates to preview on valid youtube URL', async () => {
+    await mountPage('https://www.youtube.com/watch?v=dQw4w9WgXcQ').find('button').trigger('click');
     expect(mockPush).toHaveBeenCalledWith('/preview?vid_id=dQw4w9WgXcQ');
   });
 
-  it('navigates to preview page on valid short youtube URL', async () => {
-    const wrapper = mount(Downloader, {
-      global: {
-        stubs: {
-          DownloaderHero: {
-            template: '<button @click="$emit(\'download\', \'https://youtu.be/dQw4w9WgXcQ\')">Download</button>'
-          }
-        }
-      }
-    });
-
-    await wrapper.find('button').trigger('click');
+  it('navigates on valid short youtube URL', async () => {
+    await mountPage('https://youtu.be/dQw4w9WgXcQ').find('button').trigger('click');
     expect(mockPush).toHaveBeenCalledWith('/preview?vid_id=dQw4w9WgXcQ');
   });
 
-  it('triggers toast error on invalid url structure', async () => {
-    const wrapper = mount(Downloader, {
-      global: {
-        stubs: {
-          DownloaderHero: {
-            template: '<button @click="$emit(\'download\', \'invalid-url\')">Download</button>'
-          }
-        }
-      }
-    });
-
-    await wrapper.find('button').trigger('click');
+  it('shows invalid_url toast for malformed URL', async () => {
+    await mountPage('invalid-url').find('button').trigger('click');
     expect(toast.error).toHaveBeenCalledWith('errors.invalid_url');
     expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it('triggers toast error when youtube video ID is missing in URL', async () => {
-    const wrapper = mount(Downloader, {
-      global: {
-        stubs: {
-          DownloaderHero: {
-            template: '<button @click="$emit(\'download\', \'https://www.youtube.com/watch?x=abc\')">Download</button>'
-          }
-        }
-      }
-    });
-
-    await wrapper.find('button').trigger('click');
+  it('shows invalid_youtube_url toast when video id is missing', async () => {
+    await mountPage('https://www.youtube.com/watch?x=abc').find('button').trigger('click');
     expect(toast.error).toHaveBeenCalledWith('errors.invalid_youtube_url');
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('disables hero while navigating', async () => {
+    const wrapper = mountPage('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    await wrapper.find('button').trigger('click');
+    expect(wrapper.find('button').attributes('data-disabled')).toBe('true');
   });
 });

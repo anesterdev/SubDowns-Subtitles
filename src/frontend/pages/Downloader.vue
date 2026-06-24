@@ -1,32 +1,35 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import DownloaderHero from '../components/DownloaderHero.vue';
 import { toast } from 'vue3-toastify';
-
+import DownloaderHero from '../components/DownloaderHero.vue';
 import { extractVideoId } from '../../utils/url.ts';
 
 const router = useRouter();
 const { t } = useI18n();
+const isNavigating = ref(false);
 
 function handleDownload(url: string) {
   try {
     new URL(url);
-    const vidId = extractVideoId(url);
-    if (vidId) {
-      router.push(`/preview?vid_id=${vidId}`);
-    } else {
-      toast.error(t('errors.invalid_youtube_url'));
-    }
-  } catch (e) {
+  } catch {
     toast.error(t('errors.invalid_url'));
+    return;
   }
+  const vidId = extractVideoId(url);
+  if (!vidId) {
+    toast.error(t('errors.invalid_youtube_url'));
+    return;
+  }
+  isNavigating.value = true;
+  router.push(`/preview?vid_id=${vidId}`).catch(() => { isNavigating.value = false; });
 }
 </script>
 
 <template>
   <div class="page-container">
-    <DownloaderHero @download="handleDownload" />
+    <DownloaderHero :disabled="isNavigating" @download="handleDownload" />
   </div>
 </template>
 

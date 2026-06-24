@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useThrottleFn } from '@vueuse/core';
+import { useTimeoutFn } from '@vueuse/core';
+import { BTN_THROTTLE } from '../constants/downloader.ts';
 
 const { t } = useI18n();
 
-const emit = defineEmits<{
-  (e: 'download', url: string): void;
-}>();
+const props = defineProps<{ disabled?: boolean }>();
+const emit = defineEmits<{ (e: 'download', url: string): void }>();
 
 const url = ref('');
+const { start, isPending } = useTimeoutFn(() => {}, BTN_THROTTLE, { immediate: false });
 
-const onDownload = useThrottleFn(() => {
-  if (url.value.trim()) {
-    emit('download', url.value.trim());
-  }
-}, 500);
+const isDisabled = computed(() => props.disabled || isPending.value);
+
+function onDownload() {
+  if (isDisabled.value) return;
+  const trimmed = url.value.trim();
+  if (!trimmed) return;
+  start();
+  emit('download', trimmed);
+}
 </script>
 
 <template>
@@ -23,10 +28,10 @@ const onDownload = useThrottleFn(() => {
     <div class="input-container">
       <div class="input-wrapper">
         <span class="material-symbols-outlined icon">link</span>
-        <input 
-          v-model="url" 
-          type="text" 
-          :placeholder="t('home.placeholder')" 
+        <input
+          v-model="url"
+          type="text"
+          :placeholder="t('home.placeholder')"
           :aria-label="t('home.aria_video_link')"
           @keyup.enter="onDownload"
         />
@@ -34,13 +39,13 @@ const onDownload = useThrottleFn(() => {
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      
-      <button class="download-btn" @click="onDownload">
+
+      <button class="download-btn" :disabled="isDisabled" @click="onDownload">
         <span class="material-symbols-outlined">download</span>
         {{ t('home.download') }}
       </button>
     </div>
-    
+
     <p class="subtitle">{{ t('home.subtitle') }}</p>
   </div>
 </template>
@@ -132,14 +137,19 @@ const onDownload = useThrottleFn(() => {
   gap: var(--space-sm);
   cursor: pointer;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: var(--text-accent);
     color: var(--bg);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     background-color: var(--bg-accent);
     color: var(--text-accent);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 }
 
