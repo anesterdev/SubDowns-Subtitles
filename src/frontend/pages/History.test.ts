@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import History from './History.vue';
-import { ref } from 'vue';
 
 // Mock router
 const mockPush = vi.fn();
@@ -26,6 +26,7 @@ describe('History.vue Page', () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    setActivePinia(createPinia());
     
     // Setup Mock Cache Storage
     mockCache = {

@@ -7,13 +7,15 @@
   "home": {
     "placeholder": "Paste YouTube URL here...",
     "download": "DOWNLOAD",
-    "subtitle": "Enter a URL to extract video subtitles instantly."
+    "subtitle": "Enter a URL to extract video subtitles instantly.",
+    "aria_video_link": "YouTube Video Link"
   },
   "header": {
     "home": "Home",
     "history": "History",
     "theme_light": "Light",
-    "theme_dark": "Dark"
+    "theme_dark": "Dark",
+    "aria_select_language": "Select Language"
   },
   "preview": {
     "fetching": "Fetching video metadata...",

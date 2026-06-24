@@ -26,6 +26,7 @@ function onDownload() {
           v-model="url" 
           type="text" 
           :placeholder="t('home.placeholder')" 
+          :aria-label="t('home.aria_video_link')"
           @keyup.enter="onDownload"
         />
         <button v-if="url" class="clear-btn" @click="url = ''">

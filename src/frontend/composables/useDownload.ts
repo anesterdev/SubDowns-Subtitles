@@ -9,7 +9,7 @@ export function useDownload() {
   async function downloadSubs(vidId: string, lang: string, format: 'srt' | 'txt' | 'raw', type: 'manual' | 'auto') {
     if (!vidId) return;
 
-    const key = `${lang}-${format}`;
+    const key = `${vidId}-${lang}-${format}`;
     isDownloading.value[key] = true;
 
     try {

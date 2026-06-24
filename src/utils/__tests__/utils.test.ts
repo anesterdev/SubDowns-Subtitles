@@ -6,6 +6,7 @@ import {
   getFileSize,
   truncateObjectStrings,
   formatTime,
+  formatDuration,
   convertToSrt
 } from '../index.ts';
 
@@ -72,6 +73,25 @@ describe('Utility Functions', () => {
       expect(formatTime('0')).toBe('00:00:00,000');
       expect(formatTime('61.5')).toBe('00:01:01,500');
       expect(formatTime('3661.123')).toBe('01:01:01,123');
+    });
+  });
+
+  describe('formatDuration', () => {
+    it('returns 00:00 for missing, zero, or invalid input', () => {
+      expect(formatDuration(undefined)).toBe('00:00');
+      expect(formatDuration('0')).toBe('00:00');
+      expect(formatDuration('')).toBe('00:00');
+      expect(formatDuration('not-a-number')).toBe('00:00');
+    });
+
+    it('formats seconds-only durations as MM:SS', () => {
+      expect(formatDuration('212')).toBe('03:32');
+      expect(formatDuration(59)).toBe('00:59');
+    });
+
+    it('formats durations of 1 hour or more as HH:MM:SS', () => {
+      expect(formatDuration('3661')).toBe('01:01:01');
+      expect(formatDuration('36000')).toBe('10:00:00');
     });
   });
 

@@ -48,13 +48,13 @@ const videoStore = useVideoStore();
               <span class="lang-name">{{ lang }}</span>
             </div>
             <div class="col-actions">
-              <button variant="action" size="sm" :disabled="isDownloading[`${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
-                <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-srt`]">description</span>
+              <button variant="action" size="sm" :disabled="isDownloading[`${videoId}-${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
+                <span class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-srt`]">description</span>
                 <span class="material-symbols-outlined" v-else>hourglass_empty</span>
                 SRT
               </button>
-              <button variant="action" size="sm" :disabled="isDownloading[`${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
-                <span class="material-symbols-outlined" v-if="!isDownloading[`${lang}-txt`]">article</span>
+              <button variant="action" size="sm" :disabled="isDownloading[`${videoId}-${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
+                <span class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-txt`]">article</span>
                 <span class="material-symbols-outlined" v-else>hourglass_empty</span>
                 TXT
               </button>
@@ -65,16 +65,16 @@ const videoStore = useVideoStore();
             </div>
           </div>
           
-          <div v-if="languages?.length === 0" class="empty-state">
+          <div v-if="!languages?.length" class="empty-state">
             {{ t('subtitles.no_languages') }}
           </div>
         </template>
-
+ 
         <template v-else>
           <div class="list-row group" v-for="i in (skeletonCount || 4)" :key="i">
             <div class="col-language">
               <span class="dot skeleton"></span>
-              <span class="lang-name skeleton" :style="{ width: `${40 + Math.random() * 40}%` }">Skeleton</span>
+              <span class="lang-name skeleton" :style="{ width: `${40 + ((i * 17) % 41)}%` }">&nbsp;</span>
             </div>
             <div class="col-actions">
               <button variant="action" size="sm" class="skeleton">SRT</button>

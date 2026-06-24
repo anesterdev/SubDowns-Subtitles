@@ -42,6 +42,13 @@ router.afterEach((to) => {
   } else {
     document.title = APP_TITLE;
   }
+  
+  // Accessibility: Focus management on route transitions
+  const appContainer = document.getElementById('app');
+  if (appContainer) {
+    appContainer.setAttribute('tabindex', '-1');
+    appContainer.focus({ preventScroll: true });
+  }
 });
 
 export default router;

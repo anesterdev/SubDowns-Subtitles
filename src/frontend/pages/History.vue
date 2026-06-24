@@ -2,64 +2,18 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-
-import type { IVideoObject } from '../../interfaces/VideoObject.ts';
+import { useVideoStore, type HistoryVideoCard } from '../stores/videoStore.ts';
 
 const { t } = useI18n();
-
-interface HistoryVideoCard {
-  videoId: string;
-  video: IVideoObject['video'];
-  author: IVideoObject['author'];
-  language: string;
-  format: string;
-  type: string;
-  timestamp: number;
-}
+const router = useRouter();
+const videoStore = useVideoStore();
 
 const historyItems = ref<HistoryVideoCard[]>([]);
 const isLoading = ref(true);
-const router = useRouter();
 
 onMounted(async () => {
-  try {
-    const cache = await caches.open('metadata');
-    const keys = await cache.keys();
-    
-    const items: HistoryVideoCard[] = [];
-    
-    for (const req of keys) {
-      if (req.url.includes('/history/') || req.url.includes('/downloads/')) {
-        const res = await cache.match(req);
-        if (res) {
-          try {
-            const data = await res.json();
-            
-            if (data.language && data.format) {
-              items.push({
-                videoId: data.videoId,
-                video: data.video || { title: `Unknown Video (${data.videoId})`, thumbnail_url: '' },
-                author: data.author || { channel_name: 'Unknown Author' },
-                language: data.language,
-                format: data.format,
-                type: data.type,
-                timestamp: data.timestamp
-              });
-            }
-          } catch (e) {
-            console.error('Failed to parse history item', e);
-          }
-        }
-      }
-    }
-    
-    items.sort((a, b) => b.timestamp - a.timestamp);
-    historyItems.value = items;
-  } catch (err) {
-    console.error('Failed to load history', err);
-  } finally {
-    isLoading.value = false;
-  }
+  historyItems.value = await videoStore.loadHistory();
+  isLoading.value = false;
 });
 
 function formatDate(ts: number) {
@@ -93,8 +47,11 @@ function viewVideo(vidId: string) {
       <div 
         class="video-card" 
         v-for="item in historyItems" 
-        :key="item.videoId"
+        :key="`${item.videoId}-${item.timestamp}`"
+        role="button"
+        tabindex="0"
         @click="viewVideo(item.videoId)"
+        @keyup.enter="viewVideo(item.videoId)"
       >
         <div class="thumbnail-wrapper">
           <img :src="item.video.thumbnail_url" class="thumbnail" alt="thumbnail" />

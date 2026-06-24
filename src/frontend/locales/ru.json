@@ -7,13 +7,15 @@
   "home": {
     "placeholder": "Вставьте ссылку на YouTube здесь...",
     "download": "СКАЧАТЬ",
-    "subtitle": "Введите ссылку для мгновенного извлечения субтитров к видео."
+    "subtitle": "Введите ссылку для мгновенного извлечения субтитров к видео.",
+    "aria_video_link": "Ссылка на видео YouTube"
   },
   "header": {
     "home": "Главная",
     "history": "История",
     "theme_light": "Светлая",
-    "theme_dark": "Темная"
+    "theme_dark": "Темная",
+    "aria_select_language": "Выбрать язык"
   },
   "preview": {
     "fetching": "Получение метаданных видео...",

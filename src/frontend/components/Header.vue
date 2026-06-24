@@ -44,7 +44,7 @@ const displayLanguage = computed(() => locale.value.toString().toUpperCase());
       <router-link to="/history" active-class="active">{{ t('header.history') }}</router-link>
     </nav>
     <div class="header-links">
-      <select class="lang-select" :value="locale" @change="handleLanguageChange">
+      <select class="lang-select" :value="locale" @change="handleLanguageChange" :aria-label="t('header.aria_select_language')">
         <option value="en">EN</option>
         <option value="es">ES</option>
         <option value="zh">ZH</option>

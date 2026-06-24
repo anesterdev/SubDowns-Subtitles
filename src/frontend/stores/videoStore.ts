@@ -2,6 +2,16 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
+export interface HistoryVideoCard {
+  videoId: string;
+  video: IVideoObject['video'];
+  author: IVideoObject['author'];
+  language: string;
+  format: string;
+  type: string;
+  timestamp: number;
+}
+
 export const useVideoStore = defineStore('video', () => {
   const currentVideo = ref<IVideoObject | null>(null);
   const status = ref<'Idle' | 'Fetching' | 'Ready' | 'Error'>('Idle');
@@ -67,10 +77,47 @@ export const useVideoStore = defineStore('video', () => {
     }
   }
 
+  async function loadHistory(): Promise<HistoryVideoCard[]> {
+    try {
+      const cache = await caches.open('metadata');
+      const keys = await cache.keys();
+      const items: HistoryVideoCard[] = [];
+
+      for (const req of keys) {
+        if (!req.url.includes('/history/') && !req.url.includes('/downloads/')) continue;
+        const res = await cache.match(req);
+        if (!res) continue;
+        try {
+          const data = await res.json();
+          if (data.language && data.format) {
+            items.push({
+              videoId: data.videoId,
+              video: data.video || { title: `Unknown Video (${data.videoId})`, thumbnail_url: '' },
+              author: data.author || { channel_name: 'Unknown Author' },
+              language: data.language,
+              format: data.format,
+              type: data.type,
+              timestamp: data.timestamp,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse history item', e);
+        }
+      }
+
+      items.sort((a, b) => b.timestamp - a.timestamp);
+      return items;
+    } catch (err) {
+      console.error('Failed to load history', err);
+      return [];
+    }
+  }
+
   return {
     currentVideo,
     status,
     fetchVideo,
-    saveToHistory
+    saveToHistory,
+    loadHistory
   };
 });

@@ -3,6 +3,7 @@ import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
 import { ref, computed } from 'vue';
 import { useDownload } from '../composables/useDownload.ts';
+import { formatDuration } from '../../utils/format.ts';
 
 const { isDownloading, downloadSubs, openRawTab } = useDownload();
 
@@ -33,25 +34,17 @@ const mainLanguageInfo = computed(() => {
   return null;
 });
 
-function formatDuration(duration?: string | number) {
-  if (!duration) return '00:00';
-  const totalSeconds = parseInt(duration.toString(), 10);
-  if (isNaN(totalSeconds)) return '00:00';
-
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = Math.floor(totalSeconds % 60);
-
-  const mStr = m.toString().padStart(2, '0');
-  const sStr = s.toString().padStart(2, '0');
-
-  if (h > 0) {
-    const hStr = h.toString().padStart(2, '0');
-    return `${hStr}:${mStr}:${sStr}`;
+function handleDownload(format: 'srt' | 'txt') {
+  if (mainLanguageInfo.value && props.video) {
+    downloadSubs(props.video.video_id, mainLanguageInfo.value.language, format, mainLanguageInfo.value.type);
   }
-  return `${mStr}:${sStr}`;
 }
 
+function handleOpenRaw() {
+  if (mainLanguageInfo.value && props.video) {
+    openRawTab(props.video.video_id, mainLanguageInfo.value.language);
+  }
+}
 </script>
 
 <template>
@@ -62,7 +55,7 @@ function formatDuration(duration?: string | number) {
     
     <div class="metadata">
       <h2 class="title" :class="{ skeleton: loading || !video }">
-        {{ video?.title || 'Skeleton title placeholder text' }}
+        {{ video?.title || '\u00A0' }}
       </h2>
       
       <div class="details" :class="{ skeleton: loading || !video }">
@@ -83,21 +76,21 @@ function formatDuration(duration?: string | number) {
       <div class="main-language-block" :class="{ skeleton: loading || !video }" v-if="mainLanguageInfo || loading || !video">
         <div class="lang-info">
           <span class="material-symbols-outlined text-accent icon">translate</span>
-          <span class="lang-name">{{ mainLanguageInfo?.language || 'Skeleton Text' }}</span>
+          <span class="lang-name">{{ mainLanguageInfo?.language || '\u00A0' }}</span>
           <span class="badge" :class="{'auto-badge': mainLanguageInfo?.type === 'auto'}">{{ mainLanguageInfo?.badgeText || 'Original' }}</span>
         </div>
         <div class="actions">
-          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-srt`]" @click="mainLanguageInfo && video && downloadSubs(video.video_id, mainLanguageInfo.language, 'srt', mainLanguageInfo.type)">
-            <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-srt`]">description</span>
+          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]" @click="handleDownload('srt')">
+            <span class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]">description</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             SRT
           </button>
-          <button variant="action" size="sm" :disabled="isDownloading[`${mainLanguageInfo?.language}-txt`]" @click="mainLanguageInfo && video && downloadSubs(video.video_id, mainLanguageInfo.language, 'txt', mainLanguageInfo.type)">
-            <span class="material-symbols-outlined" v-if="!isDownloading[`${mainLanguageInfo?.language}-txt`]">article</span>
+          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]" @click="handleDownload('txt')">
+            <span class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]">article</span>
             <span class="material-symbols-outlined" v-else>hourglass_empty</span>
             TXT
           </button>
-          <button variant="action" size="sm" @click="mainLanguageInfo && video && openRawTab(video.video_id, mainLanguageInfo.language)">
+          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo" @click="handleOpenRaw">
             <span class="material-symbols-outlined">data_object</span>
             RAW
           </button>

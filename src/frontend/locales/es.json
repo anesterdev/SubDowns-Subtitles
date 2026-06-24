@@ -7,13 +7,15 @@
   "home": {
     "placeholder": "Pega la URL de YouTube aquí...",
     "download": "DESCARGAR",
-    "subtitle": "Ingresa una URL para extraer subtítulos de video al instante."
+    "subtitle": "Ingresa una URL para extraer subtítulos de video al instante.",
+    "aria_video_link": "Enlace del video de YouTube"
   },
   "header": {
     "home": "Inicio",
     "history": "Historial",
     "theme_light": "Claro",
-    "theme_dark": "Oscuro"
+    "theme_dark": "Oscuro",
+    "aria_select_language": "Seleccionar idioma"
   },
   "preview": {
     "fetching": "Obteniendo metadatos del video...",
