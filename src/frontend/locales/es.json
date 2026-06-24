@@ -42,5 +42,9 @@
     "title": "Perdido en la traducción",
     "description": "Los subtítulos de esta ruta parecen haber desaparecido. Volvamos a la página principal.",
     "back_home": "Volver al Inicio"
+  },
+  "errors": {
+    "invalid_url": "Por favor, introduce una URL válida.",
+    "invalid_youtube_url": "URL de YouTube no válida. No se pudo extraer el ID del video."
   }
 }

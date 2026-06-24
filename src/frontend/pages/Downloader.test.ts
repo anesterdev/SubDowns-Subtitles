@@ -73,7 +73,7 @@ describe('Downloader.vue Page', () => {
     });
 
     await wrapper.find('button').trigger('click');
-    expect(toast.error).toHaveBeenCalledWith('Please enter a valid URL.');
+    expect(toast.error).toHaveBeenCalledWith('errors.invalid_url');
     expect(mockPush).not.toHaveBeenCalled();
   });
 
@@ -89,7 +89,7 @@ describe('Downloader.vue Page', () => {
     });
 
     await wrapper.find('button').trigger('click');
-    expect(toast.error).toHaveBeenCalledWith('Invalid YouTube URL. Could not extract video ID.');
+    expect(toast.error).toHaveBeenCalledWith('errors.invalid_youtube_url');
     expect(mockPush).not.toHaveBeenCalled();
   });
 });

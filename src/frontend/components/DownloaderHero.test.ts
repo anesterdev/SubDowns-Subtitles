@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import DownloaderHero from './DownloaderHero.vue';
 
@@ -9,6 +9,14 @@ vi.mock('vue-i18n', () => ({
 }));
 
 describe('DownloaderHero.vue', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders correctly with default placeholder', () => {
     const wrapper = mount(DownloaderHero);
     const input = wrapper.find('input');
@@ -69,5 +77,23 @@ describe('DownloaderHero.vue', () => {
     await downloadBtn.trigger('click');
 
     expect(wrapper.emitted('download')).toBeUndefined();
+  });
+
+  it('throttles rapid double-clicks within 500ms', async () => {
+    const wrapper = mount(DownloaderHero);
+    const input = wrapper.find('input');
+    await input.setValue('https://youtube.com/watch?v=123');
+    
+    const downloadBtn = wrapper.find('.download-btn');
+    await downloadBtn.trigger('click');
+    await downloadBtn.trigger('click');
+    await downloadBtn.trigger('click');
+
+    expect(wrapper.emitted('download')?.length).toBe(1);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await downloadBtn.trigger('click');
+
+    expect(wrapper.emitted('download')?.length).toBe(2);
   });
 });

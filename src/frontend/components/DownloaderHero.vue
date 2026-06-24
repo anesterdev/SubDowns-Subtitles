@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useThrottleFn } from '@vueuse/core';
 
 const { t } = useI18n();
 
@@ -10,11 +11,11 @@ const emit = defineEmits<{
 
 const url = ref('');
 
-function onDownload() {
+const onDownload = useThrottleFn(() => {
   if (url.value.trim()) {
     emit('download', url.value.trim());
   }
-}
+}, 500);
 </script>
 
 <template>

@@ -42,5 +42,9 @@
     "title": "Lost in Translation",
     "description": "The subtitles for this route seem to be missing. Let's get you back on track.",
     "back_home": "Go Back Home"
+  },
+  "errors": {
+    "invalid_url": "Please enter a valid URL.",
+    "invalid_youtube_url": "Invalid YouTube URL. Could not extract video ID."
   }
 }

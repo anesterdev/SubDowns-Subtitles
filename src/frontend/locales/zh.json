@@ -42,5 +42,9 @@
     "title": "迷失在翻译中",
     "description": "该页面的字幕似乎丢失了。让我们带您回到首页。",
     "back_home": "返回首页"
+  },
+  "errors": {
+    "invalid_url": "请输入有效的链接。",
+    "invalid_youtube_url": "YouTube 链接无效。无法提取视频 ID。"
   }
 }
