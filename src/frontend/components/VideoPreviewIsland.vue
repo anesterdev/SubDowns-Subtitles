@@ -3,6 +3,7 @@ import type { VideoPreviewResponse } from '../../interfaces/index.ts';
 
 import { computed } from 'vue';
 import { useDownload } from '../composables/useDownload.ts';
+import type { DownloadFormat } from '../../interfaces/index.ts';
 import { formatDuration } from '../../utils/format.ts';
 
 const { isDownloading, downloadSubs, openRawTab } = useDownload();
@@ -13,6 +14,16 @@ const props = defineProps<{
   subtitles?: VideoPreviewResponse['subtitles'];
   loading?: boolean;
 }>();
+
+function isFormatDownloading(format: DownloadFormat): boolean {
+  if (!props.video || !mainLanguageInfo.value) return false;
+  return isDownloading({
+    vidId: props.video.video_id,
+    lang: mainLanguageInfo.value.language,
+    format,
+    type: mainLanguageInfo.value.type,
+  });
+}
 
 const mainLanguageInfo = computed(() => {
   if (props.subtitles?.available_languages && props.subtitles.available_languages.length > 0) {
@@ -39,7 +50,12 @@ const channelUrl = computed(() => props.author?.channel_id ? `https://www.youtub
 
 function handleDownload(format: 'srt' | 'txt') {
   if (mainLanguageInfo.value && props.video) {
-    downloadSubs(props.video.video_id, mainLanguageInfo.value.language, format, mainLanguageInfo.value.type);
+    downloadSubs({
+      vidId: props.video.video_id,
+      lang: mainLanguageInfo.value.language,
+      format,
+      type: mainLanguageInfo.value.type,
+    });
   }
 }
 
@@ -85,13 +101,13 @@ function handleOpenRaw() {
           <span class="badge" :class="{'auto-badge': mainLanguageInfo?.type === 'auto'}">{{ mainLanguageInfo?.badgeText || 'Original' }}</span>
         </div>
         <div class="actions">
-          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]" @click="handleDownload('srt')">
-            <i class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-srt`]">description</i>
+          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isFormatDownloading('srt')" @click="handleDownload('srt')">
+            <i class="material-symbols-outlined" v-if="!isFormatDownloading('srt')">description</i>
             <i class="material-symbols-outlined" v-else>hourglass_empty</i>
             SRT
           </button>
-          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]" @click="handleDownload('txt')">
-            <i class="material-symbols-outlined" v-if="!video || !mainLanguageInfo || !isDownloading[`${video.video_id}-${mainLanguageInfo.language}-txt`]">article</i>
+          <button variant="action" size="sm" :disabled="!video || !mainLanguageInfo || isFormatDownloading('txt')" @click="handleDownload('txt')">
+            <i class="material-symbols-outlined" v-if="!isFormatDownloading('txt')">article</i>
             <i class="material-symbols-outlined" v-else>hourglass_empty</i>
             TXT
           </button>

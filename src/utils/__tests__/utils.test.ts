@@ -25,14 +25,54 @@ describe('Utility Functions', () => {
   });
 
   describe('extractJsonByName', () => {
+    function wrap(script: string): string {
+      return `<html><head><script>${script}</script></head></html>`;
+    }
+
     it('should parse nested balanced braces variable from HTML string', () => {
-      const html = 'var testData = {"key": "value", "nested": {"inner": 123}};';
+      const html = wrap('var testData = {"key": "value", "nested": {"inner": 123}};');
       const result = extractJsonByName(html, 'testData');
       expect(result).toBe('{"key": "value", "nested": {"inner": 123}}');
     });
 
     it('should return null if variable is not found', () => {
-      const html = 'var other = {};';
+      const html = wrap('var other = {};');
+      expect(extractJsonByName(html, 'testData')).toBeNull();
+    });
+
+    it('should ignore braces inside double-quoted strings', () => {
+      const html = wrap('var data = {"a": "has { and } inside", "b": 2};');
+      const result = extractJsonByName(html, 'data');
+      expect(result).toBe('{"a": "has { and } inside", "b": 2}');
+    });
+
+    it('should ignore braces inside single-quoted and template-literal strings', () => {
+      const html = wrap("var data = {'a': 'x{y}z', `b`: `c{d}e`};");
+      const result = extractJsonByName(html, 'data');
+      expect(result).toBe("{'a': 'x{y}z', `b`: `c{d}e`}");
+    });
+
+    it('should skip over line and block comments that contain braces', () => {
+      const html = wrap('var data = {/* { skip me */ "ok": 1}; // trailing { ignore');
+      const result = extractJsonByName(html, 'data');
+      expect(result).toBe('{/* { skip me */ "ok": 1}');
+    });
+
+    it('extracts from inside a real <script> tag, not from attributes or surrounding text', () => {
+      const html = [
+        '<html>',
+        '<body data-name="testData" data-payload=\'{"fake": "in attr"}\'>',
+        '<p>var testData = {"not": "this one"};</p>',
+        '<script>var other = {"ignore": "me"}; var testData = {"real": true}; </script>',
+        '</body>',
+        '</html>',
+      ].join('');
+      const result = extractJsonByName(html, 'testData');
+      expect(result).toBe('{"real": true}');
+    });
+
+    it('returns null when the variable only appears outside of any script tag', () => {
+      const html = '<html><body data-name="testData">var testData = {"x":1};</body></html>';
       expect(extractJsonByName(html, 'testData')).toBeNull();
     });
   });

@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { useDownload } from '../composables/useDownload.ts';
+import type { DownloadFormat, DownloadType } from '../../interfaces/index.ts';
 
 const { t } = useI18n();
 const { isDownloading, downloadSubs, openRawTab } = useDownload();
 
-defineProps<{
+const props = defineProps<{
   title: string;
   icon: string;
   languages?: string[];
   videoId: string;
-  type: 'manual' | 'auto';
+  type: DownloadType;
   loading?: boolean;
   skeletonCount?: number;
 }>();
+
+function isRowDownloading(lang: string, format: DownloadFormat): boolean {
+  return isDownloading({ vidId: props.videoId, lang, format, type: props.type });
+}
 </script>
 
 <template>
@@ -43,13 +48,13 @@ defineProps<{
               <span class="lang-name">{{ lang }}</span>
             </div>
             <div class="col-actions">
-              <button variant="action" size="sm" :disabled="isDownloading[`${videoId}-${lang}-srt`]" @click="downloadSubs(videoId, lang, 'srt', type)">
-                <i class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-srt`]">description</i>
+              <button variant="action" size="sm" :disabled="isRowDownloading(lang, 'srt')" @click="downloadSubs({ vidId: videoId, lang, format: 'srt', type })">
+                <i class="material-symbols-outlined" v-if="!isRowDownloading(lang, 'srt')">description</i>
                 <i class="material-symbols-outlined" v-else>hourglass_empty</i>
                 SRT
               </button>
-              <button variant="action" size="sm" :disabled="isDownloading[`${videoId}-${lang}-txt`]" @click="downloadSubs(videoId, lang, 'txt', type)">
-                <i class="material-symbols-outlined" v-if="!isDownloading[`${videoId}-${lang}-txt`]">article</i>
+              <button variant="action" size="sm" :disabled="isRowDownloading(lang, 'txt')" @click="downloadSubs({ vidId: videoId, lang, format: 'txt', type })">
+                <i class="material-symbols-outlined" v-if="!isRowDownloading(lang, 'txt')">article</i>
                 <i class="material-symbols-outlined" v-else>hourglass_empty</i>
                 TXT
               </button>

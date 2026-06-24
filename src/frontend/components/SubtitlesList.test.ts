@@ -1,25 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import SubtitlesList from './SubtitlesList.vue';
-import { ref } from 'vue';
 
-// Mock store
-vi.mock('../stores/videoStore.ts', () => ({
-  useVideoStore: () => ({}),
-}));
-
-// Mock useDownload composable
 const mockDownloadSubs = vi.fn();
 const mockOpenRawTab = vi.fn();
+const mockIsDownloading = vi.fn(() => false);
 vi.mock('../composables/useDownload.ts', () => ({
   useDownload: () => ({
-    isDownloading: ref({}),
+    isDownloading: mockIsDownloading,
     downloadSubs: mockDownloadSubs,
     openRawTab: mockOpenRawTab,
   }),
 }));
 
-// Mock i18n
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
@@ -29,6 +22,10 @@ vi.mock('vue-i18n', () => ({
 describe('SubtitlesList.vue Component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    mockDownloadSubs.mockReset();
+    mockOpenRawTab.mockReset();
+    mockIsDownloading.mockReset();
+    mockIsDownloading.mockReturnValue(false);
   });
 
   it('renders loading skeleton rows when loading is true', () => {
@@ -92,8 +89,12 @@ describe('SubtitlesList.vue Component', () => {
       },
     });
 
-    // SRT button
     await wrapper.find('.col-actions button').trigger('click');
-    expect(mockDownloadSubs).toHaveBeenCalledWith('dQw4w9WgXcQ', 'English', 'srt', 'manual');
+    expect(mockDownloadSubs).toHaveBeenCalledWith({
+      vidId: 'dQw4w9WgXcQ',
+      lang: 'English',
+      format: 'srt',
+      type: 'manual',
+    });
   });
 });

@@ -1,15 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import VideoPreviewIsland from './VideoPreviewIsland.vue';
-import { ref } from 'vue';
 
-// Mock dependencies
 const mockDownloadSubs = vi.fn();
 const mockOpenRawTab = vi.fn();
+const mockIsDownloading = vi.fn(() => false);
 
 vi.mock('../composables/useDownload.ts', () => ({
   useDownload: () => ({
-    isDownloading: ref({}),
+    isDownloading: mockIsDownloading,
     downloadSubs: mockDownloadSubs,
     openRawTab: mockOpenRawTab,
   }),
@@ -18,6 +17,10 @@ vi.mock('../composables/useDownload.ts', () => ({
 describe('VideoPreviewIsland.vue Component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    mockDownloadSubs.mockReset();
+    mockOpenRawTab.mockReset();
+    mockIsDownloading.mockReset();
+    mockIsDownloading.mockReturnValue(false);
   });
 
   it('renders skeleton states when loading is true', () => {
@@ -63,7 +66,7 @@ describe('VideoPreviewIsland.vue Component', () => {
     expect(wrapper.find('.title').text()).toBe('Never Gonna Give You Up');
     expect(wrapper.find('.lang-name').text()).toBe('English');
     expect(wrapper.text()).toContain('Rick Astley');
-    expect(wrapper.text()).toContain('03:32'); // 212 seconds
+    expect(wrapper.text()).toContain('03:32');
     expect(wrapper.find('.thumbnail-wrapper').attributes('href')).toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     expect(wrapper.find('.thumbnail-wrapper').attributes('target')).toBe('_blank');
     expect(wrapper.find('.detail-item').attributes('href')).toBe('https://www.youtube.com/channel/UCuAXFkgcl1yWxqiHs95V9hw');
@@ -92,9 +95,14 @@ describe('VideoPreviewIsland.vue Component', () => {
       },
     });
 
-    const srtButton = wrapper.find('.actions button'); // First button is SRT
+    const srtButton = wrapper.find('.actions button');
     await srtButton.trigger('click');
 
-    expect(mockDownloadSubs).toHaveBeenCalledWith('dQw4w9WgXcQ', 'English', 'srt', 'manual');
+    expect(mockDownloadSubs).toHaveBeenCalledWith({
+      vidId: 'dQw4w9WgXcQ',
+      lang: 'English',
+      format: 'srt',
+      type: 'manual',
+    });
   });
 });

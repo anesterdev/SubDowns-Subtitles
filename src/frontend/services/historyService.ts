@@ -1,53 +1,44 @@
 import type { HistoryVideoCard } from '../stores/videoStore.ts';
 
-const CACHE = 'metadata';
+const STORAGE_KEY = 'subdowns.history';
 
-export async function saveHistoryEntry(entry: Omit<HistoryVideoCard, 'timestamp'>): Promise<void> {
+type PersistedEntry = HistoryVideoCard & { video?: HistoryVideoCard['video']; author?: HistoryVideoCard['author'] };
+
+function readAll(): PersistedEntry[] {
+  if (typeof localStorage === 'undefined') return [];
   try {
-    const cache = await caches.open(CACHE);
-    const timestamp = Date.now();
-    const key = `/metadata/history/${timestamp}-${entry.videoId}`;
-    await cache.put(key, new Response(JSON.stringify({ ...entry, timestamp }), {
-      headers: { 'Content-Type': 'application/json' },
-    }));
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed as PersistedEntry[] : [];
   } catch (err) {
-    console.error('Failed to save download metadata to cache', err);
+    console.error('Failed to read download history from localStorage', err);
+    return [];
   }
 }
 
-export async function loadHistoryEntries(): Promise<HistoryVideoCard[]> {
+function writeAll(entries: PersistedEntry[]): void {
+  if (typeof localStorage === 'undefined') return;
   try {
-    const cache = await caches.open(CACHE);
-    const keys = await cache.keys();
-    const items: HistoryVideoCard[] = [];
-
-    for (const req of keys) {
-      if (!req.url.includes('/history/') && !req.url.includes('/downloads/')) continue;
-      const res = await cache.match(req);
-      if (!res) continue;
-      try {
-        const data = await res.json();
-        if (data.language && data.format) {
-          items.push({
-            videoId: data.videoId,
-            video: data.video || { title: `Unknown Video (${data.videoId})`, thumbnail_url: '' },
-            author: data.author || { channel_name: 'Unknown Author' },
-            language: data.language,
-            format: data.format,
-            type: data.type,
-            filename: data.filename,
-            timestamp: data.timestamp,
-          });
-        }
-      } catch (e) {
-        console.error('Failed to parse history item', e);
-      }
-    }
-
-    items.sort((a, b) => b.timestamp - a.timestamp);
-    return items;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   } catch (err) {
-    console.error('Failed to load history', err);
-    return [];
+    console.error('Failed to write download history to localStorage', err);
   }
+}
+
+export async function saveHistoryEntry(entry: Omit<HistoryVideoCard, 'timestamp'>): Promise<void> {
+  const entries = readAll();
+  const timestamp = Date.now();
+  const next: PersistedEntry = { ...entry, timestamp };
+  entries.unshift(next);
+  writeAll(entries);
+}
+
+export async function loadHistoryEntries(): Promise<HistoryVideoCard[]> {
+  return readAll();
+}
+
+export async function clearHistoryEntries(): Promise<void> {
+  if (typeof localStorage === 'undefined') return;
+  localStorage.removeItem(STORAGE_KEY);
 }

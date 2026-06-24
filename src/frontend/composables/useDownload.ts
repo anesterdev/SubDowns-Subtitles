@@ -1,35 +1,33 @@
-import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import { useVideoStore } from '../stores/videoStore.ts';
+import type { DownloadTarget } from '../../interfaces/index.ts';
 import { downloadSubtitlesUrl, rawSubtitlesUrl } from '../services/api.ts';
 
 export function useDownload() {
-  const isDownloading = ref<Record<string, boolean>>({});
   const videoStore = useVideoStore();
 
-  async function downloadSubs(vidId: string, lang: string, format: 'srt' | 'txt' | 'raw', type: 'manual' | 'auto') {
-    if (!vidId) return;
+  async function downloadSubs(target: DownloadTarget): Promise<void> {
+    if (!target.vidId) return;
 
-    const key = `${vidId}-${lang}-${format}`;
-    isDownloading.value[key] = true;
+    videoStore.setDownloading(target, true);
 
     try {
-      const url = downloadSubtitlesUrl(vidId, lang, format, type);
+      const url = downloadSubtitlesUrl(target.vidId, target.lang, target.format, target.type);
       const response = await fetch(url);
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.error || 'Download failed');
       }
-      
+
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `subtitles.${format}`;
+      let filename = `subtitles.${target.format}`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename\*?=['"]?(?:UTF-\d['"]*)?([^;\r\n"']*)['"]?/i);
         if (filenameMatch && filenameMatch[1]) {
           filename = decodeURIComponent(filenameMatch[1]);
         }
       }
-      
+
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -40,14 +38,13 @@ export function useDownload() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
 
-      // Save metadata to Cache Storage via the global store
-      await videoStore.saveToHistory(lang, format, type, filename);
+      await videoStore.saveToHistory(target.lang, target.format, target.type, filename);
     } catch (err) {
       console.error(err);
       const message = err instanceof Error ? err.message : 'An error occurred during download';
       toast.error(message);
     } finally {
-      isDownloading.value[key] = false;
+      videoStore.setDownloading(target, false);
     }
   }
 
@@ -56,8 +53,8 @@ export function useDownload() {
   }
 
   return {
-    isDownloading,
+    isDownloading: videoStore.isDownloading,
     downloadSubs,
-    openRawTab
+    openRawTab,
   };
 }

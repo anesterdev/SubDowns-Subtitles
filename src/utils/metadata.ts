@@ -1,4 +1,6 @@
 import { LRUCache } from 'lru-cache';
+import { type Element, type Node, type Document } from 'domhandler';
+import { parseDocument } from 'htmlparser2';
 import { type YouTubePlayerResponse } from '../interfaces/YouTube.ts';
 
 const metadataCache = new LRUCache<string, YouTubePlayerResponse>({
@@ -6,59 +8,151 @@ const metadataCache = new LRUCache<string, YouTubePlayerResponse>({
     ttl: 1000 * 60 * 10,
 });
 
+/**
+ * Locates `varName = { ... }` in an HTML document and returns the balanced JSON
+ * object as a raw string.
+ *
+ * Strategy:
+ *   1. Parse the document with `htmlparser2` and walk every `<script>` element.
+ *      Limiting the search to script text avoids false positives from the variable
+ *      name appearing in attributes, comments, or unrelated text.
+ *   2. Within the script text, locate one of the supported assignment forms
+ *      (`var x = `, `window.x = `, `window['x'] = `, or a bare `x = `).
+ *   3. Use a JS-aware tokenizer to scan past `"`, `'`, and `` ` `` strings, escape
+ *      sequences, and line / block comments so that braces inside any literal
+ *      do not corrupt the depth count.
+ *
+ * Limitation: regex literals (`/.../`) and template-expression `${...}` braces are
+ * not specially handled. The YouTube player response is plain JSON with no such
+ * constructs, so this is safe for the supported inputs.
+ */
 export function extractJsonByName(html: string, varName: string): string | null {
-    const searchStrings = [
+    for (const scriptText of collectScriptTexts(html)) {
+        const result = extractFromScriptText(scriptText, varName);
+        if (result !== null) return result;
+    }
+    return null;
+}
+
+function* collectScriptTexts(html: string): Generator<string> {
+    let doc: Document;
+    try {
+        doc = parseDocument(html);
+    } catch {
+        return;
+    }
+    for (const node of doc.children) {
+        yield* walkScriptTexts(node);
+    }
+}
+
+function* walkScriptTexts(node: Node): Iterable<string> {
+    if (!isElement(node)) return;
+    if (node.name === 'script') {
+        const text = scriptInnerText(node);
+        if (text) yield text;
+        return;
+    }
+    for (const child of node.children) {
+        yield* walkScriptTexts(child);
+    }
+}
+
+function scriptInnerText(node: Element): string {
+    if (!node.children) return '';
+    let out = '';
+    for (const child of node.children) {
+        if (child.type === 'text' && 'data' in child && typeof child.data === 'string') {
+            out += child.data;
+        }
+    }
+    return out;
+}
+
+function isElement(node: Node): node is Element {
+    return node.type === 'tag' || node.type === 'script' || node.type === 'style';
+}
+
+function extractFromScriptText(scriptText: string, varName: string): string | null {
+    const forms = [
         `var ${varName} = `,
         `window['${varName}'] = `,
         `window.${varName} = `,
-        `${varName} = `
+        `${varName} = `,
     ];
 
     let startIdx = -1;
-    for (const search of searchStrings) {
-        startIdx = html.indexOf(search);
+    for (const form of forms) {
+        startIdx = scriptText.indexOf(form);
         if (startIdx !== -1) {
-            startIdx += search.length;
+            startIdx += form.length;
             break;
         }
     }
     if (startIdx === -1) return null;
 
-    const openBraceIdx = html.indexOf('{', startIdx);
+    const openBraceIdx = scriptText.indexOf('{', startIdx);
     if (openBraceIdx === -1) return null;
 
-    let braceCount = 1;
-    let inString = false;
-    let escape = false;
+    let depth = 1;
     let i = openBraceIdx + 1;
+    const len = scriptText.length;
 
-    for (; i < html.length && braceCount > 0; i++) {
-        const char = html[i];
-        if (escape) {
-            escape = false;
+    while (i < len && depth > 0) {
+        const ch = scriptText[i];
+
+        if (ch === '"' || ch === '\'' || ch === '`') {
+            i = skipString(scriptText, i, ch);
             continue;
         }
-        if (char === '\\') {
-            escape = true;
-            continue;
-        }
-        if (char === '"') {
-            inString = !inString;
-            continue;
-        }
-        if (!inString) {
-            if (char === '{') {
-                braceCount++;
-            } else if (char === '}') {
-                braceCount--;
+
+        if (ch === '/' && i + 1 < len) {
+            const next = scriptText[i + 1];
+            if (next === '/') {
+                i = skipLineComment(scriptText, i);
+                continue;
+            }
+            if (next === '*') {
+                i = skipBlockComment(scriptText, i);
+                continue;
             }
         }
+
+        if (ch === '{') depth++;
+        else if (ch === '}') depth--;
+
+        i++;
     }
 
-    if (braceCount === 0) {
-        return html.substring(openBraceIdx, i);
+    if (depth !== 0) return null;
+    return scriptText.substring(openBraceIdx, i);
+}
+
+function skipString(text: string, start: number, quote: string): number {
+    const len = text.length;
+    let i = start + 1;
+    while (i < len) {
+        const ch = text[i];
+        if (ch === '\\') {
+            i += 2;
+            continue;
+        }
+        if (ch === quote) {
+            return i + 1;
+        }
+        i++;
     }
-    return null;
+    return i;
+}
+
+function skipLineComment(text: string, start: number): number {
+    const newlineIdx = text.indexOf('\n', start);
+    return newlineIdx === -1 ? text.length : newlineIdx;
+}
+
+function skipBlockComment(text: string, start: number): number {
+    const closeIdx = text.indexOf('*/', start + 2);
+    return closeIdx === -1 ? text.length : closeIdx + 2;
 }
 
 export async function fetchMetadata(videoId: string): Promise<YouTubePlayerResponse | null> {
