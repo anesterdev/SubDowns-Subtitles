@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IVideoObject } from '../../interfaces/VideoObject.ts';
 
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useDownload } from '../composables/useDownload.ts';
 import { formatDuration } from '../../utils/format.ts';
 

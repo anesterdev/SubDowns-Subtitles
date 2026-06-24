@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import app from '../../../server.ts';
 import * as utils from '../../../../utils/index.ts';
-import { getSubtitles } from 'youtube-caption-extractor';
-import { YouTubePlayerResponse } from '../../../../interfaces/YouTube.ts';
 
 // Mock the utilities and external subtitle extractor
 vi.mock('../../../../utils/index.ts', async (importOriginal) => {

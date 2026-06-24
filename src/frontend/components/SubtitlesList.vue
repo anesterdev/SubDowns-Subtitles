@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { toast } from 'vue3-toastify';
-import { useVideoStore } from '../stores/videoStore.ts';
 import { useI18n } from 'vue-i18n';
 import { useDownload } from '../composables/useDownload.ts';
 
@@ -17,8 +14,6 @@ defineProps<{
   loading?: boolean;
   skeletonCount?: number;
 }>();
-
-const videoStore = useVideoStore();
 </script>
 
 <template>

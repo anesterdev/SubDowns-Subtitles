@@ -1,6 +1,6 @@
-import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
+import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
 import { fetchMetadata, extractVideoData } from '../../../../utils/index.ts';
-import { YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
+import { type YouTubeCaptionTrack, type YouTubeTranslationLanguage } from '../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
   method: 'get',
@@ -79,7 +79,7 @@ export const handler: RouteHandler<typeof route> = async (c) => {
       }
     }, 200);
 
-  } catch (error) {
+  } catch {
     return c.json({ error: 'Failed to fetch video preview' }, 400);
   }
 };

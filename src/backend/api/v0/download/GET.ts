@@ -1,6 +1,6 @@
-import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
+import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
 import { convertToSrt, fetchSubtitles } from '../../../../utils/index.ts';
-import { SubtitleItem } from '../../../../interfaces/YouTube.ts';
+import { type SubtitleItem } from '../../../../interfaces/YouTube.ts';
 
 export const route = createRoute({
   method: 'get',

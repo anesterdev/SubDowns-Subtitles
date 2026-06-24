@@ -1,6 +1,6 @@
 import { getSubtitles } from 'youtube-caption-extractor';
 import { decodeHTML } from 'entities';
-import { SubtitleItem, YouTubeCaptionTrack, YouTubeTranslationLanguage } from '../interfaces/YouTube.ts';
+import { type SubtitleItem, type YouTubeCaptionTrack, type YouTubeTranslationLanguage } from '../interfaces/YouTube.ts';
 import { fetchMetadata } from './metadata.ts';
 
 export function selectCaptionTrack(tracks: YouTubeCaptionTrack[], lang: string, allowFallback: boolean = true): YouTubeCaptionTrack | null {
@@ -85,8 +85,8 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
         throw new Error('No subtitles available for this video');
     }
 
-    let subtitles: SubtitleItem[] = [];
-    let exactLangName = lang;
+    let subtitles: SubtitleItem[];
+    let exactLangName: string;
 
     if (type === 'auto') {
         const translationLanguages: YouTubeTranslationLanguage[] = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];

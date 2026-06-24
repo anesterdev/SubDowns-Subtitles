@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useDownload } from './useDownload.ts';
 import { toast } from 'vue3-toastify';
 
@@ -135,6 +135,7 @@ describe('useDownload Composable', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    void consoleErrorSpy;
 
     const { downloadSubs } = useDownload();
     await downloadSubs('dQw4w9WgXcQ', 'English', 'srt', 'manual');

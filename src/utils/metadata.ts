@@ -1,5 +1,5 @@
 import { LRUCache } from 'lru-cache';
-import { YouTubePlayerResponse } from '../interfaces/YouTube.ts';
+import { type YouTubePlayerResponse } from '../interfaces/YouTube.ts';
 
 const metadataCache = new LRUCache<string, YouTubePlayerResponse>({
     max: 500,
@@ -77,7 +77,7 @@ export async function fetchMetadata(videoId: string): Promise<YouTubePlayerRespo
     if (jsonStr) {
         try {
             result = JSON.parse(jsonStr);
-        } catch (e) {
+        } catch {
             // Ignore and try fallback
         }
     }
@@ -88,7 +88,7 @@ export async function fetchMetadata(videoId: string): Promise<YouTubePlayerRespo
         if (match) {
             try {
                 result = JSON.parse(match[1]);
-            } catch (e) {
+            } catch {
                 // Ignore
             }
         }

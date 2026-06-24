@@ -31,7 +31,7 @@ const limiter = rateLimiter({
     try {
       const conn = getConnInfo(c);
       return conn.remote.address || 'ip';
-    } catch (e) {
+    } catch {
       return 'ip';
     }
   },

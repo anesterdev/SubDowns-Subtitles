@@ -5,8 +5,8 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { fetchSubtitlesText } from "../utils/index.ts";
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { IncomingMessage, ServerResponse } from "node:http";
+import { type OpenAPIHono } from "@hono/zod-openapi";
+import { type IncomingMessage, type ServerResponse } from "node:http";
 
 interface NodeServerEnv {
   incoming?: IncomingMessage;
@@ -140,7 +140,7 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
       activeConnections.delete(sessionId);
       try {
         await server.close();
-      } catch (e) { }
+      } catch { /* connection already closed */ }
       (originalEnd as () => void).call(nodeRes);
     });
 

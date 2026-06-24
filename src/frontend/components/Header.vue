@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { loadLocale } from '../i18n.ts';
 import { useI18n } from 'vue-i18n';
-import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import i18n from '../i18n.ts';
 import { APP_TITLE } from '../constants/index.ts';
@@ -30,8 +29,6 @@ async function handleLanguageChange(event: Event) {
     document.title = `${APP_TITLE} - ${i18n.global.t(route.meta.titleKey as string)}`;
   }
 }
-
-const displayLanguage = computed(() => locale.value.toString().toUpperCase());
 </script>
 
 <template>

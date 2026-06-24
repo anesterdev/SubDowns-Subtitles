@@ -1,4 +1,4 @@
-import { SubtitleItem } from '../interfaces/YouTube.ts';
+import { type SubtitleItem } from '../interfaces/YouTube.ts';
 
 export function formatTime(secondsStr: string) {
     const totalSeconds = parseFloat(secondsStr);

@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n';
+import type { WritableComputedRef } from 'vue';
 import en from './locales/en.json' with { type: 'json' };
 
 const savedLocale = typeof window !== 'undefined' ? localStorage.getItem('lang') || 'en' : 'en';
@@ -16,7 +17,7 @@ export async function loadLocale(locale: string) {
     const messages = await import(`./locales/${locale}.json`);
     i18n.global.setLocaleMessage(locale, messages.default as unknown as Parameters<typeof i18n.global.setLocaleMessage>[1]);
   }
-  (i18n.global.locale as unknown as import('vue').WritableComputedRef<string>).value = locale;
+  (i18n.global.locale as unknown as WritableComputedRef<string>).value = locale;
   if (typeof window !== 'undefined') {
     localStorage.setItem('lang', locale);
   }

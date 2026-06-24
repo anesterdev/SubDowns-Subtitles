@@ -1,4 +1,4 @@
-import { createRoute, z, RouteHandler } from '@hono/zod-openapi';
+import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
 import { fetchSubtitlesText } from '../../../../../utils/index.ts';
 
 export const route = createRoute({

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import app from './server.ts';
 import * as utils from '../utils/index.ts';
-import { getSubtitles } from 'youtube-caption-extractor';
 
 vi.mock('./config.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./config.ts')>();

@@ -47,7 +47,7 @@ export const useVideoStore = defineStore('video', () => {
       const data: IVideoObject = await res.json();
       currentVideo.value = data;
       status.value = 'Ready';
-    } catch (error) {
+    } catch {
       status.value = 'Error';
     }
   }
