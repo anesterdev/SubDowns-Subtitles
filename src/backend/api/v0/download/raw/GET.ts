@@ -1,5 +1,5 @@
 import { createRoute, z, type RouteHandler } from '@hono/zod-openapi';
-import { fetchSubtitlesText } from '../../../../../utils/index.ts';
+import { fetchSubtitlesText, SubtitleError } from '../../../../../utils/index.ts';
 import { RawDownloadQuerySchema } from '../../../../../interfaces/index.ts';
 import { logger } from '../../../../logger.ts';
 
@@ -31,14 +31,11 @@ export const handler: RouteHandler<typeof route> = async (c) => {
         const content = await fetchSubtitlesText(vid_id, lang, c.req.raw.signal);
     return c.text(content, 200);
   } catch (error) {
-    const raw = error instanceof Error ? error.message : String(error);
-    logger.error('Raw download failed for vid={vid_id} lang={lang}: {error}', { vid_id, lang, error: raw });
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Raw download failed for vid={vid_id} lang={lang}: {error}', { vid_id, lang, error: message });
 
-    if (raw.includes('not found') || raw.includes('No subtitles') || raw.includes('No base track')) {
-      return c.text('no_subtitles', 404);
-    }
-    if (raw.includes('language') || raw.includes('Auto-translate')) {
-      return c.text('language_not_found', 404);
+    if (error instanceof SubtitleError) {
+      return c.text(error.code, error.status);
     }
     return c.text('download_failed', 502);
   }

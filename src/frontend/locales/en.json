@@ -52,6 +52,7 @@
     "no_subtitles": "No subtitles available for this video.",
     "language_not_found": "Requested language not found.",
     "download_failed": "Failed to download subtitles. Please try again.",
+    "rate_limited": "YouTube rate-limited the request. Auto-translate may be blocked; try manual subtitles or wait a moment.",
     "youtube_unavailable": "YouTube is temporarily unavailable. Please try again later."
   }
 }

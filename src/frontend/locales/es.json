@@ -52,6 +52,7 @@
     "no_subtitles": "No hay subtítulos disponibles para este video.",
     "language_not_found": "El idioma solicitado no se encontró.",
     "download_failed": "Error al descargar los subtítulos. Inténtalo de nuevo.",
+    "rate_limited": "YouTube limitó la solicitud. La auto-traducción puede estar bloqueada; prueba con subtítulos manuales o espera un momento.",
     "youtube_unavailable": "YouTube no está disponible temporalmente. Inténtalo de nuevo más tarde."
   }
 }

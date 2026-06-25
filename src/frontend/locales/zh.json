@@ -52,6 +52,7 @@
     "no_subtitles": "该视频没有可用的字幕。",
     "language_not_found": "未找到请求的语言。",
     "download_failed": "下载字幕失败。请重试。",
+    "rate_limited": "YouTube 限制了请求。自动翻译可能被阻止；请尝试手动字幕或稍后再试。",
     "youtube_unavailable": "YouTube 暂时不可用。请稍后重试。"
   }
 }

@@ -3,6 +3,7 @@ import { decodeHTML } from 'entities';
 import { type SubtitleItem, type YouTubeCaptionTrack, type YouTubeTranslationLanguage } from '../interfaces/YouTube.ts';
 import { type FetchSubtitlesOptions, type FetchSubtitlesResult } from '../interfaces/index.ts';
 import { fetchMetadata } from './metadata.ts';
+import { SubtitleError } from './errors.ts';
 
 export function selectCaptionTrack(tracks: YouTubeCaptionTrack[], lang: string, allowFallback: boolean = true): YouTubeCaptionTrack | null {
     if (!tracks || tracks.length === 0) return null;
@@ -39,9 +40,9 @@ export async function fetchAutoSubtitles(baseUrl: string, targetLangCode: string
     const signal = clientSignal ? AbortSignal.any([clientSignal, timeoutSignal]) : timeoutSignal;
     const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal });
     if (response.status === 429) {
-        throw new Error('YouTube blocked the auto-translate request (Error 429 Too Many Requests) due to bot detection. Node.js fetches lack browser cookies/tokens and get rate-limited for translated tracks.');
+        throw new SubtitleError('rate_limited', 'YouTube blocked the auto-translate request (Error 429 Too Many Requests) due to bot detection. Node.js fetches lack browser cookies/tokens and get rate-limited for translated tracks.');
     }
-    if (!response.ok) throw new Error(`Caption fetch failed: ${response.status}`);
+    if (!response.ok) throw new SubtitleError('download_failed', `Caption fetch failed: ${response.status}`);
     const data = await response.json() as AutoSubtitleResponse;
     const events = data.events ?? [];
     const subtitles: SubtitleItem[] = [];
@@ -68,14 +69,14 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
 
     const playerResponse = await fetchMetadata(vidId, clientSignal);
     if (!playerResponse) {
-        throw new Error('Video metadata not found or unavailable');
+        throw new SubtitleError('video_not_found', 'Video metadata not found or unavailable');
     }
 
     const title = playerResponse.videoDetails?.title?.replace(/[<>:"/\\|?*]+/g, '') || 'Video';
     const tracks = playerResponse.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
     
     if (tracks.length === 0) {
-        throw new Error('No subtitles available for this video');
+        throw new SubtitleError('no_subtitles', 'No subtitles available for this video');
     }
 
     let subtitles: SubtitleItem[];
@@ -84,17 +85,17 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
     if (type === 'auto') {
         const translationLanguages: YouTubeTranslationLanguage[] = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
         const targetLang = translationLanguages.find((t) => t.languageName.simpleText === lang);
-        if (!targetLang) throw new Error(`Auto-translate language not found: '${lang}'`);
+        if (!targetLang) throw new SubtitleError('language_not_found', `Auto-translate language not found: '${lang}'`);
 
         const defaultTrack = tracks.find((t) => t.isDefault) || tracks[0];
-        if (!defaultTrack) throw new Error('No base track found for auto-translation');
+        if (!defaultTrack) throw new SubtitleError('no_subtitles', 'No base track found for auto-translation');
 
         subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode, clientSignal);
         exactLangName = targetLang.languageName.simpleText;
     } else {
         const selectedTrack = selectCaptionTrack(tracks, lang, allowFallback);
         if (!selectedTrack) {
-            throw new Error(`No manual subtitles found for language target '${lang}'`);
+            throw new SubtitleError('language_not_found', `No manual subtitles found for language target '${lang}'`);
         }
         exactLangName = selectedTrack.name.simpleText;
         subtitles = await getSubtitles({ videoID: vidId, lang: selectedTrack.languageCode });

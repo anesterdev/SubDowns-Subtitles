@@ -10,7 +10,7 @@ It effortlessly processes YouTube URLs, extracts metadata, and allows you to dow
 - **Multilingual Support (i18n):** Full support for English, Spanish, Russian, and Chinese out of the box.
 - **Rich Metadata Extraction:** Fetches video titles, thumbnails, author details, and explicit language track availability directly from YouTube's internal APIs.
 - **Format Flexibility:** Download subtitles as strictly formatted `.srt`, clean `.txt`, or the raw YouTube `.json`.
-- **Local History:** Fully tracks your downloaded history securely in your browser using the native Cache API.
+- **Local History:** Fully tracks your downloaded history securely in your browser using IndexedDB.
 - **TypeScript Native:** End-to-end type safety across both the Vue client and Hono server.
 - **OpenAPI Standard:** Easy to work with, well-documented OpenAPI backend at `/api/docs`.
 - **Native MCP Server:** Connect SubDowns MCP server to LLM Harness of your Choice - Claude Code, Codex, Antigravity, OpenCode, Windsurf, Cursor, etc.
@@ -112,6 +112,17 @@ For each processed video in CLI mode, the tool creates a `subtitles/` folder and
 - `[VIDEO_ID] - Video Title - [Language].meta` — A lightweight JSON metadata file containing video, author, and source file tracking details.
 
 
+## ⚠️ Known Limitations
+
+- **Undocumented YouTube endpoints.** Metadata is scraped from the `/watch?v=...` HTML page by extracting the `ytInitialPlayerResponse` script variable, and captions are fetched from the `timedtext` API. Both are undocumented and can change or break without notice.
+- **Auto-translate rate limiting.** Translated tracks are requested without browser cookies/tokens, so YouTube frequently returns `429 Too Many Requests` under bot detection. Manual subtitle downloads are unaffected. No retry/backoff is implemented yet — wait a moment or switch to manual subtitles.
+
+---
+
+## 📄 License
+
+SubDowns is open-source under the ISC license — feel free to fork, modify, and self-host. Pull requests are welcome.
+
 ---
 
 ### Shoutouts to
@@ -122,4 +133,4 @@ For each processed video in CLI mode, the tool creates a `subtitles/` folder and
 * Zod - industry standard validation
 * OpenAPI - industry standard api
 * Docker - do I need to comment on it?
-* And others - Vite, esbuild, vitest, scalar, lru-cache, mcp, pinia, VueUse
+* And others - Vite, esbuild, vitest, scalar, lru-cache, mcp, pinia, VueUse, Material Icons, LogTape
