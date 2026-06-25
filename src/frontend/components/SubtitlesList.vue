@@ -125,6 +125,7 @@ function isRowDownloading(lang: string, format: DownloadFormat): boolean {
   flex-direction: column;
   border: 1px solid rgba(var(--rgb-foreground), 0.05);
   border-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--space-xm);
   overflow: hidden;
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
 }
