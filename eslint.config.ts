@@ -68,7 +68,7 @@ export default tseslint.config(
 
   // Test files — relaxed
   {
-    files: ['**/*.test.ts', '**/__tests__/**/*.ts'],
+    files: ['**/*.test.ts', '**/__tests__/**/*.ts', 'e2e/**/*.spec.ts'],
     languageOptions: {
       globals: { ...globals.node, 'vi': 'readonly', 'describe': 'readonly', 'it': 'readonly', 'expect': 'readonly', 'beforeEach': 'readonly', 'afterEach': 'readonly', 'beforeAll': 'readonly', 'afterAll': 'readonly' },
     },
