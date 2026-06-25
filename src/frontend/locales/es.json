@@ -1,0 +1,59 @@
+{
+  "page_titles": {
+    "home": "Descargar Subtítulos de YouTube",
+    "history": "Historial",
+    "not_found": "Página no encontrada"
+  },
+  "home": {
+    "placeholder": "Pega la URL de YouTube aquí...",
+    "download": "DESCARGAR",
+    "subtitle": "Ingresa una URL para extraer subtítulos de video al instante.",
+    "aria_video_link": "Enlace del video de YouTube"
+  },
+  "header": {
+    "home": "Inicio",
+    "history": "Historial",
+    "theme_light": "Claro",
+    "theme_dark": "Oscuro",
+    "aria_select_language": "Seleccionar idioma"
+  },
+  "preview": {
+    "fetching": "Obteniendo metadatos del video...",
+    "original_subtitles": "Subtítulos Originales",
+    "auto_translate": "Traducción Automática",
+    "error_fetching": "Error al obtener datos del video",
+    "go_back": "Volver"
+  },
+  "subtitles": {
+    "language": "Idioma",
+    "actions": "Acciones",
+    "no_languages": "No se encontraron idiomas."
+  },
+  "history": {
+    "title": "Historial de Descargas",
+    "video": "Video",
+    "language": "Idioma",
+    "format": "Formato",
+    "date": "Fecha",
+    "empty": "No se encontraron descargas en tu historial.",
+    "loading": "Cargando...",
+    "view": "Ver Video",
+    "clear": "Borrar Historial"
+  },
+  "not_found": {
+    "title": "Perdido en la traducción",
+    "description": "Los subtítulos de esta ruta parecen haber desaparecido. Volvamos a la página principal.",
+    "back_home": "Volver al Inicio"
+  },
+  "errors": {
+    "invalid_url": "Por favor, introduce una URL válida.",
+    "invalid_youtube_url": "URL de YouTube no válida. No se pudo extraer el ID del video.",
+    "video_not_found": "Video no encontrado o no disponible.",
+    "fetch_failed": "Error al obtener la vista previa del video.",
+    "no_subtitles": "No hay subtítulos disponibles para este video.",
+    "language_not_found": "El idioma solicitado no se encontró.",
+    "download_failed": "Error al descargar los subtítulos. Inténtalo de nuevo.",
+    "rate_limited": "YouTube limitó la solicitud. La auto-traducción puede estar bloqueada; prueba con subtítulos manuales o espera un momento.",
+    "youtube_unavailable": "YouTube no está disponible temporalmente. Inténtalo de nuevo más tarde."
+  }
+}

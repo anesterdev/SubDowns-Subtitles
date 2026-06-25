@@ -1,0 +1,8 @@
+node_modules
+.git
+.vscode
+dist
+*.log
+.DS_Store
+subtitles
+.env.dev

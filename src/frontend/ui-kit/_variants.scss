@@ -1,0 +1,50 @@
+@mixin btn-default {
+  background-color: rgba(var(--rgb-foreground), 0.08);
+  color: rgba(var(--rgb-foreground), 0.82);
+
+  &:hover {
+    background-color: rgba(var(--rgb-foreground), 0.12);
+  }
+
+  &:active {
+    background-color: rgba(var(--rgb-foreground), 0.08);
+  }
+}
+
+@mixin btn-warn {
+  background-color: var(--warn-bg);
+  color: var(--warn);
+
+  &:hover {
+    background-color: rgba(var(--rgb-warn), 0.24);
+  }
+
+  &:active {
+    background-color: rgba(var(--rgb-warn), 0.16);
+  }
+}
+
+@mixin btn-error {
+  background-color: var(--error-bg);
+  color: var(--error);
+
+  &:hover {
+    background-color: rgba(var(--rgb-error), 0.24);
+  }
+
+  &:active {
+    background-color: rgba(var(--rgb-error), 0.16);
+  }
+}
+
+@mixin btn-action {
+  background-color: rgba(var(--rgb-accent), 0.08);
+  border: 1px solid rgba(var(--rgb-accent), 0.2);
+  color: var(--text-accent);
+
+  &:hover {
+    background-color: var(--text-accent);
+    color: var(--bg);
+    border-color: transparent;
+  }
+}

@@ -1,0 +1,36 @@
+@use '../variants' as *;
+
+button {
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-lg);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease, color var(--transition-fast) ease, opacity var(--transition-fast) ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  user-select: none;
+  
+  @include btn-default;
+
+  &[data-variant="warn"], &.warn, &[variant="warn"] {
+    @include btn-warn;
+  }
+
+  &[data-variant="error"], &.error, &[variant="error"] {
+    @include btn-error;
+  }
+
+  &[data-variant="action"], &[variant="action"] {
+    @include btn-action;
+  }
+
+  &:disabled, &[disabled] {
+    opacity: 0.6;
+  }
+}

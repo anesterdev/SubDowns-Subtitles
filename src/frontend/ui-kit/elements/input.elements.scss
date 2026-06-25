@@ -1,0 +1,22 @@
+input {
+  padding: var(--space-md);
+  font-size: var(--font-size-base);
+  background-color: var(--bg-light);
+  color: var(--text);
+  border: 1px solid var(--bg-dimm);
+  border-radius: var(--radius-sm);
+  outline: none;
+  font-family: inherit;
+  caret-color: var(--text-accent);
+  transition: border-color var(--transition-fast) ease, background-color var(--transition-fast) ease;
+
+  &:hover {
+    border-color: var(--text-accent);
+  }
+
+  &:focus,
+  &:active {
+    border-color: var(--text-accent);
+    background-color: rgba(var(--rgb-accent), 0.1);
+  }
+}

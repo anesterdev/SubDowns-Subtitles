@@ -1,4 +1,13 @@
 node_modules/
 subtitles/
+sketches/
 dist/
+
+.vscode/
+
 links.json
+.env
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

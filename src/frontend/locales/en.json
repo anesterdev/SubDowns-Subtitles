@@ -1,0 +1,59 @@
+{
+  "page_titles": {
+    "home": "Download YouTube Subtitles",
+    "history": "History",
+    "not_found": "Page Not Found"
+  },
+  "home": {
+    "placeholder": "Paste YouTube URL here...",
+    "download": "DOWNLOAD",
+    "subtitle": "Enter a URL to extract video subtitles instantly.",
+    "aria_video_link": "YouTube Video Link"
+  },
+  "header": {
+    "home": "Home",
+    "history": "History",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "aria_select_language": "Select Language"
+  },
+  "preview": {
+    "fetching": "Fetching video metadata...",
+    "original_subtitles": "Original Subtitles",
+    "auto_translate": "Auto-translate",
+    "error_fetching": "Error fetching video data",
+    "go_back": "Go Back"
+  },
+  "subtitles": {
+    "language": "Language",
+    "actions": "Actions",
+    "no_languages": "No languages found."
+  },
+  "history": {
+    "title": "Download History",
+    "video": "Video",
+    "language": "Language",
+    "format": "Format",
+    "date": "Date",
+    "empty": "No downloads found in your history.",
+    "loading": "Loading...",
+    "view": "View Video",
+    "clear": "Clear History"
+  },
+  "not_found": {
+    "title": "Lost in Translation",
+    "description": "The subtitles for this route seem to be missing. Let's get you back on track.",
+    "back_home": "Go Back Home"
+  },
+  "errors": {
+    "invalid_url": "Please enter a valid URL.",
+    "invalid_youtube_url": "Invalid YouTube URL. Could not extract video ID.",
+    "video_not_found": "Video not found or unavailable.",
+    "fetch_failed": "Failed to fetch video preview.",
+    "no_subtitles": "No subtitles available for this video.",
+    "language_not_found": "Requested language not found.",
+    "download_failed": "Failed to download subtitles. Please try again.",
+    "rate_limited": "YouTube rate-limited the request. Auto-translate may be blocked; try manual subtitles or wait a moment.",
+    "youtube_unavailable": "YouTube is temporarily unavailable. Please try again later."
+  }
+}

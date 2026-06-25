@@ -1,0 +1,30 @@
+@use '../variables' as *;
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-light) 25%,
+    rgba(var(--rgb-foreground), 0.05) 50%,
+    var(--bg-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+  border-radius: var(--radius-sm);
+  color: transparent !important;
+  user-select: none;
+  pointer-events: none;
+  border-color: transparent !important;
+  
+  * {
+    visibility: hidden;
+  }
+}

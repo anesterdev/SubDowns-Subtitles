@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: subdowns
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3069}:${PORT:-3069}"
+    restart: unless-stopped

@@ -1,0 +1,200 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+import { useDownload } from '../composables/useDownload.ts';
+import type { DownloadFormat, DownloadType } from '../../interfaces/index.ts';
+
+const { t } = useI18n();
+const { isDownloading, downloadSubs, openRawTab } = useDownload();
+
+const props = defineProps<{
+  title: string;
+  icon: string;
+  languages?: string[];
+  videoId: string;
+  type: DownloadType;
+  loading?: boolean;
+  skeletonCount?: number;
+}>();
+
+function isRowDownloading(lang: string, format: DownloadFormat): boolean {
+  return isDownloading({ vidId: props.videoId, lang, format, type: props.type });
+}
+</script>
+
+<template>
+  <div class="subtitles-list-container">
+    <div class="header">
+      <div class="title-group">
+        <i class="material-symbols-outlined icon">{{ icon }}</i>
+        <h3 class="title">{{ title }}</h3>
+      </div>
+    </div>
+
+    <div class="list-wrapper">
+      <div class="list-header">
+        <div class="col-language">{{ t('subtitles.language') }}</div>
+        <div class="col-actions">{{ t('subtitles.actions') }}</div>
+      </div>
+      
+      <div class="list-body">
+        <template v-if="!loading">
+          <div 
+            class="list-row group" 
+            v-for="lang in languages" 
+            :key="lang"
+          >
+            <div class="col-language">
+              <span class="dot"></span>
+              <span class="lang-name">{{ lang }}</span>
+            </div>
+            <div class="col-actions">
+              <button variant="action" size="sm" :disabled="isRowDownloading(lang, 'srt')" @click="downloadSubs({ vidId: videoId, lang, format: 'srt', type })">
+                <i class="material-symbols-outlined" v-if="!isRowDownloading(lang, 'srt')">description</i>
+                <i class="material-symbols-outlined" v-else>hourglass_empty</i>
+                SRT
+              </button>
+              <button variant="action" size="sm" :disabled="isRowDownloading(lang, 'txt')" @click="downloadSubs({ vidId: videoId, lang, format: 'txt', type })">
+                <i class="material-symbols-outlined" v-if="!isRowDownloading(lang, 'txt')">article</i>
+                <i class="material-symbols-outlined" v-else>hourglass_empty</i>
+                TXT
+              </button>
+              <button variant="action" size="sm" @click="openRawTab(videoId, lang)">
+                <i class="material-symbols-outlined">data_object</i>
+                RAW
+              </button>
+            </div>
+          </div>
+          
+          <div v-if="!languages?.length" class="empty-state">
+            {{ t('subtitles.no_languages') }}
+          </div>
+        </template>
+ 
+        <template v-else>
+          <div class="list-row group" v-for="i in (skeletonCount || 4)" :key="i">
+            <div class="col-language">
+              <span class="dot skeleton"></span>
+              <span class="lang-name skeleton" :style="{ width: `${40 + ((i * 17) % 41)}%` }">&nbsp;</span>
+            </div>
+            <div class="col-actions">
+              <button variant="action" size="sm" class="skeleton">SRT</button>
+              <button variant="action" size="sm" class="skeleton">TXT</button>
+              <button variant="action" size="sm" class="skeleton">RAW</button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped lang="scss">
+@use '../ui-kit/mixins' as *;
+
+.subtitles-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.icon {
+  color: var(--text-accent);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  color: var(--text-bright);
+  font-weight: 600;
+}
+
+.list-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(var(--rgb-foreground), 0.05);
+  border-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--space-xm);
+  overflow: hidden;
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  background-color: rgba(var(--rgb-foreground), 0.02);
+  padding: var(--space-sm) var(--space-lg);
+  transition: background-color var(--transition-fast) ease;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.list-body {
+  max-height: 24rem;
+  overflow-y: auto;
+  @include custom-scrollbar;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--bg-light);
+  border-top: 1px solid rgba(var(--rgb-foreground), 0.02);
+  transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+
+  &:hover {
+    background-color: rgba(var(--rgb-foreground), 0.04);
+  }
+}
+
+.col-language {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(var(--rgb-accent), 0.4);
+
+  .group:hover & {
+    background-color: var(--text-accent);
+  }
+}
+
+.lang-name {
+  color: var(--text-bright);
+}
+
+.col-actions {
+  display: flex;
+  gap: var(--space-xs);
+  justify-content: flex-end;
+}
+
+.empty-state {
+  padding: var(--space-lg);
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  background-color: var(--bg-light);
+}
+</style>
