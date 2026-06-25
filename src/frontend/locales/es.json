@@ -37,7 +37,8 @@
     "date": "Fecha",
     "empty": "No se encontraron descargas en tu historial.",
     "loading": "Cargando...",
-    "view": "Ver Video"
+    "view": "Ver Video",
+    "clear": "Borrar Historial"
   },
   "not_found": {
     "title": "Perdido en la traducción",

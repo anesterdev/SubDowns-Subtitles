@@ -24,18 +24,20 @@ describe('DownloaderHero.vue', () => {
 
   it('binds input to url ref via v-model and reveals clear button', async () => {
     const wrapper = mountHero();
-    expect(wrapper.vm.url).toBe('');
+    const input = wrapper.find('input');
+    expect(input.element.value).toBe('');
     expect(wrapper.find('.clear-btn').exists()).toBe(false);
-    await wrapper.find('input').setValue('https://youtube.com/watch?v=123');
-    expect(wrapper.vm.url).toBe('https://youtube.com/watch?v=123');
+    await input.setValue('https://youtube.com/watch?v=123');
+    expect(input.element.value).toBe('https://youtube.com/watch?v=123');
     expect(wrapper.find('.clear-btn').exists()).toBe(true);
   });
 
   it('clears url ref via clear button and hides it', async () => {
     const wrapper = mountHero();
-    await wrapper.find('input').setValue('https://youtube.com/watch?v=123');
+    const input = wrapper.find('input');
+    await input.setValue('https://youtube.com/watch?v=123');
     await wrapper.find('.clear-btn').trigger('click');
-    expect(wrapper.vm.url).toBe('');
+    expect(input.element.value).toBe('');
     expect(wrapper.find('.clear-btn').exists()).toBe(false);
   });
 

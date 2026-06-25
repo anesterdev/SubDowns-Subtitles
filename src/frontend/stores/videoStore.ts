@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { VideoPreviewResponse, DownloadTarget, DownloadFormat, DownloadType, HistoryVideoCard } from '../../interfaces/index.ts';
+import type { VideoPreviewResponse, DownloadTarget, DownloadFormat, DownloadType, HistoryVideoCard, ApiErrorCode } from '../../interfaces/index.ts';
+import { isApiErrorCode } from '../../interfaces/errors.ts';
 import { videoPreviewUrl } from '../services/api.ts';
 import { saveHistoryEntry, loadHistoryEntries } from '../services/historyService.ts';
 
@@ -11,7 +12,7 @@ function downloadKey(t: DownloadTarget): string {
 export const useVideoStore = defineStore('video', () => {
   const currentVideo = ref<VideoPreviewResponse | null>(null);
   const status = ref<'Idle' | 'Fetching' | 'Ready' | 'Error'>('Idle');
-  const errorMessage = ref('');
+  const errorMessage = ref<ApiErrorCode | ''>('');
   const downloadingMap = ref<Record<string, boolean>>({});
   let fetchController: AbortController | null = null;
 
@@ -39,7 +40,8 @@ export const useVideoStore = defineStore('video', () => {
       status.value = 'Ready';
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
-      errorMessage.value = err instanceof Error ? err.message : 'fetch_failed';
+      const raw = err instanceof Error ? err.message : 'fetch_failed';
+      errorMessage.value = isApiErrorCode(raw) ? raw : 'fetch_failed';
       status.value = 'Error';
     } finally {
       if (fetchController?.signal.aborted) fetchController = null;

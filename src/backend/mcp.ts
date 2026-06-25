@@ -8,6 +8,7 @@ import { fetchSubtitlesText } from "../utils/index.ts";
 import { type OpenAPIHono } from "@hono/zod-openapi";
 import { type IncomingMessage, type ServerResponse } from "node:http";
 import { mcpLogger } from "./logger.ts";
+import { config } from "./config.ts";
 
 interface NodeServerEnv {
   incoming?: IncomingMessage;
@@ -97,6 +98,21 @@ function ensurePruneTimer() {
   }, 30000);
 }
 
+export function drainMCPServers(): Promise<void> {
+  const closes = Array.from(activeConnections.values()).map((conn) =>
+    Promise.race([
+      conn.transport.close?.().catch(() => {}),
+      conn.server.close().catch(() => {}),
+    ]),
+  );
+  activeConnections.clear();
+  if (pruneInterval) {
+    clearInterval(pruneInterval);
+    pruneInterval = null;
+  }
+  return Promise.all(closes).then(() => {});
+}
+
 export function initMCPServerRoutes(router: OpenAPIHono) {
   router.get('/mcp/sse', async (c) => {
     const env = c.env as NodeServerEnv;
@@ -108,7 +124,8 @@ export function initMCPServerRoutes(router: OpenAPIHono) {
     }
 
     const host = c.req.header('host') || '127.0.0.1:3069';
-    const protocol = c.req.header('x-forwarded-proto') || 'http';
+    const forwardedProto = config.TRUST_PROXY ? c.req.header('x-forwarded-proto') : null;
+    const protocol = forwardedProto || 'http';
     const messageUrl = `${protocol}://${host}/api/mcp/message`;
 
     const server = createMCPServer();

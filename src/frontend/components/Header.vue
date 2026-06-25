@@ -50,7 +50,7 @@ async function handleLanguageChange(event: Event) {
       <button class="theme-toggle" @click="toggleTheme()">
         {{ !isDark ? t('header.theme_dark') : t('header.theme_light') }}
       </button>
-      <a :href="GITHUB_LINK" target="_blank">GitHub</a>
+      <a :href="GITHUB_LINK" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </header>
 </template>

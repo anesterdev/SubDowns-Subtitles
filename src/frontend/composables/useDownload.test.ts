@@ -87,7 +87,8 @@ describe('useDownload Composable', () => {
     await downloadSubs(target);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/v0/download?vid_id=dQw4w9WgXcQ&lang=English&format=srt&type=manual'
+      '/api/v0/download?vid_id=dQw4w9WgXcQ&lang=English&format=srt&type=manual',
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
     expect(createdElement.download).toBe('rick-astley-subtitles.srt');
     expect(createdElement.href).toBe('blob-url');

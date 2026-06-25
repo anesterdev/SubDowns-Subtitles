@@ -83,15 +83,23 @@ export async function fetchSubtitles(vidId: string, lang: string, opts: FetchSub
     let exactLangName: string;
 
     if (type === 'auto') {
-        const translationLanguages: YouTubeTranslationLanguage[] = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
-        const targetLang = translationLanguages.find((t) => t.languageName.simpleText === lang);
-        if (!targetLang) throw new SubtitleError('language_not_found', `Auto-translate language not found: '${lang}'`);
+        const normalizedLang = lang.replace(/\s*\(auto-generated\)\s*/i, '').trim();
 
-        const defaultTrack = tracks.find((t) => t.isDefault) || tracks[0];
-        if (!defaultTrack) throw new SubtitleError('no_subtitles', 'No base track found for auto-translation');
+        const directTrack = selectCaptionTrack(tracks, lang, false) || selectCaptionTrack(tracks, normalizedLang, false);
+        if (directTrack) {
+            subtitles = await getSubtitles({ videoID: vidId, lang: directTrack.languageCode });
+            exactLangName = directTrack.name.simpleText;
+        } else {
+            const translationLanguages: YouTubeTranslationLanguage[] = playerResponse.captions?.playerCaptionsTracklistRenderer?.translationLanguages || [];
+            const targetLang = translationLanguages.find((t) => t.languageName.simpleText === normalizedLang);
+            if (!targetLang) throw new SubtitleError('language_not_found', `Auto-translate language not found: '${lang}'`);
 
-        subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode, clientSignal);
-        exactLangName = targetLang.languageName.simpleText;
+            const defaultTrack = tracks.find((t) => t.isDefault) || tracks[0];
+            if (!defaultTrack) throw new SubtitleError('no_subtitles', 'No base track found for auto-translation');
+
+            subtitles = await fetchAutoSubtitles(defaultTrack.baseUrl, targetLang.languageCode, clientSignal);
+            exactLangName = targetLang.languageName.simpleText;
+        }
     } else {
         const selectedTrack = selectCaptionTrack(tracks, lang, allowFallback);
         if (!selectedTrack) {

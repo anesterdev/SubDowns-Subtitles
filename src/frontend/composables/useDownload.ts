@@ -11,9 +11,11 @@ export function useDownload() {
 
     videoStore.setDownloading(target, true);
 
+    const signal = AbortSignal.timeout(30_000);
+
     try {
       const url = downloadSubtitlesUrl(target.vidId, target.lang, target.format, target.type);
-      const response = await fetch(url);
+      const response = await fetch(url, { signal });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.error || 'Download failed');
@@ -40,9 +42,13 @@ export function useDownload() {
 
       await videoStore.saveToHistory(target.lang, target.format, target.type, filename);
     } catch (err) {
-      console.error(err);
-      const message = err instanceof Error ? err.message : 'An error occurred during download';
-      toast.error(message);
+      if (err instanceof DOMException && err.name === 'TimeoutError') {
+        toast.error('Download timed out. The backend may be stalled.');
+      } else {
+        console.error(err);
+        const message = err instanceof Error ? err.message : 'An error occurred during download';
+        toast.error(message);
+      }
     } finally {
       videoStore.setDownloading(target, false);
     }

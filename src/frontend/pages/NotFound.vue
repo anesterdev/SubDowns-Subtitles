@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// Creative 404 page for SubDowns
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 </script>
 
 <template>
@@ -56,12 +57,12 @@
     </div>
 
     <div class="content-container">
-      <h1 class="title">{{ $t('not_found.title') }}</h1>
-      <p class="description">{{ $t('not_found.description') }}</p>
+      <h1 class="title">{{ t('not_found.title') }}</h1>
+      <p class="description">{{ t('not_found.description') }}</p>
       
       <router-link to="/" class="back-link">
         <i class="material-symbols-outlined">home</i>
-        {{ $t('not_found.back_home') }}
+        {{ t('not_found.back_home') }}
       </router-link>
     </div>
   </section>

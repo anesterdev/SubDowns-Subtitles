@@ -2,6 +2,7 @@ import type { VideoPreviewResponse } from './schemas/index.ts';
 import type { DownloadFormat, DownloadType } from './download.ts';
 
 export interface HistoryVideoCard {
+  id: string;
   videoId: string;
   video: VideoPreviewResponse['video'];
   author: VideoPreviewResponse['author'];

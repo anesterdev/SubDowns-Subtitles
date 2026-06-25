@@ -1,9 +1,6 @@
-export type SubtitleErrorCode =
-  | 'video_not_found'
-  | 'no_subtitles'
-  | 'language_not_found'
-  | 'rate_limited'
-  | 'download_failed';
+import type { ApiErrorCode } from '../interfaces/errors.ts';
+
+export type SubtitleErrorCode = Exclude<ApiErrorCode, 'fetch_failed'>;
 
 const STATUS_BY_CODE: Record<SubtitleErrorCode, 404 | 429 | 502> = {
   video_not_found: 404,

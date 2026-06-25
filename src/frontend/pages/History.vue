@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useVideoStore } from '../stores/videoStore.ts';
+import { clearHistoryEntries } from '../services/historyService.ts';
 import type { HistoryVideoCard } from '../../interfaces/index.ts';
 
 const { t } = useI18n();
@@ -12,10 +13,17 @@ const videoStore = useVideoStore();
 const historyItems = ref<HistoryVideoCard[]>([]);
 const isLoading = ref(true);
 
-onMounted(async () => {
+async function refresh() {
   historyItems.value = await videoStore.loadHistory();
   isLoading.value = false;
-});
+}
+
+onMounted(refresh);
+
+async function clearHistory() {
+  await clearHistoryEntries();
+  await refresh();
+}
 
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString(undefined, { 
@@ -34,6 +42,13 @@ function viewVideo(vidId: string) {
   <div class="page-container">
     <div class="header">
       <h1 class="title">{{ t('history.title') }}</h1>
+      <button
+        v-if="historyItems.length > 0"
+        class="clear-btn"
+        @click="clearHistory"
+      >
+        {{ t('history.clear') }}
+      </button>
     </div>
 
     <div v-if="isLoading" class="loading-state">
@@ -45,14 +60,11 @@ function viewVideo(vidId: string) {
     </div>
 
     <div v-else class="cards-grid">
-      <div 
-        class="video-card" 
-        v-for="item in historyItems" 
-        :key="`${item.videoId}-${item.timestamp}`"
-        role="button"
-        tabindex="0"
+      <button
+        class="video-card"
+        v-for="item in historyItems"
+        :key="item.id"
         @click="viewVideo(item.videoId)"
-        @keyup.enter="viewVideo(item.videoId)"
       >
         <div class="thumbnail-wrapper">
           <img :src="item.video.thumbnail_url" class="thumbnail" alt="thumbnail" />
@@ -79,7 +91,7 @@ function viewVideo(vidId: string) {
             </span>
           </div>
         </div>
-      </div>
+      </button>
     </div>
   </div>
 </template>
@@ -98,12 +110,31 @@ function viewVideo(vidId: string) {
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .title {
   font-size: var(--font-size-xl);
   color: var(--text-bright);
   font-weight: 700;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid rgba(var(--rgb-foreground), 0.15);
+  color: var(--text-muted);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--transition-fast) ease, border-color var(--transition-fast) ease;
+
+  &:hover {
+    color: var(--text-bright);
+    border-color: rgba(var(--rgb-foreground), 0.3);
+  }
 }
 
 .loading-state, .empty-state {
@@ -130,6 +161,10 @@ function viewVideo(vidId: string) {
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
+  text-align: left;
+  padding: 0;
+  font: inherit;
+  color: inherit;
   transition: background-color var(--transition-fast) ease, border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease, color var(--transition-fast) ease;
 
   &:hover {

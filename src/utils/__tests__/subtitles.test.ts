@@ -252,23 +252,35 @@ describe('fetchSubtitles', () => {
       .rejects.toThrow("No manual subtitles found for language target 'Klingon'");
   });
 
-  it('fetches auto-translated subtitles via fetchAutoSubtitles', async () => {
+  it('fetches auto-generated subtitles via getSubtitles when captionTrack exists', async () => {
+    vi.mocked(fetchMetadata).mockResolvedValue(mockPlayerResponse);
+    vi.mocked(getSubtitles).mockResolvedValue([{ start: '0', dur: '1', text: 'Hola' }]);
+
+    const result = await fetchSubtitles('dQw4w9WgXcQ', 'Spanish (auto-generated)', { type: 'auto' });
+
+    expect(result.exactLangName).toBe('Spanish');
+    expect(result.subtitles).toHaveLength(1);
+    expect(result.subtitles[0].text).toBe('Hola');
+    expect(getSubtitles).toHaveBeenCalledWith({ videoID: 'dQw4w9WgXcQ', lang: 'es' });
+  });
+
+  it('fetches auto-translated subtitles via fetchAutoSubtitles when no captionTrack exists', async () => {
     vi.mocked(fetchMetadata).mockResolvedValue(mockPlayerResponse);
 
     const fetchMock = vi.fn().mockResolvedValue({
       status: 200,
       ok: true,
-      json: async () => ({ events: [{ tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: 'Hola' }] }] }),
+      json: async () => ({ events: [{ tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: 'Bonjour' }] }] }),
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    const result = await fetchSubtitles('dQw4w9WgXcQ', 'Spanish', { type: 'auto' });
+    const result = await fetchSubtitles('dQw4w9WgXcQ', 'French', { type: 'auto' });
 
-    expect(result.exactLangName).toBe('Spanish');
+    expect(result.exactLangName).toBe('French');
     expect(result.subtitles).toHaveLength(1);
-    expect(result.subtitles[0].text).toBe('Hola');
+    expect(result.subtitles[0].text).toBe('Bonjour');
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://timedtext?v=123&fmt=json3&tlang=es',
+      'https://timedtext?v=123&fmt=json3&tlang=fr',
       expect.objectContaining({ headers: { 'User-Agent': 'Mozilla/5.0' } })
     );
   });

@@ -37,7 +37,8 @@
     "date": "Date",
     "empty": "No downloads found in your history.",
     "loading": "Loading...",
-    "view": "View Video"
+    "view": "View Video",
+    "clear": "Clear History"
   },
   "not_found": {
     "title": "Lost in Translation",

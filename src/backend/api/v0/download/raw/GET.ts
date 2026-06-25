@@ -5,7 +5,7 @@ import { logger } from '../../../../logger.ts';
 
 export const route = createRoute({
   method: 'get',
-  path: '/raw',
+  path: '/download/raw',
   request: {
     query: RawDownloadQuerySchema,
   },

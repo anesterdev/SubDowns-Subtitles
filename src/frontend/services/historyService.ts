@@ -1,10 +1,10 @@
 import type { HistoryVideoCard } from '../../interfaces/index.ts';
 
 const DB_NAME = 'subdowns';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE = 'history';
 
-type PersistedEntry = HistoryVideoCard & { video?: HistoryVideoCard['video']; author?: HistoryVideoCard['author'] };
+type PersistedEntry = HistoryVideoCard & { id: string; video?: HistoryVideoCard['video']; author?: HistoryVideoCard['author'] };
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -15,9 +15,10 @@ function openDB(): Promise<IDBDatabase> {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
-      if (!db.objectStoreNames.contains(STORE)) {
-        db.createObjectStore(STORE, { keyPath: 'timestamp' });
+      if (db.objectStoreNames.contains(STORE)) {
+        db.deleteObjectStore(STORE);
       }
+      db.createObjectStore(STORE, { keyPath: 'id' });
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -33,12 +34,13 @@ function tx<T>(db: IDBDatabase, mode: IDBTransactionMode, fn: (store: IDBObjectS
   });
 }
 
-export async function saveHistoryEntry(entry: Omit<HistoryVideoCard, 'timestamp'>): Promise<void> {
+export async function saveHistoryEntry(entry: Omit<HistoryVideoCard, 'timestamp' | 'id'>): Promise<void> {
   try {
     const db = await openDB();
     const timestamp = Date.now();
+    const id = `${entry.videoId}_${crypto.randomUUID()}`;
     const plain = JSON.parse(JSON.stringify(entry)) as PersistedEntry;
-    await tx(db, 'readwrite', (store) => store.add({ ...plain, timestamp }));
+    await tx(db, 'readwrite', (store) => store.add({ ...plain, id, timestamp }));
     db.close();
   } catch (err) {
     console.error('Failed to save download history to IndexedDB', err);

@@ -8,7 +8,7 @@ import { secureHeaders } from 'hono/secure-headers';
 import { honoLogger } from '@logtape/hono';
 
 import apiRouter from './api/index.ts';
-import { initMCPServerRoutes } from './mcp.ts';
+import { initMCPServerRoutes, drainMCPServers } from './mcp.ts';
 import { config } from './config.ts';
 import { initLogger, logger } from './logger.ts';
 
@@ -111,8 +111,11 @@ if (shouldBoot) {
   await initLogger();
 
   process.on('SIGTERM', () => {
-    logger.info('SIGTERM received, shutting down');
-    process.exit(0);
+    logger.info('SIGTERM received, draining MCP connections and shutting down');
+    Promise.race([
+      drainMCPServers(),
+      new Promise((resolve) => setTimeout(resolve, 3000)),
+    ]).finally(() => process.exit(0));
   });
 
   if (process.env.NODE_ENV === 'production') {
